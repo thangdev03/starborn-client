@@ -10,7 +10,7 @@ import { Typography,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
 } from '@mui/material'
 import React from 'react'
 import AppBreadcrumbs from '../../components/common/AppBreadcrumbs'
@@ -19,9 +19,9 @@ import { colors } from '../../services/const';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
-import { LineChart } from '@mui/x-charts/LineChart';
 import ProductBrief from '../../components/admin/ProductBrief';
 import { shortHandFormat, formatVNDCurrency } from '../../utils/currencyUtils';
+import { LineChart } from '@mui/x-charts/LineChart';
 
 const Dashboard = () => {
   const xLabels = [

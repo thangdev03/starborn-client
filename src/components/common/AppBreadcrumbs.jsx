@@ -26,6 +26,12 @@ const AppBreadcrumbs = () => {
       case 'categories': 
         title = 'Danh mục sản phẩm';
         break;
+      case 'subcategories': 
+        title = 'Tiểu danh mục sản phẩm';
+        break;
+      case 'objects': 
+        title = 'Đối tượng sử dụng';
+        break;
       case 'products': 
         title = 'Tất cả sản phẩm';
         break;

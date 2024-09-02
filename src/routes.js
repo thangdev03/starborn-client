@@ -6,6 +6,8 @@ import Products from './pages/admin/Products';
 import Orders from './pages/admin/Orders';
 import Customers from './pages/admin/Customers';
 import ProductDetail from './pages/admin/ProductDetail';
+import Subcategories from './pages/admin/Subcategories';
+import Objects from './pages/admin/Objects';
 
 const AppRoutes = () => {
   return (
@@ -15,7 +17,9 @@ const AppRoutes = () => {
         <Route path='/admin'>
           <Route path='' element={<Navigate to='dashboard' replace/>}/>
           <Route path='dashboard' element={<Dashboard/>}/>
+          <Route path='objects' element={<Objects/>}/>
           <Route path='categories' element={<Categories/>}/>
+          <Route path='subcategories' element={<Subcategories/>}/>
           <Route path='products' element={<Products/>}>
             <Route path=':productId' element={<ProductDetail/>}/>
           </Route>

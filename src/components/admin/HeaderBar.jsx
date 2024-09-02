@@ -25,7 +25,7 @@ const HeaderBar = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleCloseNavbar = (event) => {
+  const handleCloseNavbar = () => {
     setActiveNav(false);
   };
 
