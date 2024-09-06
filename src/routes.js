@@ -8,6 +8,7 @@ import Customers from './pages/admin/Customers';
 import ProductDetail from './pages/admin/ProductDetail';
 import Subcategories from './pages/admin/Subcategories';
 import Objects from './pages/admin/Objects';
+import AddProduct from './pages/admin/AddProduct';
 
 const AppRoutes = () => {
   return (
@@ -20,8 +21,10 @@ const AppRoutes = () => {
           <Route path='objects' element={<Objects/>}/>
           <Route path='categories' element={<Categories/>}/>
           <Route path='subcategories' element={<Subcategories/>}/>
-          <Route path='products' element={<Products/>}>
+          <Route path='products'>
+            <Route path='' element={<Products />}/>
             <Route path=':productId' element={<ProductDetail/>}/>
+            <Route path='create' element={<AddProduct/>}/>
           </Route>
           <Route path='orders' element={<Orders/>}/>
           <Route path='customers' element={<Customers/>}/>

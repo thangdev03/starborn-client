@@ -239,6 +239,7 @@ const Dashboard = () => {
             </Typography>
             <Button 
               variant='contained' 
+              href='/admin/orders'
               sx={{ 
                 paddingX: '16px',
                 bgcolor: colors.primaryColor,

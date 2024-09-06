@@ -10,7 +10,7 @@ const AppBreadcrumbs = () => {
 
   const breadcrumbsItem = [];
 
-  paths.map((p, index) => {
+  paths.map((p, index, allPath) => {
     let title;
   
     switch (p) {
@@ -40,6 +40,11 @@ const AppBreadcrumbs = () => {
         break;
       case 'coupons': 
         title = 'Mã giảm giá';
+        break;
+      case 'create':
+        if (allPath[index-1] === 'products') {
+          title = 'Thêm sản phẩm mới';
+        }
         break;
     }
 
