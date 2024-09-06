@@ -11,17 +11,28 @@ import axios from 'axios';
 const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () => {}, reloadData = () => {} }) => {
     const style = {
         position: 'absolute',
-        top: '10%',
+        top: {
+            xs: '2%',
+            md: '10%'
+        },
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '480px',
+        width: {
+            xs: '80%',
+            md: '480px'
+        },
+        maxHeight: '80vh',
+        overflowY: 'auto',
         bgcolor: 'white',
         borderRadius: '8px',
         boxShadow: 4,
-        p: 4,
+        p: {
+            xs: 2,
+            md: 4
+        },
     };
-    const [isEnable, setIsEnable] = useState(true);
-    const [isReusable, setIsReusable] = useState(false);
+    const [isEnable, setIsEnable] = useState(1);
+    const [isReusable, setIsReusable] = useState('');
     const [discountType, setDiscountType] = useState('%');
     const [activeDate, setActiveDate] = useState(new dayjs());
     const [expireDate, setExpireDate] = useState(new dayjs());
@@ -38,8 +49,8 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
            description: description, 
            amount: amount, 
            type: discountType, 
-           active_date: activeDate.format('YYYY-MM-DD HH-mm-ss'), 
-           expiration_date: expireDate.format('YYYY-MM-DD HH-mm-ss'), 
+           active_date: activeDate.format('YYYY-MM-DD HH:mm'), 
+           expiration_date: expireDate.format('YYYY-MM-DD HH:mm'), 
            total_limit: totalLimit, 
            min_order_value: minOrder, 
            can_reuse: isReusable, 
@@ -49,16 +60,41 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
         .then((res) => {
             if (res.status === 201) {
                 handleClose();
+                alert('Tạo mã giảm giá thành công');
                 reloadData();
             }
         })
         .catch((err) => console.log(err))
     };
+
+    const handleUpdateCoupon = () => {
+        axios.put(serverUrl + 'coupons/' + code, {
+            description: description, 
+            amount: amount, 
+            type: discountType, 
+            active_date: activeDate.format('YYYY-MM-DD HH-mm'), 
+            expiration_date: expireDate.format('YYYY-MM-DD HH-mm'), 
+            total_limit: totalLimit, 
+            min_order_value: minOrder, 
+            can_reuse: isReusable, 
+            limit_reuse: limitReuse, 
+            is_enabled: isEnable
+        })
+        .then((res) => {
+            if (res.status === 200) {
+                handleClose();
+                alert('Cập nhật thành công');
+                reloadData();
+            }
+        })
+        .catch((err) => console.log(err))
+    }
  
     useEffect(() => {
         if (action === 'detail') {
             setCode(coupon.code);
-            setIsEnable(coupon.is_enable);
+            setIsEnable(coupon.is_enabled);
+            console.log(coupon.is_enabled)
             setDescription(coupon.description);
             setActiveDate(dayjs(coupon.active_date));
             setExpireDate(dayjs(coupon.expiration_date));
@@ -74,7 +110,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
     useEffect(() => {
         if (!open) {
             setCode('');
-            setIsEnable(true);
+            setIsEnable(1);
             setDescription('');
             setActiveDate(new dayjs());
             setExpireDate(new dayjs());
@@ -82,7 +118,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
             setMinOrder(0);
             setAmount(0);
             setDiscountType('%');
-            setIsReusable(false);
+            setIsReusable(0);
             setLimitReuse(0);
         }
     },[open])
@@ -100,8 +136,8 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                 </Typography>
 
                 <Box sx={{ width: '100%' }}>
-                    <Grid width={'100%'} container spacing={2} margin={0} gridTemplateColumns={2} gridColumn={2}>
-                        <Grid item xs={6}>
+                    <Grid width={'100%'} container spacing={{ md: 2 }} rowSpacing={{ xs: 2 }} margin={0} gridTemplateColumns={2} gridColumn={2}>
+                        <Grid item xs={12} md={6}>
                             <TextField 
                             fullWidth
                             id="code" 
@@ -112,7 +148,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                             onChange={(e) => setCode(e.target.value)}
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <FormControl fullWidth size='small'>
                                 <InputLabel id="enable-label">Trạng thái</InputLabel>
                                 <Select
@@ -122,8 +158,8 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                                     label="Trạng thái"
                                     onChange={(e) => setIsEnable(e.target.value)}
                                 >
-                                    <MenuItem value={true}>Kích hoạt</MenuItem>
-                                    <MenuItem value={false}>Vô hiệu hóa</MenuItem>
+                                    <MenuItem value={1}>Kích hoạt</MenuItem>
+                                    <MenuItem value={0}>Vô hiệu hóa</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -142,7 +178,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                             />
                         </Grid>
 
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DateTimePicker
                                 label="Thời gian bắt đầu"
@@ -151,7 +187,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                                 />
                             </LocalizationProvider>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DateTimePicker
                                 label="Thời gian kết thúc"
@@ -160,7 +196,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                                 />
                             </LocalizationProvider>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <TextField 
                             fullWidth
                             id="total-limit" 
@@ -172,7 +208,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                             onChange={(e) => setTotalLimit(e.target.value)}
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <TextField 
                             fullWidth
                             id="min-order-value" 
@@ -184,7 +220,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                             onChange={(e) => setMinOrder(e.target.value)}
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <TextField 
                             fullWidth
                             id="amount" 
@@ -196,7 +232,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                             onChange={(e) => setAmount(e.target.value)}
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <FormControl fullWidth size='small'>
                                 <InputLabel id="type-label" >Loại giảm giá</InputLabel>
                                 <Select
@@ -211,7 +247,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <FormControl fullWidth size='small'>
                                 <InputLabel id="reuse-label">Sử dụng lại</InputLabel>
                                 <Select
@@ -221,12 +257,12 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                                     value={isReusable}
                                     onChange={(e) => setIsReusable(e.target.value)}
                                 >
-                                    <MenuItem value={true}>Cho phép</MenuItem>
-                                    <MenuItem value={false}>Không cho phép</MenuItem>
+                                    <MenuItem value={1}>Cho phép</MenuItem>
+                                    <MenuItem value={0}>Không cho phép</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={6}>
                             <TextField 
                             fullWidth
                             id="limit-reuse" 
@@ -258,6 +294,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                     ) : (action === 'detail' && (
                         <Button 
                         variant='contained' 
+                        onClick={handleUpdateCoupon}
                         sx={{ 
                             bgcolor: colors.red, 
                             width: '160px', 
@@ -265,7 +302,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
                                 bgcolor: '#c93c3c'
                             } 
                         }}>
-                            Lưu
+                            Cập nhật
                         </Button>
                     ))}
                     <Button variant='outlined' color='error' sx={{ width: '160px' }} onClick={handleClose}>

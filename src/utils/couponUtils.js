@@ -21,7 +21,7 @@ export const checkCouponStatus = (coupon = {
     if (isBeforeActive) {
         return (
             <span style={{ color: '#4A69E2' }}>
-                Chưa có hiệu lực
+                Chưa tới ngày
             </span>
         );
     }
@@ -35,14 +35,14 @@ export const checkCouponStatus = (coupon = {
     if (coupon.total_uses === coupon.total_limit) {
         return (
             <span style={{ color: colors.red }}>
-                Hết lượt sử dụng
+                Hết lượt
             </span>
         );
     }
 
     return (
         <span style={{ color: '#45C266' }}>
-            Có hiệu lực
+            Sẵn sàng
         </span>
     );
 }

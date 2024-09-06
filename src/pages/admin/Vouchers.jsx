@@ -7,6 +7,7 @@ import { colors, serverUrl } from '../../services/const'
 import { checkCouponStatus } from '../../utils/couponUtils'
 import VoucherModal from '../../components/admin/VoucherModal'
 import axios from 'axios'
+import dayjs from 'dayjs'
 
 const Vouchers = () => {
   const [data, setData] = useState(null);
@@ -15,39 +16,13 @@ const Vouchers = () => {
   const [action, setAction] = useState('');
   const [selectedCoupon, setSelectedCoupon] = useState(null);
 
-  // const data = [
-  //   {
-  //     code: 'NEW50',
-  //     description: 'Chào mừng khách hàng mới',
-  //     amount: 50,
-  //     type: '%',
-  //     active_date: '00:00 01/07/2024',
-  //     expiration_date: '00:00 01/08/2024',
-  //     total_limit: 10,
-  //     total_uses: 2,
-  //     min_order_value: 50000,
-  //     can_reuse: false,
-  //     limit_reuse: 2,
-  //     is_enable: false
-  //   },
-  //   {
-  //     code: 'NEW70',
-  //     description: 'Chào mừng khách hàng mới',
-  //     amount: 70,
-  //     type: '%',
-  //     active_date: '00:00 09/09/2024',
-  //     expiration_date: '00:00 09/10/2024',
-  //     total_limit: 10,
-  //     total_uses: 2,
-  //     min_order_value: 100000,
-  //     can_reuse: true,
-  //     limit_reuse: 2,
-  //     is_enable: true
-  //   }
-  // ];
-
   const handleSearchRequest = () => {
-    console.log('Search')
+    axios.get(serverUrl + 'coupons?keywords=' + searchText)
+    .then((res) => setData(res.data))
+    .catch((err) => {
+      console.log(err);
+      setData(null);
+    })
   }
 
   const toggleModal = () => {
@@ -56,6 +31,20 @@ const Vouchers = () => {
       setSelectedCoupon(null);
       setAction('')
     }
+  }
+
+  const handleToggleSwitch = (currentValue, couponCode) => {
+    axios.put(serverUrl + 'coupons/changeEnable/' + couponCode, {
+      is_enabled: !currentValue
+    })
+    .then((res) => {
+      if (res.status === 200) {
+        getData();
+      } else {
+        alert(res.data?.message)
+      }
+    })
+    .catch((err) => console.log(err))
   }
 
   const getData = () => {
@@ -155,7 +144,7 @@ const Vouchers = () => {
                   <TableCell 
                   align='center' 
                   sx={{ 
-                    color: colors.primaryColor, 
+                    color: colors.primaryColor,
                     paddingX: 0, 
                     paddingY: '12px', 
                     cursor: 'pointer',
@@ -188,13 +177,17 @@ const Vouchers = () => {
                     {coupon.amount}{coupon.type}
                   </TableCell>
                   <TableCell align='center' sx={{ color: colors.primaryColor, paddingX: 0, paddingY: '12px' }}>
-                    {coupon.active_date} -<br/>{coupon.expiration_date}
+                    {dayjs(coupon.active_date).format('YYYY-MM-DD HH:mm')} -<br/>{dayjs(coupon.expiration_date).format('YYYY-MM-DD HH:mm')}
                   </TableCell>
                   <TableCell align='center' sx={{ color: colors.primaryColor, paddingX: 0, paddingY: '12px', fontWeight: 500 }}>
                     {checkCouponStatus(coupon)}
                   </TableCell>
                   <TableCell align='center' sx={{ color: colors.primaryColor, paddingX: 0, paddingY: '12px' }}>
-                    <Switch />
+                    <Switch 
+                      id={`switch-${coupon.code}`}
+                      checked={coupon.is_enabled === 1 ? true : false}
+                      onChange={() => handleToggleSwitch(coupon.is_enabled, coupon.code)}
+                    />
                   </TableCell>
                 </TableRow>
               )) : (
