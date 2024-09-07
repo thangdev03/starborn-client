@@ -19,7 +19,7 @@ const Subcategories = () => {
   }
 
   const handleCreateSubcategory = (newSubcategory) => {
-    if (data.find((subcategory => subcategory.name === newSubcategory.name && subcategory.category_id === newSubcategory.categoryId))) {
+    if (data?.find((subcategory => subcategory.name === newSubcategory.name && subcategory.category_id === newSubcategory.categoryId))) {
       return alert('Danh mục sản phẩm này đã tồn tại!');
     } else {
       axios.post(serverUrl + 'categories/sub', {
@@ -52,7 +52,7 @@ const Subcategories = () => {
   }
 
   const handleUpdateSubcategory = (subcategory, newName) => {
-    if (data.find((item => item.name === newName && item.category_id === subcategory.category_id))) {
+    if (data?.find((item => item.name === newName && item.category_id === subcategory.category_id))) {
       return alert('Trùng tên với tiểu danh mục đã tồn tại!');
     } else {
       axios.put(serverUrl + 'categories/sub/' + subcategory.id, {

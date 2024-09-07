@@ -12,7 +12,7 @@ const Objects = () => {
     const handleOpen = () => setOpen(true);
 
     const handleCreateObject = (newObject) => {
-        if (data.find((object => object.name === newObject))) {
+        if (data?.find((object => object.name === newObject))) {
             return alert('Đối tượng sử dụng này đã tồn tại!');
         } else {
             axios.post(serverUrl + 'categories/object', {
@@ -44,7 +44,7 @@ const Objects = () => {
     }
 
     const handleUpdateObject = (object, newName) => {
-        if (data.find((item => item.name === newName))) {
+        if (data?.find((item => item.name === newName))) {
             return alert('Trùng tên với đối tượng đã tồn tại!');
         } else {
             axios.put(serverUrl + 'categories/object/' + object.id, {

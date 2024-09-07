@@ -1,9 +1,45 @@
 import { Autocomplete, Box, Divider, FormControl, FormHelperText, OutlinedInput, Stack, TextField, Typography } from '@mui/material'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import AppBreadcrumbs from '../../components/common/AppBreadcrumbs'
-import { colors } from '../../services/const'
+import { colors, serverUrl } from '../../services/const'
+import axios from 'axios'
 
 const AddProduct = () => {
+  const [objectList, setObjectList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [subcategoryList, setSubcategoryList] = useState([]);
+
+  const getObjects = () => {
+    axios
+      .get(serverUrl + 'objects')
+      .then((res) => {
+        
+
+        setObjectList(res.data)
+      })
+      .catch((err) => console.log(err))
+  };
+
+  const getCategories = () => {
+    axios
+      .get(serverUrl + 'categories')
+      .then((res) => setCategoryList(res.data))
+      .catch((err) => console.log(err))
+  };
+
+  const getSubcategories = () => {
+    axios
+      .get(serverUrl + 'subcategories')
+      .then((res) => setSubcategoryList(res.data))
+      .catch((err) => console.log(err))
+  };
+
+  useEffect(() => {
+    getObjects();
+    getCategories();
+    getSubcategories();
+  },[])
+
   return (
     <Box sx={{ paddingX: {xs: '8px', md: '24px'}, margin: 0, paddingBottom: '160px' }}>
         <Box>
@@ -59,7 +95,7 @@ const AddProduct = () => {
                         aria-required={'true'}
                         autoComplete={true}
                         disablePortal
-                        options={['Nam', 'Nữ']}
+                        options={objectList}
                         sx={{ flex: 1 }}
                         renderInput={(params) => <TextField {...params} label="Đối tượng sử dụng" />}
                     />
@@ -67,7 +103,7 @@ const AddProduct = () => {
                         aria-required={'true'}
                         autoComplete={true}
                         disablePortal
-                        options={['Nam', 'Nữ']}
+                        options={categoryList}
                         sx={{ flex: 2 }}
                         renderInput={(params) => <TextField {...params} label="Danh mục sản phẩm" />}
                     />
@@ -75,7 +111,7 @@ const AddProduct = () => {
                         aria-required={'true'}
                         autoComplete={true}
                         disablePortal
-                        options={['Nam', 'Nữ']}
+                        options={subcategoryList}
                         sx={{ flex: 2 }}
                         renderInput={(params) => <TextField {...params} label="Tiểu danh mục sản phẩm" />}
                     />

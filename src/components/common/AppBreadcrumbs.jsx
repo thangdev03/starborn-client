@@ -4,7 +4,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { colors } from '../../services/const';
 import { useLocation } from 'react-router-dom';
 
-const AppBreadcrumbs = () => {
+const AppBreadcrumbs = ({ item = null }) => {
   const location = useLocation();
 
   const [breadcrumbsItem, setBreadcrumbsItem] = useState([]);
@@ -48,6 +48,8 @@ const AppBreadcrumbs = () => {
             title = 'Thêm sản phẩm mới';
           }
           break;
+        default:
+          return null;
       }
   
       return {
@@ -55,8 +57,8 @@ const AppBreadcrumbs = () => {
         link: `/${paths.slice(0, index + 1).join('/')}`
       }
     })
-
-    setBreadcrumbsItem(result);
+    const breadCrumbsResult = result.filter((i) => i != null)
+    setBreadcrumbsItem(breadCrumbsResult);
   },[location])
 
 
@@ -75,8 +77,7 @@ const AppBreadcrumbs = () => {
       itemsAfterCollapse={2}
     >
       {breadcrumbsItem?.map((b, index) => {
-        console.log(b)
-        return (index === breadcrumbsItem.length - 1) ? (
+        return (index === breadcrumbsItem.length - 1) && !item ? (
           <Link key={index} underline='none' color={colors.primaryColor} fontSize={'14px'}>
             {b.title}
           </Link>
@@ -86,6 +87,12 @@ const AppBreadcrumbs = () => {
           </Link>
          )
       })}
+      {item && (
+        <Link underline='none' color={colors.primaryColor} fontSize={'14px'}>
+          {item}
+        </Link>
+      )}
+
     </Breadcrumbs>
   )
 }

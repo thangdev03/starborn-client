@@ -22,7 +22,7 @@ const Categories = () => {
   }
 
   const handleCreateCategory = (newCategory) => {
-    if (data.find((category => category.name === newCategory.name && category.object_id === newCategory.objectId))) {
+    if (data?.find((category => category.name === newCategory.name && category.object_id === newCategory.objectId))) {
       return alert('Danh mục sản phẩm này đã tồn tại!');
     } else {
       axios.post(serverUrl + 'categories', {
@@ -55,7 +55,7 @@ const Categories = () => {
   }
 
   const handleUpdateCategory = (category, newName) => {
-    if (data.find((item => item.name === newName && item.object_id === category.object_id))) {
+    if (data?.find((item => item.name === newName && item.object_id === category.object_id))) {
       return alert('Trùng tên với danh mục đã tồn tại!');
     } else {
       axios.put(serverUrl + 'categories/' + category.id, {

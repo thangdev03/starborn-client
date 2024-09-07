@@ -22,6 +22,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import SearchIcon from '@mui/icons-material/Search';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const headCells = [
   {
@@ -77,6 +78,14 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: 'Kích hoạt',
+    alignDirection: 'center',
+    sortable: false
+  },
+  {
+    id: 'detailView',
+    numeric: false,
+    disablePadding: false,
+    label: 'Xem chi tiết',
     alignDirection: 'center',
     sortable: false
   }
@@ -337,6 +346,11 @@ const Products = () => {
                         onClick={() => handleToggleSwitch('active', row.is_active, row)}
                       />
                     </TableCell>
+                    <TableCell align="center">
+                        <IconButton href={`/admin/products/${row.id}`}>
+                          <VisibilityIcon sx={{ color: colors.primaryColor }}/>
+                        </IconButton>
+                      </TableCell>
                   </TableRow>
                 );
               }) : (
@@ -356,6 +370,15 @@ const Products = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={data.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
 
     </Box>
