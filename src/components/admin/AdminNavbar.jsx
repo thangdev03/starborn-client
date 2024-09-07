@@ -92,7 +92,20 @@ const AdminNavbar = ({activeNav, handleCloseNavbar = () => {}}) => {
             <NavItem 
               icon={CategoryOutlinedIcon} 
               label='DANH MỤC'
-              nestedList={['Đối tượng sử dụng', 'Danh mục SP', 'Tiểu danh mục SP']}
+              nestedList={[
+                {
+                  title: 'Đối tượng sử dụng',
+                  link: 'objects'
+                }, 
+                {
+                  title: 'Danh mục SP',
+                  link: 'categories'
+                }, 
+                {
+                  title: 'Tiểu danh mục SP',
+                  link: 'subcategories'
+                }
+              ]}
               handleCloseNavbar={handleCloseNavbar}
             />
             <NavItem link='products' icon={Inventory2OutlinedIcon} label='TẤT CẢ SẢN PHẨM' handleCloseNavbar={handleCloseNavbar}/>

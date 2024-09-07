@@ -7,7 +7,7 @@ import axios from 'axios';
 import CategoryModal from '../../components/admin/CategoryModal'
 
 const Objects = () => {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState(null);
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
 
