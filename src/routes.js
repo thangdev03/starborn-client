@@ -9,6 +9,7 @@ import ProductDetail from './pages/admin/ProductDetail';
 import Subcategories from './pages/admin/Subcategories';
 import Objects from './pages/admin/Objects';
 import AddProduct from './pages/admin/AddProduct';
+import Vouchers from './pages/admin/Vouchers';
 
 const AppRoutes = () => {
   return (
@@ -28,7 +29,7 @@ const AppRoutes = () => {
           </Route>
           <Route path='orders' element={<Orders/>}/>
           <Route path='customers' element={<Customers/>}/>
-          <Route path='coupons' element={<Dashboard/>}/>
+          <Route path='coupons' element={<Vouchers/>}/>
         </Route>
 
         <Route path='*' element={<Navigate to="/"/>}/>
