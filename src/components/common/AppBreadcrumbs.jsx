@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Breadcrumbs, Link } from '@mui/material'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { colors } from '../../services/const';
@@ -6,53 +6,59 @@ import { useLocation } from 'react-router-dom';
 
 const AppBreadcrumbs = () => {
   const location = useLocation();
-  const paths = (location.pathname.split('/').filter((x) => x));
 
-  const breadcrumbsItem = [];
+  const [breadcrumbsItem, setBreadcrumbsItem] = useState([]);
 
-  paths.map((p, index, allPath) => {
-    let title;
+  useEffect(() => {
+    const paths = (location.pathname.split('/').filter((x) => x));
+    
+    const result = paths.map((p, index, allPath) => {
+      let title;
+    
+      switch (p) {
+        case 'admin': 
+          title = 'Trang chủ';
+          break;
+        case 'dashboard': 
+          title = 'Tổng quan';
+          break;
+        case 'customers': 
+          title = 'Khách hàng';
+          break;
+        case 'categories': 
+          title = 'Danh mục sản phẩm';
+          break;
+        case 'subcategories': 
+          title = 'Tiểu danh mục sản phẩm';
+          break;
+        case 'objects': 
+          title = 'Đối tượng sử dụng';
+          break;
+        case 'products': 
+          title = 'Tất cả sản phẩm';
+          break;
+        case 'orders': 
+          title = 'Đơn hàng';
+          break;
+        case 'coupons': 
+          title = 'Mã giảm giá';
+          break;
+        case 'create':
+          if (allPath[index-1] === 'products') {
+            title = 'Thêm sản phẩm mới';
+          }
+          break;
+      }
   
-    switch (p) {
-      case 'admin': 
-        title = 'Trang chủ';
-        break;
-      case 'dashboard': 
-        title = 'Tổng quan';
-        break;
-      case 'customers': 
-        title = 'Khách hàng';
-        break;
-      case 'categories': 
-        title = 'Danh mục sản phẩm';
-        break;
-      case 'subcategories': 
-        title = 'Tiểu danh mục sản phẩm';
-        break;
-      case 'objects': 
-        title = 'Đối tượng sử dụng';
-        break;
-      case 'products': 
-        title = 'Tất cả sản phẩm';
-        break;
-      case 'orders': 
-        title = 'Đơn hàng';
-        break;
-      case 'coupons': 
-        title = 'Mã giảm giá';
-        break;
-      case 'create':
-        if (allPath[index-1] === 'products') {
-          title = 'Thêm sản phẩm mới';
-        }
-        break;
-    }
-
-    breadcrumbsItem.push({
-      title: title,
-      link: `/${paths.slice(0, index + 1).join('/')}`
+      return {
+        title: title,
+        link: `/${paths.slice(0, index + 1).join('/')}`
+      }
     })
-  })
+
+    setBreadcrumbsItem(result);
+  },[location])
+
 
   return (
     <Breadcrumbs
@@ -69,6 +75,7 @@ const AppBreadcrumbs = () => {
       itemsAfterCollapse={2}
     >
       {breadcrumbsItem?.map((b, index) => {
+        console.log(b)
         return (index === breadcrumbsItem.length - 1) ? (
           <Link key={index} underline='none' color={colors.primaryColor} fontSize={'14px'}>
             {b.title}

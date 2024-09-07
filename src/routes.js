@@ -10,6 +10,7 @@ import Subcategories from './pages/admin/Subcategories';
 import Objects from './pages/admin/Objects';
 import AddProduct from './pages/admin/AddProduct';
 import Vouchers from './pages/admin/Vouchers';
+import CustomerDetail from './pages/admin/CustomerDetail';
 
 const AppRoutes = () => {
   return (
@@ -28,7 +29,10 @@ const AppRoutes = () => {
             <Route path='create' element={<AddProduct/>}/>
           </Route>
           <Route path='orders' element={<Orders/>}/>
-          <Route path='customers' element={<Customers/>}/>
+          <Route path='customers'>
+            <Route path='' element={<Customers />} />
+            <Route path=':id' element={<CustomerDetail />} />
+          </Route>
           <Route path='coupons' element={<Vouchers/>}/>
         </Route>
 
