@@ -27,6 +27,7 @@ const ProductDetail = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [allSubcategories, setAllSubcategories] = useState([]);
+  const [openCreate, setOpenCreate] = useState(false);
   const [variants, setVariants] = useState(['a','b']);
 
   const getData = () => {
@@ -303,13 +304,15 @@ const ProductDetail = () => {
       <Box sx={{ mt: '24px', bgcolor: 'white', py: '40px', px: '32px', borderRadius: '16px' }}>
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
           <Typography sx={{ color: colors.primaryColor, fontWeight: 600,  }}>Các biến thể của sản phẩm</Typography>
-          <Button>
+          <Button onClick={() => setOpenCreate(true)}>
             <AddRoundedIcon sx={{ marginRight: '4px', fontSize: '20px' }}/>
             THÊM BIẾN THỂ
           </Button>
         </Stack>
 
-        <AddVariantForm />
+        {openCreate && 
+          <AddVariantForm productId={productId} handleCloseForm={() => setOpenCreate(false)}/>
+        }
         
         {variants.length > 0 && (
           <Stack gap={'20px'} style={{ margin: '16px 0' }}>
