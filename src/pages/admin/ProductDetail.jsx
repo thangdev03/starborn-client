@@ -28,7 +28,7 @@ const ProductDetail = () => {
   const [allCategories, setAllCategories] = useState([]);
   const [allSubcategories, setAllSubcategories] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
-  const [variants, setVariants] = useState(['a','b']);
+  const [variants, setVariants] = useState([]);
 
   const getData = () => {
     axios

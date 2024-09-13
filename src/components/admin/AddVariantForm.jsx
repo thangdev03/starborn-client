@@ -1,4 +1,4 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Checkbox, Divider, FormGroup, IconButton, ImageList, ImageListItem, List, ListItem, ListItemIcon, ListItemText, Stack, TextField, Typography } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Checkbox, CircularProgress, Divider, FormGroup, IconButton, ImageList, ImageListItem, List, ListItem, ListItemIcon, ListItemText, Stack, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import { colors, serverUrl } from '../../services/const';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -25,6 +25,8 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
   const [discount, setDiscount] = useState(0);
   const [previewImages, setPreviewImages] = useState([]);
   const [variantImages, setVariantImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState([]);
   
   const handleIncrease = (value) => {
     const newSizeOptions = [...sizeOptions];
@@ -60,36 +62,52 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
     setChecked(newChecked);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!colorName || !colorHex || !price || !discount) {
-        alert('Vui lòng điền đầy đủ thông tin của biến thể sản phẩm')
+        return alert('Vui lòng điền đầy đủ thông tin của biến thể sản phẩm')
     }
     if (checked.length === 0) {
-        alert('Vui lòng chọn ít nhất 1 size của biến thể sản phẩm')
+        return alert('Vui lòng chọn ít nhất 1 size của biến thể sản phẩm')
     }
-
-    const newProductVariants = checked.map((sizeOption) => ({
-        size: sizeOption.size, 
-        color: colorName, 
-        hex_color: colorHex, 
-        price: price, 
-        discount: discount, 
-        stock: sizeOption.quantity
-    }))
-
-    axios
-      .post(serverUrl + 'products/variants/' + productId, {
-          variants: newProductVariants
-      })
-      .then((res) => {
-          if (res.status === 201) {
-            alert('Tạo biến thể sản phẩm thành công');
-            handleCloseForm();
-          }
-      })
-      .catch((err) => {
-          console.log(err);
-      })
+    if (variantImages.length === 0) {
+        return alert('Vui lòng tải lên ít nhất 1 ảnh của biến thể sản phẩm')
+    }
+    
+    setIsLoading(true);
+    const uploadCloudinarySuccess = await uploadImages();
+    if (!uploadCloudinarySuccess) {
+        return alert('Có lỗi xảy ra, vui lòng thử lại');  
+    } else {
+        const newProductVariant = {
+            color: colorName, 
+            hex_color: colorHex, 
+            price: price, 
+            discount: discount, 
+        }
+    
+        const newVariantOptions = checked.map((sizeOption) => ({
+            size: sizeOption.size, 
+            stock: sizeOption.quantity
+        }))
+    
+        axios
+          .post(serverUrl + 'products/variants/' + productId, {
+            variant: newProductVariant,
+            variantOptions: newVariantOptions,
+            imageLinks: uploadedImages
+          })
+          .then((res) => {
+            setIsLoading(false);
+            if (res.status === 201) {
+              alert('Tạo biến thể sản phẩm thành công');
+              handleCloseForm();
+            }
+          })
+          .catch((err) => {
+            setIsLoading(false);
+            console.log(err);
+          })
+    }
   }
 
   const handleImageChange = (e) => {
@@ -102,11 +120,54 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
     setPreviewImages(URLResults);
   };
 
-  console.log('variantImages: ', variantImages)
-  console.log('previewImages: ', previewImages)
+  const uploadImages = async () => {
+    try {
+        let imageURLs = [];
+        for (let itemImage of variantImages) {
+            let imageURL;
+            const image = new FormData();
+            image.append('file', itemImage);
+            image.append('cloud_name', 'ddgwckqgy');
+            image.append('upload_preset', 'starborn-storage');
+            image.append('folder', 'starborn_product_photos');
+    
+            const res = await axios.post('https://api.cloudinary.com/v1_1/ddgwckqgy/image/upload', image)
+            console.log('cloudinary res: ', res)
+            imageURLs.push(res.data.url.toString());
+        }
+        setPreviewImages([]);
+        setUploadedImages(imageURLs);
+        return true;
+    } catch (error) {
+        console.log(error);
+        setIsLoading(false);
+        return false;
+    }
+  }
 
   return (
     <Box sx={{ marginTop: '16px', paddingY: '16px' }}>
+        {isLoading && (
+            <Box 
+            sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '8px', 
+                position: 'fixed', 
+                top: 0, 
+                left: 0, 
+                right: 0, 
+                bottom: 0, 
+                zIndex: 20, 
+                bgcolor: 'rgba(0,0,0,0.5)', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                color: 'white'
+            }}>
+                Đang tạo
+                <CircularProgress />
+            </Box>
+        )}
         <Stack direction={'row'} gap={'20px'} width={'100%'} justifyContent={'space-between'} alignItems={'center'}>
             <TextField 
             id="variant-color" 
@@ -236,20 +297,25 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
             </AccordionDetails>
         </Accordion>
         <Stack direction={'column'} marginTop={'16px'}>
-            <input 
-            type='file' 
-            multiple
-            accept='image/*'
-            style={{ 
-                padding: '8px', 
-                border: '1px dashed', 
-                borderColor: colors.primaryColor, 
-                width: '280px', 
-                borderRadius: '8px' 
-            }}
-            name='image'
-            onChange={handleImageChange}
-            />
+            <Stack direction={'row'} alignItems={'center'} gap={'16px'}>
+                <input 
+                type='file' 
+                multiple
+                accept='image/*'
+                style={{ 
+                    padding: '8px', 
+                    border: '1px dashed', 
+                    borderColor: colors.primaryColor, 
+                    width: '280px', 
+                    borderRadius: '8px' 
+                }}
+                name='image'
+                onChange={handleImageChange}
+                />
+                <Typography sx={{ fontSize: '14px', fontStyle: 'italic' }}>
+                    (Nên sử dụng ảnh tỉ lệ <strong>9:11</strong> để tối ưu)
+                </Typography>
+            </Stack>
             <Stack sx={{ width: '100%', marginTop: '16px', overflowX: 'auto', paddingY: '8px' }} direction={'row'} gap={'12px'}>
                 {previewImages.map((item, index) => (
                     <div 
@@ -262,7 +328,7 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
                             position: 'relative'
                         }}
                     >
-                        <Box 
+                        {/* <Box 
                             sx={{
                                 position: 'absolute',
                                 top: 0,
@@ -283,7 +349,7 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
                             }}
                         >
                             <CloseRoundedIcon />
-                        </IconButton>
+                        </IconButton> */}
                         <img
                             src={item} 
                             alt={item?.name} 
