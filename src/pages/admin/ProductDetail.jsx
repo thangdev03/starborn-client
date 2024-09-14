@@ -13,6 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddVariantForm from '../../components/admin/AddVariantForm'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -31,17 +32,6 @@ const ProductDetail = () => {
   const [allSubcategories, setAllSubcategories] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [variants, setVariants] = useState([]);
-  const [checked, setChecked] = useState([]);
-
-  const [sizeOptions, setSizeOptions] = useState([
-    {size: 'XS', quantity: 0},
-    {size: 'S', quantity: 0},
-    {size: 'M', quantity: 0},
-    {size: 'L', quantity: 0},
-    {size: 'XL', quantity: 0},
-    {size: '2XL', quantity: 0},
-    {size: '3XL', quantity: 0}
-  ]);
 
   const getData = () => {
     axios
@@ -58,11 +48,14 @@ const ProductDetail = () => {
       .catch((err) => {
         console.log(err);
       })
+  };
+
+  const getVariantsData = () => {
     axios
       .get(serverUrl + 'products/' + productId + '/variants')
       .then((res) => setVariants(res.data))
       .catch((err) => console.log(err))
-  };
+  }
   console.log(variants)
 
   const getObjects = () => {
@@ -71,6 +64,10 @@ const ProductDetail = () => {
       .then((res) => setObjectList(res.data))
       .catch((err) => console.log(err))
   };
+
+  // const handleChangeObject = (event) => {
+  //   setSelectedObject(event.target.value);
+  // };
 
   const getCategories = () => {
     axios
@@ -91,62 +88,50 @@ const ProductDetail = () => {
       .get(serverUrl + 'categories')
       .then((res) => setAllCategories(res.data))
       .catch((err) => console.log(err))
-  }
+  };
 
   const getAllSubcategories = () => {
     axios
       .get(serverUrl + 'categories/sub')
       .then((res) => setAllSubcategories(res.data))
       .catch((err) => console.log(err))
-  }
+  };
 
   const getTags = () => {
     axios
       .get(serverUrl + 'tags')
       .then((res) => setTagList(res.data))
       .catch((err) => console.log(err))
+  };
+
+  const handleVariantChange = (variantId, field, newValue) => {
+    setVariants((prev) => (
+      prev.map((variant) => 
+        variant.variant_id === variantId ? { ...variant, [field]: newValue } : variant
+      )
+    ))
+  };
+
+  const handleOptionChange = (variantId, optionId, field, newValue) => {
+    setVariants((prev) => (
+      prev.map((variant) => 
+        variant.variant_id === variantId 
+          ? { 
+              ...variant, 
+              options: variant.options.map((option) => 
+                option.option_id === optionId
+                  ? { ...option, [field]: newValue }
+                  : option
+              ) 
+            } 
+          : variant
+      )
+    ))
   }
-
-  const handleChangeObject = (event) => {
-    setSelectedObject(event.target.value);
-  };
-
-  const handleToggle = (value) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
-  };
-
-  const handleIncrease = (value) => {
-    const newSizeOptions = [...sizeOptions];
-    const currentIndex = sizeOptions.indexOf(value);
-    newSizeOptions[currentIndex].quantity = value.quantity + 1;
-    setSizeOptions(newSizeOptions);
-  };
-
-  const handleDecrease = (value) => {
-    const newSizeOptions = [...sizeOptions];
-    const currentIndex = sizeOptions.indexOf(value);
-    newSizeOptions[currentIndex].quantity = value.quantity - 1;
-    setSizeOptions(newSizeOptions);
-  }
-
-  const handleQuantityChange = (event, value) => {
-    const newSizeOptions = [...sizeOptions];
-    const currentIndex = sizeOptions.indexOf(value);
-    newSizeOptions[currentIndex].quantity = event.target.value > 0 ? Number(event.target.value) : 0;
-    setSizeOptions(newSizeOptions);
-  } 
 
   useEffect(() => {
     getData();
+    getVariantsData();
   }, [productId])
 
   useEffect(() => {
@@ -417,253 +402,300 @@ const ProductDetail = () => {
           <AddVariantForm
             productId={productId}
             handleCloseForm={() => setOpenCreate(false)}
+            getVariantsData={getVariantsData}
           />
         )}
 
         {variants.length > 0 && (
-          <Stack gap={"20px"} style={{ margin: "16px 0" }}>
-            {variants.map((item) => (
-              <Box key={item.variant_id}>
-                <Stack
-                  direction={"row"}
-                  gap={"20px"}
-                  width={"100%"}
-                  justifyContent={"space-between"}
-                  alignItems={"center"}
-                >
-                  <TextField
-                    id="variant-color"
-                    label="Màu sắc"
-                    variant="outlined"
-                    aria-required
-                    size="small"
-                  />
-                  <TextField
-                    id="variant-hex"
-                    label="Mã màu (hex)"
-                    variant="outlined"
-                    aria-required
-                    size="small"
-                    type="color"
-                    sx={{ width: "120px" }}
-                  />
-                  <TextField
-                    id="variant-price"
-                    label="Giá (VNĐ)"
-                    variant="outlined"
-                    aria-required
-                    size="small"
-                    type="number"
-                    sx={{ flexGrow: 1 }}
-                  />
-                  <TextField
-                    id="variant-discount"
-                    label="Giảm giá (%)"
-                    variant="outlined"
-                    aria-required
-                    size="small"
-                    type="number"
-                    sx={{ flexGrow: 1 }}
-                  />
-                  {/* <IconButton>
-                    <DeleteIcon sx={{ color: colors.red, fontSize: "24px" }} />
-                  </IconButton> */}
-                  <Switch 
-                    checked={item.is_active === 1 ? true : false}
-                    // onClick={() => handleToggleSwitch('active', row.is_active, row)}
-                  />
-                </Stack>
-
-                <Accordion sx={{ mt: "16px" }}>
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel2-content"
-                    id="panel2-header"
-                    sx={{ marginY: "0px!important" }}
-                  >
-                    <Typography>Bảng size</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <FormGroup>
-                      <List
-                        sx={{
-                          width: "100%",
-                          bgcolor: "background.paper",
-                          borderRadius: "8px",
-                        }}
-                      >
-                        {sizeOptions.map((sizeOption) => {
-                          const labelId = `checkbox-list-label-${sizeOption.size}`;
-
-                          return (
-                            <ListItem
-                              key={sizeOption.size}
-                              dense={true}
-                              sx={{
-                                borderWidth: "0 0 1px",
-                                borderStyle: "solid",
-                                borderColor: "#ddd",
-                                "&:last-child, &:last-child": { border: 0 },
-                              }}
-                              // disablePadding
-                            >
-                              <ListItemIcon>
-                                <Checkbox
-                                  edge="start"
-                                  onClick={handleToggle(sizeOption)}
-                                  checked={checked.indexOf(sizeOption) !== -1}
-                                  tabIndex={-1}
-                                  disableRipple
-                                  inputProps={{ "aria-labelledby": labelId }}
-                                />
-                              </ListItemIcon>
-                              <ListItemText
-                                id={labelId}
-                                primary={`${sizeOption.size}`}
-                              />
-                              {/* <TextField 
-                                  id={'variant-quantity-' + labelId} 
-                                  label="Số lượng tồn kho" 
-                                  aria-required 
-                                  size='small' 
-                                  type='number'
-                                  /> */}
-                              <Stack direction={"row"} gap={"4px"}>
-                                <IconButton
-                                  disabled={sizeOption.quantity === 0}
-                                  onClick={() => handleDecrease(sizeOption)}
-                                >
-                                  <RemoveRoundedIcon />
-                                </IconButton>
-                                <input
-                                  value={sizeOption.quantity}
-                                  type="text"
-                                  inputMode="numeric"
-                                  onChange={(event) =>
-                                    handleQuantityChange(event, sizeOption)
-                                  }
-                                  style={{
-                                    textAlign: "center",
-                                    fontSize: "14px",
-                                    border: 0,
-                                    "&::WebkitInnerSpinButton": {
-                                      display: "none",
-                                    },
-                                  }}
-                                />
-                                <IconButton
-                                  onClick={() => handleIncrease(sizeOption)}
-                                >
-                                  <AddRoundedIcon />
-                                </IconButton>
-                              </Stack>
-                            </ListItem>
-                          );
-                        })}
-                      </List>
-                    </FormGroup>
-                  </AccordionDetails>
-                </Accordion>
-                <Stack direction={"column"} marginTop={"16px"}>
-                  <Stack direction={"row"} alignItems={"center"} gap={"16px"}>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      style={{
-                        padding: "8px",
-                        border: "1px dashed",
-                        borderColor: colors.primaryColor,
-                        width: "280px",
-                        borderRadius: "8px",
-                      }}
-                      name="image"
-                      // onChange={handleImageChange}
-                    />
-                    <Typography sx={{ fontSize: "14px", fontStyle: "italic" }}>
-                      (Nên sử dụng ảnh tỉ lệ <strong>9:11</strong> để tối ưu)
-                    </Typography>
-                  </Stack>
-                  <Stack
-                    sx={{
-                      width: "100%",
-                      marginTop: "16px",
-                      overflowX: "auto",
-                      paddingY: "8px",
-                    }}
-                    direction={"row"}
-                    gap={"12px"}
-                  >
-                    {
-                    // previewImages.map((item, index) => (
-                    //   <div
-                    //     key={index}
-                    //     style={{
-                    //       flexShrink: 0,
-                    //       height: "220px",
-                    //       borderRadius: "8px",
-                    //       overflow: "hidden",
-                    //       position: "relative",
-                    //     }}
-                    //   >
-                    //     {/* <Box 
-                    //           sx={{
-                    //               position: 'absolute',
-                    //               top: 0,
-                    //               right: 0,
-                    //               left: 0,
-                    //               bgcolor: colors.primaryColor,
-                    //               height: '36px',
-                    //               opacity: 0.5
-                    //           }}
-                    //       >
-                    //       </Box>
-                    //       <IconButton 
-                    //           sx={{
-                    //               position: 'absolute',
-                    //               top: 0,
-                    //               right: 0,
-                    //               color: '#fff'
-                    //           }}
-                    //       >
-                    //           <CloseRoundedIcon />
-                    //       </IconButton> */}
-                    //     <img
-                    //       src={item}
-                    //       alt={item?.name}
-                    //       loading="lazy"
-                    //       style={{
-                    //         objectFit: "cover",
-                    //       }}
-                    //       width={"180px"}
-                    //       height={"100%"}
-                    //     />
-                    //   </div>
-                    // ))
-                    }
-                  </Stack>
-                </Stack>
-
-                <Divider sx={{ marginTop: "16px" }} />
-              </Box>
-            ))}
-          </Stack>
+          <>
+            <Stack gap={"20px"} style={{ margin: "16px 0" }}>
+              {variants.map((item) => (
+                <VariantItem 
+                  item={item} 
+                  key={item.variant_id}
+                  handleVariantChange={handleVariantChange}
+                  handleOptionChange={handleOptionChange}
+                />
+              ))}
+            </Stack>
+            <Stack direction={"row"} gap={"16px"} justifyContent={"end"}>
+              <ActionBtn
+                type={"update"}
+                title={"Cập nhật"}
+                handleClick={() => console.log("hi")}
+              />
+              <ActionBtn
+                type={"cancel"}
+                title={"Hủy"}
+                handleClick={() => console.log("hi")}
+              />
+            </Stack>
+          </>
         )}
-        <Stack direction={"row"} gap={"16px"} justifyContent={"end"}>
-          <ActionBtn
-            type={"update"}
-            title={"Cập nhật"}
-            handleClick={() => console.log("hi")}
-          />
-          <ActionBtn
-            type={"cancel"}
-            title={"Hủy"}
-            handleClick={() => console.log("hi")}
-          />
-        </Stack>
       </Box>
     </Box>
   );
 }
+
+
+/* ----------------------------- VARIANT ITEM COMPONENT -------------------------- */
+const VariantItem = ({ item, handleVariantChange, handleOptionChange }) => {
+  const handleToggle = (variantOption) => {
+    handleOptionChange(item.variant_id, variantOption.option_id, 'option_isActive', !variantOption.option_isActive);
+  };
+
+  const handleIncrease = (variantOption) => {
+    handleOptionChange(item.variant_id, variantOption.option_id, 'option_stock', variantOption.option_stock + 1);
+  };
+
+  const handleDecrease = (variantOption) => {
+    handleOptionChange(item.variant_id, variantOption.option_id, 'option_stock', variantOption.option_stock - 1);
+  }
+
+  const handleQuantityChange = (event, variantOption) => {
+    const newQuantity = event.target.value > 0 ? Number(event.target.value) : 0;
+    handleOptionChange(item.variant_id, variantOption.option_id, 'option_stock', newQuantity);
+  } 
+
+  return (
+    <Box>
+      <Stack
+        direction={"row"}
+        gap={"20px"}
+        width={"100%"}
+        justifyContent={"space-between"}
+        alignItems={"center"}
+      >
+        <TextField
+          id="variant-color"
+          label="Màu sắc"
+          variant="outlined"
+          aria-required
+          size="small"
+          value={item.color}
+          onChange={(e) => handleVariantChange(item.variant_id, 'color', e.target.value)}
+        />
+        <TextField
+          id="variant-hex"
+          label="Mã màu (hex)"
+          variant="outlined"
+          aria-required
+          size="small"
+          type="color"
+          value={item.hex_color}
+          onChange={(e) => handleVariantChange(item.variant_id, 'hex_color', e.target.value)}
+          sx={{ width: "120px" }}
+        />
+        <TextField
+          id="variant-price"
+          label="Giá (VNĐ)"
+          variant="outlined"
+          aria-required
+          size="small"
+          type="number"
+          inputProps={{
+            min: 0,
+            step: 1000
+          }}
+          value={item.price}
+          onChange={(e) => handleVariantChange(item.variant_id, 'price', e.target.value > 0 ? Number(e.target.value) : 0)}
+          sx={{ flexGrow: 1 }}
+        />
+        <TextField
+          id="variant-discount"
+          label="Giảm giá (%)"
+          variant="outlined"
+          aria-required
+          size="small"
+          type="number"
+          inputProps={{
+            min: 0,
+            max: 100
+          }}
+          value={item.discount}
+          onChange={(e) => handleVariantChange(
+            item.variant_id, 
+            'discount', 
+            e.target.value > 0 ? (e.target.value <= 100 ? Number(e.target.value) : 100) : 0)}
+          sx={{ flexGrow: 1 }}
+        />
+        {/* <IconButton>
+                      <DeleteIcon sx={{ color: colors.red, fontSize: "24px" }} />
+                    </IconButton> */}
+        <Switch
+          checked={item.is_active}
+          onClick={(e) => handleVariantChange(item.variant_id, 'is_active', !item.is_active)}
+        />
+      </Stack>
+
+      <Accordion sx={{ mt: "16px" }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2-content"
+          id="panel2-header"
+          sx={{ marginY: "0px!important" }}
+        >
+          <Typography>Bảng size</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <FormGroup>
+            <List
+              sx={{
+                width: "100%",
+                bgcolor: "background.paper",
+                borderRadius: "8px",
+              }}
+            >
+              {item.options.map((variantOption) => {
+                const labelId = `checkbox-list-label-${variantOption.option_id}`;
+
+                return (
+                  <ListItem
+                    key={variantOption.option_size}
+                    dense={true}
+                    sx={{
+                      borderWidth: "0 0 1px",
+                      borderStyle: "solid",
+                      borderColor: "#ddd",
+                      "&:last-child, &:last-child": { border: 0 },
+                    }}
+                    // disablePadding
+                  >
+                    <ListItemIcon>
+                      <Checkbox
+                        edge="start"
+                        onClick={() => handleToggle(variantOption)}
+                        checked={variantOption.option_isActive}
+                        tabIndex={-1}
+                        disableRipple
+                        inputProps={{ "aria-labelledby": labelId }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText id={labelId} primary={`${variantOption.option_size}`} />
+                    {/* <TextField 
+                                    id={'variant-quantity-' + labelId} 
+                                    label="Số lượng tồn kho" 
+                                    aria-required 
+                                    size='small' 
+                                    type='number'
+                                    /> */}
+                    <Stack direction={"row"} gap={"4px"}>
+                      <IconButton
+                        disabled={variantOption.option_stock === 0}
+                        onClick={() => handleDecrease(variantOption)}
+                      >
+                        <RemoveRoundedIcon />
+                      </IconButton>
+                      <input
+                        value={variantOption.option_stock}
+                        type="text"
+                        inputMode="numeric"
+                        onChange={(event) =>
+                          handleQuantityChange(event, variantOption)
+                        }
+                        style={{
+                          textAlign: "center",
+                          fontSize: "14px",
+                          border: 0,
+                          "&::WebkitInnerSpinButton": {
+                            display: "none",
+                          },
+                        }}
+                      />
+                      <IconButton onClick={() => handleIncrease(variantOption)}>
+                        <AddRoundedIcon />
+                      </IconButton>
+                    </Stack>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </FormGroup>
+        </AccordionDetails>
+      </Accordion>
+      <Stack direction={"column"} marginTop={"16px"}>
+        <Stack direction={"row"} alignItems={"center"} gap={"16px"}>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            style={{
+              padding: "8px",
+              border: "1px dashed",
+              borderColor: colors.primaryColor,
+              width: "280px",
+              borderRadius: "8px",
+            }}
+            name="image"
+            // onChange={handleImageChange}
+          />
+          <Typography sx={{ fontSize: "14px", fontStyle: "italic" }}>
+            (Nên sử dụng ảnh tỉ lệ <strong>9:11</strong> để tối ưu)
+          </Typography>
+        </Stack>
+        <Stack
+          sx={{
+            width: "100%",
+            marginTop: "16px",
+            overflowX: "auto",
+            paddingY: "8px",
+          }}
+          direction={"row"}
+          gap={"12px"}
+        >
+          {
+            item.images?.map((image) => (
+              <div
+                key={image.image_id}
+                style={{
+                  flexShrink: 0,
+                  height: "220px",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  position: "relative",
+                }}
+              >
+                {/* <Box
+                  sx={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      left: 0,
+                      bgcolor: colors.primaryColor,
+                      height: '36px',
+                      opacity: 0.5
+                  }}
+                >
+                </Box> */}
+                <IconButton
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      color: colors.red
+                    }}
+                >
+                  <CloseRoundedIcon />
+                </IconButton>
+                <img
+                  src={image.image_url}
+                  // alt={item.color}
+                  loading="lazy"
+                  style={{
+                    objectFit: "cover",
+                  }}
+                  width={"180px"}
+                  height={"100%"}
+                />
+              </div>
+            ))
+          }
+        </Stack>
+      </Stack>
+
+      <Divider sx={{ marginTop: "16px" }} />
+    </Box>
+  )
+};
 
 export default ProductDetail

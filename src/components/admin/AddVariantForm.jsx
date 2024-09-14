@@ -8,7 +8,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import axios from 'axios';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
-const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
+const AddVariantForm = ({ productId, handleCloseForm = () => {}, getVariantsData = () => {} }) => {
   const [checked, setChecked] = useState([]);
   const [sizeOptions, setSizeOptions] = useState([
     {size: 'XS', quantity: 0},
@@ -26,7 +26,6 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
   const [previewImages, setPreviewImages] = useState([]);
   const [variantImages, setVariantImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState([]);
   
   const handleIncrease = (value) => {
     const newSizeOptions = [...sizeOptions];
@@ -40,14 +39,14 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
     const currentIndex = sizeOptions.indexOf(value);
     newSizeOptions[currentIndex].quantity = value.quantity - 1;
     setSizeOptions(newSizeOptions);
-  }
+  };
 
   const handleQuantityChange = (event, value) => {
     const newSizeOptions = [...sizeOptions];
     const currentIndex = sizeOptions.indexOf(value);
     newSizeOptions[currentIndex].quantity = event.target.value > 0 ? Number(event.target.value) : 0;
     setSizeOptions(newSizeOptions);
-  } 
+  };
 
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
@@ -61,21 +60,21 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
 
     setChecked(newChecked);
   };
-
+  
   const handleSubmit = async () => {
-    if (!colorName || !colorHex || !price || !discount) {
+    if (!colorName || !colorHex || !price) {
         return alert('Vui lòng điền đầy đủ thông tin của biến thể sản phẩm')
     }
-    if (checked.length === 0) {
-        return alert('Vui lòng chọn ít nhất 1 size của biến thể sản phẩm')
-    }
+    // if (checked.length === 0) {
+    //     return alert('Vui lòng chọn ít nhất 1 size của biến thể sản phẩm')
+    // }
     if (variantImages.length === 0) {
         return alert('Vui lòng tải lên ít nhất 1 ảnh của biến thể sản phẩm')
     }
     
     setIsLoading(true);
-    const uploadCloudinarySuccess = await uploadImages();
-    if (!uploadCloudinarySuccess) {
+    const uploadedImages = await uploadImages();
+    if (!uploadedImages) {
         return alert('Có lỗi xảy ra, vui lòng thử lại');  
     } else {
         const newProductVariant = {
@@ -85,9 +84,9 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
             discount: discount, 
         }
     
-        const newVariantOptions = checked.map((sizeOption) => ({
-            size: sizeOption.size, 
-            stock: sizeOption.quantity
+        const newVariantOptions = sizeOptions.map(option => ({
+            ...option,
+            is_active: checked.find((item) => option.size === item.size) ? true : false
         }))
     
         axios
@@ -101,6 +100,7 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
             if (res.status === 201) {
               alert('Tạo biến thể sản phẩm thành công');
               handleCloseForm();
+              getVariantsData();
             }
           })
           .catch((err) => {
@@ -108,7 +108,7 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
             console.log(err);
           })
     }
-  }
+  };
 
   const handleImageChange = (e) => {
     setVariantImages(e.target.files);
@@ -124,7 +124,6 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
     try {
         let imageURLs = [];
         for (let itemImage of variantImages) {
-            let imageURL;
             const image = new FormData();
             image.append('file', itemImage);
             image.append('cloud_name', 'ddgwckqgy');
@@ -132,18 +131,17 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
             image.append('folder', 'starborn_product_photos');
     
             const res = await axios.post('https://api.cloudinary.com/v1_1/ddgwckqgy/image/upload', image)
-            console.log('cloudinary res: ', res)
             imageURLs.push(res.data.url.toString());
         }
         setPreviewImages([]);
-        setUploadedImages(imageURLs);
-        return true;
+        // setUploadedImages(imageURLs);
+        return imageURLs;
     } catch (error) {
         console.log(error);
         setIsLoading(false);
-        return false;
+        return null;
     }
-  }
+  };
 
   return (
     <Box sx={{ marginTop: '16px', paddingY: '16px' }}>
@@ -212,7 +210,8 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
             size='small' 
             type='number' 
             inputProps={{
-                min: 0
+                min: 0,
+                max: 100
             }}
             sx={{ flexGrow: 1 }}
             value={discount}
