@@ -218,9 +218,6 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {} }) => {
             value={discount}
             onChange={(e) => setDiscount(Number(e.target.value))}
             />
-            {/* <IconButton>
-                <DeleteIcon sx={{ color: colors.red, fontSize: '24px' }}/>
-            </IconButton> */}
         </Stack>
         <Accordion sx={{ mt: '16px' }}>
             <AccordionSummary
