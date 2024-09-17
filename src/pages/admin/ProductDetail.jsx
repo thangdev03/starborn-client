@@ -9,11 +9,12 @@ import { colors } from '../../services/const'
 import CloseIcon from '@mui/icons-material/Close';
 import ActionBtn from '../../components/admin/ActionBtn';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddVariantForm from '../../components/admin/AddVariantForm'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import AddPhotoAlternateRoundedIcon from '@mui/icons-material/AddPhotoAlternateRounded';
+import AddImagesModal from '../../components/admin/AddImagesModal'
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -28,10 +29,16 @@ const ProductDetail = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [tagList, setTagList] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [currTags, setCurrTags] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [allSubcategories, setAllSubcategories] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [variants, setVariants] = useState([]);
+  const [currVariants, setCurrVariants] = useState([]);
+  const [deleteTags, setDeleteTags] = useState([]);
+  const [deleteImages, setDeleteImages] = useState([]);
+  const [newVariantImages, setNewVariantImages] = useState([]);
+  console.log(variants)
 
   const getData = () => {
     axios
@@ -44,7 +51,10 @@ const ProductDetail = () => {
 
     axios
       .get(serverUrl + 'tags/product/' + productId)
-      .then((res) => setSelectedTags(res.data))
+      .then((res) => {
+        setSelectedTags(res.data);
+        setCurrTags(res.data);
+      })
       .catch((err) => {
         console.log(err);
       })
@@ -53,10 +63,12 @@ const ProductDetail = () => {
   const getVariantsData = () => {
     axios
       .get(serverUrl + 'products/' + productId + '/variants')
-      .then((res) => setVariants(res.data))
+      .then((res) => {
+        setVariants(res.data);
+        setCurrVariants(res.data);
+      })
       .catch((err) => console.log(err))
   }
-  console.log(variants)
 
   const getObjects = () => {
     axios
@@ -64,10 +76,6 @@ const ProductDetail = () => {
       .then((res) => setObjectList(res.data))
       .catch((err) => console.log(err))
   };
-
-  // const handleChangeObject = (event) => {
-  //   setSelectedObject(event.target.value);
-  // };
 
   const getCategories = () => {
     axios
@@ -127,7 +135,83 @@ const ProductDetail = () => {
           : variant
       )
     ))
-  }
+  };
+
+  const handleUpdateProduct = () => {
+    const newProductTags = 
+      selectedTags
+        .filter((tag) => !currTags.find((currTag) => currTag.name === tag.name))
+        .map((tag) => tag.name)
+    
+    axios
+      .put(serverUrl + 'products/update/' + productId, {
+        name: name,
+        detail: detail,
+        subcategory_id: selectedSubcategory.id,
+        is_featured: product.is_featured,
+        is_active: product.is_active,
+        tags: newProductTags,
+        deleteTags: deleteTags
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          alert('Cập nhật thông tin thành công!');
+          getData();
+        }
+      })
+      .catch((error) => console.log(error));
+  };
+
+  const cancelUpdateProduct = () => {
+    if (product) {
+      setName(product.name);
+      setDetail(product.detail);
+      const objectSelection = objectList.find(i => i.id === product.object_id);
+      const categorySelection = allCategories.find(i => i.id === product.category_id);
+      const subcategorySelection = allSubcategories.find(i => i.id === product.subcategory_id);
+      setSelectedObject(objectSelection)
+      setSelectedCategory(categorySelection)
+      setSelectedSubcategory(subcategorySelection)
+    }
+  };
+
+  const cancelUpdateVariants = () => {
+    setDeleteImages([]);
+    setVariants(currVariants);
+  };
+
+  const handleUpdateVariants = () => {
+    axios.put(serverUrl + 'products/variants', {
+      variants: variants,
+      deleteImages: deleteImages,
+      productId: productId,
+    })
+    .then(res => {
+      if (res.status === 200) {
+        alert('Cập nhật thành công!');
+        getVariantsData();
+      }
+    })
+    .catch(error => console.log(error))
+  };
+
+  const handleImageChange = (e, variantId) => {
+    setNewVariantImages(e.target.files);
+    let URLResult = [];
+
+    for (let file of e.target.files) {
+      const newUrl = URL.createObjectURL(file);
+      const newOrderNum = variants.find(i => i.variant_id === variantId)?.images.length;
+
+      URLResult.push({
+        image_id: `new-${newUrl}`,
+        image_url: newUrl,
+        order_num: newOrderNum,
+        file_name: file.name
+      });
+    }
+    handleVariantChange(variantId, 'images', URLResult);
+  };
 
   useEffect(() => {
     getData();
@@ -320,7 +404,20 @@ const ProductDetail = () => {
             }
             freeSolo
             value={selectedTags}
-            onChange={(event, value) => setSelectedTags(value)}
+            onChange={(event, value) => {
+              if (typeof(value[value.length - 1]) === 'object') {
+                setSelectedTags(value)
+              } else {
+                const tagName = value[value.length - 1]
+
+                const newTag = {
+                  id: `id-${tagName}`, 
+                  name: tagName
+                }
+                setSelectedTags((prev) => [...prev, newTag])
+              }
+            }}
+            // onChange={(event, value) => setSelectedTags(value)}
             renderTags={(value, getTagProps) =>
               value.map((option, index) => {
                 const { key, ...tagProps } = getTagProps({ index });
@@ -347,6 +444,15 @@ const ProductDetail = () => {
                         />
                       </Icon>
                     }
+                    onDelete={(e) => {
+                      e.stopPropagation();
+                      if (currTags.find(i => i.name === option.name)) {
+                        setDeleteTags((prev) => [...prev, option.name]);
+                      }
+                      setSelectedTags((prev) => {
+                        return prev.filter(i => i.name !== option.name);
+                      });
+                    }}
                   />
                 );
               })
@@ -365,12 +471,12 @@ const ProductDetail = () => {
           <ActionBtn
             type={"update"}
             title={"Cập nhật"}
-            handleClick={() => console.log("hi")}
+            handleClick={handleUpdateProduct}
           />
           <ActionBtn
             type={"cancel"}
             title={"Hủy"}
-            handleClick={() => console.log("hi")}
+            handleClick={cancelUpdateProduct}
           />
         </Stack>
       </Stack>
@@ -415,19 +521,22 @@ const ProductDetail = () => {
                   key={item.variant_id}
                   handleVariantChange={handleVariantChange}
                   handleOptionChange={handleOptionChange}
+                  setDeleteImages={setDeleteImages}
+                  handleImageChange={handleImageChange}
                 />
               ))}
             </Stack>
             <Stack direction={"row"} gap={"16px"} justifyContent={"end"}>
               <ActionBtn
+                disabled={currVariants == variants}
                 type={"update"}
                 title={"Cập nhật"}
-                handleClick={() => console.log("hi")}
+                handleClick={handleUpdateVariants}
               />
               <ActionBtn
                 type={"cancel"}
                 title={"Hủy"}
-                handleClick={() => console.log("hi")}
+                handleClick={cancelUpdateVariants}
               />
             </Stack>
           </>
@@ -439,7 +548,7 @@ const ProductDetail = () => {
 
 
 /* ----------------------------- VARIANT ITEM COMPONENT -------------------------- */
-const VariantItem = ({ item, handleVariantChange, handleOptionChange }) => {
+const VariantItem = ({ item, handleVariantChange, handleOptionChange, setDeleteImages, handleImageChange }) => {
   const handleToggle = (variantOption) => {
     handleOptionChange(item.variant_id, variantOption.option_id, 'option_isActive', !variantOption.option_isActive);
   };
@@ -519,9 +628,6 @@ const VariantItem = ({ item, handleVariantChange, handleOptionChange }) => {
             e.target.value > 0 ? (e.target.value <= 100 ? Number(e.target.value) : 100) : 0)}
           sx={{ flexGrow: 1 }}
         />
-        {/* <IconButton>
-                      <DeleteIcon sx={{ color: colors.red, fontSize: "24px" }} />
-                    </IconButton> */}
         <Switch
           checked={item.is_active}
           onClick={(e) => handleVariantChange(item.variant_id, 'is_active', !item.is_active)}
@@ -614,7 +720,7 @@ const VariantItem = ({ item, handleVariantChange, handleOptionChange }) => {
         </AccordionDetails>
       </Accordion>
       <Stack direction={"column"} marginTop={"16px"}>
-        <Stack direction={"row"} alignItems={"center"} gap={"16px"}>
+        {/* <Stack direction={"row"} alignItems={"center"} gap={"16px"}>
           <input
             type="file"
             multiple
@@ -627,12 +733,19 @@ const VariantItem = ({ item, handleVariantChange, handleOptionChange }) => {
               borderRadius: "8px",
             }}
             name="image"
-            // onChange={handleImageChange}
+            onChange={(e) => handleImageChange(e, item.variant_id)}
           />
           <Typography sx={{ fontSize: "14px", fontStyle: "italic" }}>
             (Nên sử dụng ảnh tỉ lệ <strong>9:11</strong> để tối ưu)
           </Typography>
-        </Stack>
+        </Stack> */}
+        <Box>
+          <Button variant='outlined'>
+            <AddPhotoAlternateRoundedIcon />
+            Thêm ảnh
+          </Button>
+          <AddImagesModal />
+        </Box>
         <Stack
           sx={{
             width: "100%",
@@ -673,6 +786,12 @@ const VariantItem = ({ item, handleVariantChange, handleOptionChange }) => {
                       top: 0,
                       right: 0,
                       color: colors.red
+                    }}
+                    onClick={() => { 
+                      setDeleteImages((prev) => [...prev, {...image, variant_id: item.variant_id}])
+
+                      const newValue = item.images.filter(i => i.image_id !== image.image_id)
+                      handleVariantChange(item.variant_id, 'images', newValue)
                     }}
                 >
                   <CloseRoundedIcon />

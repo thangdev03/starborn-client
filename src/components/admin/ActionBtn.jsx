@@ -2,7 +2,7 @@ import { Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { colors } from '../../services/const';
 
-const ActionBtn = ({ type, title, customStyle, handleClick = () => {} }) => {
+const ActionBtn = ({ type, title, customStyle, handleClick = () => {}, disabled = false }) => {
   const [bgColor, setBgColor] = useState('inherit');
   useEffect(() => {
     let color;
@@ -23,6 +23,7 @@ const ActionBtn = ({ type, title, customStyle, handleClick = () => {} }) => {
 
   return (
     <Button 
+    disabled={disabled}
     style={customStyle}
     onClick={handleClick}
     color={bgColor}
