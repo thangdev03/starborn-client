@@ -37,8 +37,8 @@ const ProductDetail = () => {
   const [currVariants, setCurrVariants] = useState([]);
   const [deleteTags, setDeleteTags] = useState([]);
   const [deleteImages, setDeleteImages] = useState([]);
-  const [newVariantImages, setNewVariantImages] = useState([]);
-  console.log(variants)
+  const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
+  const [isUpdatingVariant, setIsUpdatingVariant] = useState(false);
 
   const getData = () => {
     axios
@@ -138,6 +138,7 @@ const ProductDetail = () => {
   };
 
   const handleUpdateProduct = () => {
+    setIsUpdatingProduct(true);
     const newProductTags = 
       selectedTags
         .filter((tag) => !currTags.find((currTag) => currTag.name === tag.name))
@@ -158,8 +159,12 @@ const ProductDetail = () => {
           alert('Cập nhật thông tin thành công!');
           getData();
         }
+        setIsUpdatingProduct(false);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error);
+        setIsUpdatingProduct(false);
+      });
   };
 
   const cancelUpdateProduct = () => {
@@ -181,6 +186,7 @@ const ProductDetail = () => {
   };
 
   const handleUpdateVariants = () => {
+    setIsUpdatingVariant(true);
     axios.put(serverUrl + 'products/variants', {
       variants: variants,
       deleteImages: deleteImages,
@@ -191,12 +197,15 @@ const ProductDetail = () => {
         alert('Cập nhật thành công!');
         getVariantsData();
       }
+      setIsUpdatingVariant(false);
     })
-    .catch(error => console.log(error))
+    .catch(error => {
+      console.log(error);
+      setIsUpdatingVariant(false);
+    })
   };
 
   const handleImageChange = (e, variantId) => {
-    setNewVariantImages(e.target.files);
     let URLResult = [];
 
     for (let file of e.target.files) {
@@ -470,7 +479,8 @@ const ProductDetail = () => {
         <Stack direction={"row"} gap={"16px"} justifyContent={"end"}>
           <ActionBtn
             type={"update"}
-            title={"Cập nhật"}
+            title={!isUpdatingProduct ? "Cập nhật" : "Đang tải..."}
+            disabled={isUpdatingProduct}
             handleClick={handleUpdateProduct}
           />
           <ActionBtn
@@ -523,14 +533,15 @@ const ProductDetail = () => {
                   handleOptionChange={handleOptionChange}
                   setDeleteImages={setDeleteImages}
                   handleImageChange={handleImageChange}
+                  reloadVariantsData={getVariantsData}
                 />
               ))}
             </Stack>
             <Stack direction={"row"} gap={"16px"} justifyContent={"end"}>
               <ActionBtn
-                disabled={currVariants == variants}
+                disabled={currVariants === variants || isUpdatingVariant}
                 type={"update"}
-                title={"Cập nhật"}
+                title={!isUpdatingVariant ? "Cập nhật" : "Đang tải..."}
                 handleClick={handleUpdateVariants}
               />
               <ActionBtn
@@ -548,7 +559,9 @@ const ProductDetail = () => {
 
 
 /* ----------------------------- VARIANT ITEM COMPONENT -------------------------- */
-const VariantItem = ({ item, handleVariantChange, handleOptionChange, setDeleteImages, handleImageChange }) => {
+const VariantItem = ({ item, handleVariantChange, handleOptionChange, setDeleteImages, reloadVariantsData }) => {
+  const [openModal, setOpenModal] = useState(false);
+
   const handleToggle = (variantOption) => {
     handleOptionChange(item.variant_id, variantOption.option_id, 'option_isActive', !variantOption.option_isActive);
   };
@@ -740,11 +753,17 @@ const VariantItem = ({ item, handleVariantChange, handleOptionChange, setDeleteI
           </Typography>
         </Stack> */}
         <Box>
-          <Button variant='outlined'>
+          <Button variant='outlined' onClick={() => setOpenModal(true)}>
             <AddPhotoAlternateRoundedIcon />
             Thêm ảnh
           </Button>
-          <AddImagesModal />
+          {openModal && (
+            <AddImagesModal 
+              handleCloseModal={() => setOpenModal(false)}
+              variantId={item.variant_id}
+              reloadVariantsData={reloadVariantsData}
+            />
+          )}
         </Box>
         <Stack
           sx={{
