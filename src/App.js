@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import AppRoutes from './routes';
-import HeaderBar from './components/admin/HeaderBar';
-import { Box, createTheme, ThemeProvider, Typography } from '@mui/material';
+import { Box, createTheme, ThemeProvider } from '@mui/material';
 import { colors } from './services/const';
 import { useLocation } from 'react-router-dom';
 import useTitle from './hooks/useTitle';
+import AdminHeaderBar from './components/admin/AdminHeaderBar';
+import Header from './components/client/Header';
+import Footer from './components/client/Footer';
 
 function App() {
   const theme = createTheme({
@@ -23,18 +25,24 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Box 
+        // ---ADMIN---
+        // sx={{
+        //   bgcolor: colors.adminBack,
+        //   minHeight: '100vh',
+        //   paddingLeft: {xs: '8px', md: '296px'},
+        //   paddingRight: {xs: '8px', md: '0'},
+        //   paddingTop: {xs: '88px', md: '88px'}
+        // }}
         sx={{
-          bgcolor: colors.adminBack,
-          minHeight: '100vh',
-          paddingLeft: {xs: '8px', md: '296px'},
-          paddingRight: {xs: '8px', md: '0'},
-          paddingTop: {xs: '88px', md: '88px'}
+          
         }}
       >
-        <HeaderBar />
-        
+        {/* <AdminHeaderBar /> */}
+        <Header />
         
         <AppRoutes />
+        
+        <Footer />
       </Box>
     </ThemeProvider>
   );

@@ -10,47 +10,92 @@ body {
 
 @font-face {
   font-family: 'Inter';
-  src: url('./fonts/Inter/Inter-VariableFont_opsz\,wght.ttf');
+  src: url('../public/fonts/Inter/Inter-VariableFont_opsz\,wght.ttf');
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Inter';
-  src: url('./fonts/Inter/Inter-Italic-VariableFont_opsz\,wght.ttf');
+  src: url('../public/fonts/Inter/Inter-Italic-VariableFont_opsz\,wght.ttf');
   font-style: italic;
 }
 
 @font-face {
+  font-family: 'Roboto';
+  src: url('../public/fonts/Roboto/Roboto-Thin.ttf');
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../public/fonts/Roboto/Roboto-Light.ttf');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../public/fonts/Roboto/Roboto-Regular.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../public/fonts/Roboto/Roboto-Medium.ttf');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../public/fonts/Roboto/Roboto-Bold.ttf');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../public/fonts/Roboto/Roboto-Black.ttf');
+  font-weight: 700;
+  font-style: normal;
+}
+
+
+
+
+@font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-Bold.ttf');
+  src: url('../public/fonts/Poppins/Poppins-Bold.ttf');
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-SemiBold.ttf');
+  src: url('../public/fonts/Poppins/Poppins-SemiBold.ttf');
   font-weight: 600;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-Medium.ttf');
+  src: url('../public/fonts/Poppins/Poppins-Medium.ttf');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-Regular.ttf');
+  src: url('../public/fonts/Poppins/Poppins-Regular.ttf');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-Light.ttf');
+  src: url('../public/fonts/Poppins/Poppins-Light.ttf');
   font-weight: 300;
   font-style: normal;
 }
@@ -58,35 +103,35 @@ body {
 /* ITALIC */
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-Bold.ttf');
+  src: url('../public/fonts/Poppins/Poppins-Bold.ttf');
   font-weight: 700;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-SemiBoldItalic.ttf');
+  src: url('../public/fonts/Poppins/Poppins-SemiBoldItalic.ttf');
   font-weight: 600;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-MediumItalic.ttf');
+  src: url('../public/fonts/Poppins/Poppins-MediumItalic.ttf');
   font-weight: 500;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-Italic.ttf');
+  src: url('../public/fonts/Poppins/Poppins-Italic.ttf');
   font-weight: 400;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Poppins';
-  src: url('./fonts/Poppins/Poppins-LightItalic.ttf');
+  src: url('../public/fonts/Poppins/Poppins-LightItalic.ttf');
   font-weight: 300;
   font-style: italic;
 }
