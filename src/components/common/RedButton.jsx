@@ -5,7 +5,7 @@ import { colors } from '../../services/const'
 const RedButton = ({ 
     title, 
     href, 
-    width,
+    fontSize = '14px',
     onClick = () => {} 
 }) => {
   return (
@@ -13,6 +13,7 @@ const RedButton = ({
     href={href} 
     onClick={onClick}
     sx={{
+        textWrap: 'nowrap',
         padding: '12px 40px',
         bgcolor: colors.red,
         color: 'white',
@@ -20,7 +21,8 @@ const RedButton = ({
         textAlign: 'center',
         '&:hover': {
             bgcolor: '#ed6161',
-        }
+        },
+        fontSize: fontSize
     }}
     >
         {title}
