@@ -1731,6 +1731,13 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@leenguyen/react-flip-clock-countdown@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@leenguyen/react-flip-clock-countdown/-/react-flip-clock-countdown-1.6.0.tgz#e99c0843d25b1336c99ee304c0b657a6cb1a1077"
+  integrity sha512-tmpYvI2tw/LcE5z2ubMycNdhMbM6049i6cicEFlsFoAzPKF4x/5aU1i/VfnCQGKEC4iOvPN4dGONTL2WR7Yy/A==
+  dependencies:
+    clsx "^1.1.1"
+
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.5.tgz#4fc56c15c580b9adb7dc3c333a134e540b44bfb1"
@@ -3595,6 +3602,11 @@ cliui@^7.0.2:
     string-width "^4.2.0"
     strip-ansi "^6.0.0"
     wrap-ansi "^7.0.0"
+
+clsx@^1.1.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.2.1.tgz#0ddc4a20a549b59c93a4116bb26f5294ca17dc12"
+  integrity sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==
 
 clsx@^2.1.0, clsx@^2.1.1:
   version "2.1.1"
@@ -8401,6 +8413,11 @@ react-is@^18.0.0, react-is@^18.3.1:
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.3.1.tgz#e83557dc12eae63a99e003a46388b1dcbb44db7e"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
+
+react-multi-carousel@^2.8.5:
+  version "2.8.5"
+  resolved "https://registry.yarnpkg.com/react-multi-carousel/-/react-multi-carousel-2.8.5.tgz#033e35426ee2d2ddd46a5b3967a654cd901a80d1"
+  integrity sha512-C5DAvJkfzR2JK9YixZ3oyF9x6R4LW6nzTpIXrl9Oujxi4uqP9SzVVCjl+JLM3tSdqdjAx/oWZK3dTVBSR73Q+w==
 
 react-refresh@^0.11.0:
   version "0.11.0"
