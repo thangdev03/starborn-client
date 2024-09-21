@@ -7,6 +7,7 @@ import useTitle from './hooks/useTitle';
 import AdminHeaderBar from './components/admin/AdminHeaderBar';
 import Header from './components/client/Header';
 import Footer from './components/client/Footer';
+import AuthModal from './components/client/AuthModal';
 
 function App() {
   const theme = createTheme({
@@ -39,6 +40,7 @@ function App() {
       >
         {/* <AdminHeaderBar /> */}
         <Header />
+        <AuthModal />
         
         <AppRoutes />
         
