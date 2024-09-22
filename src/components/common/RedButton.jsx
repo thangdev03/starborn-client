@@ -6,12 +6,14 @@ const RedButton = ({
     title, 
     href, 
     fontSize = '14px',
+    disabled = false,
     onClick = () => {} 
 }) => {
   return (
     <Button 
     href={href} 
     onClick={onClick}
+    disabled={disabled}
     sx={{
         textWrap: 'nowrap',
         padding: '12px 40px',

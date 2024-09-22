@@ -88,7 +88,7 @@ const ProductItem = ({ productData }) => {
       <Stack gap={{ xs: "4px", md: "6px" }} sx={{ marginTop: "16px" }}>
         <Stack direction={"row"} gap={'4px'} height={'26px'}>
             {productData.variants.map((variant, index) => (
-                <Box sx={{ padding: '3px', position: 'relative' }} title={variant.color}>
+                <Box key={index} sx={{ padding: '3px', position: 'relative' }} title={variant.color}>
                     {index === variantIndex && (
                         <Box 
                         sx={{ 
@@ -159,7 +159,7 @@ const ProductItem = ({ productData }) => {
         <Stack direction={"row"} justifyContent={{xs: 'space-between', md: 'start'}} alignItems={{xs: "center", md: "end"}} gap={"8px"}>
           <Rating
             name={`${productData.name}-rating`}
-            value={productData.average_rating}
+            value={Number(productData.average_rating)}
             precision={0.5}
             readOnly
             sx={{ display: {xs: 'none', sm: 'flex'} }}

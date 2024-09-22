@@ -57,8 +57,8 @@ const ProductCarousel = ({ products }) => {
       responsive={responsive}
       swipeable={true}
     >
-      {products.map((product) => (
-        <ProductItem productData={product}/>
+      {products.map((product, index) => (
+        <ProductItem key={index} productData={product}/>
       ))}
     </Carousel>
   );
