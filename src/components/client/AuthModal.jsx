@@ -1,11 +1,13 @@
-import { Box, Button, Divider, FormControl, Modal, Stack, TextField, Typography, Link } from '@mui/material'
+import { Box, Button, Divider, FormControl, Modal, Stack, TextField, Typography, Link, IconButton } from '@mui/material'
 import React, { useState } from 'react'
 import { colors, serverUrl } from '../../services/const';
 import RedButton from '../common/RedButton';
 import axios from 'axios';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AuthModal = () => {
-  const [open, setOpen] = useState(true);
+  const { closeAuthModal, isAuthModalOpen } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formName, setFormName] = useState('login');
   const [values, setValues] = useState({
@@ -101,10 +103,6 @@ const AuthModal = () => {
     setLoginValues({...loginValues, [event.target.name]: event.target.value});
   }
 
-  const handleClose = () => {
-
-  };
-
   const onSubmitRegister = () => {
     if (Object.values(values).some((value) => value.length === 0)) {
       return alert('Vui lòng nhập đầy đủ các trường!')
@@ -148,8 +146,8 @@ const AuthModal = () => {
 
   return formName === 'login' ? (
     <Modal
-      open={open}
-      onClose={handleClose}
+      open={isAuthModalOpen}
+      onClose={closeAuthModal}
       aria-labelledby='modal-title'
     >
       <Stack 
@@ -170,6 +168,16 @@ const AuthModal = () => {
           minWidth: { sm: '400px' }
         }}
       >
+        <IconButton 
+        onClick={closeAuthModal}
+        sx={{
+          position: 'absolute',
+          top: 4,
+          right: 4
+        }}
+        >
+          <CloseRoundedIcon />
+        </IconButton>
         <Typography variant='h1' fontSize={{xs: '28px', sm: '36px'}} fontWeight={'500'}>Đăng nhập</Typography>
         <Typography fontSize={{xs: '14px', sm: '16px'}} marginTop={'8px'}>Bắt đầu mua sắm tại Starborn</Typography>
         <FormControl
@@ -229,8 +237,8 @@ const AuthModal = () => {
     </Modal>
   ) : (
     <Modal
-      open={open}
-      onClose={handleClose}
+      open={isAuthModalOpen}
+      onClose={closeAuthModal}
       aria-labelledby='modal-title'
     >
       <Stack 
@@ -251,6 +259,16 @@ const AuthModal = () => {
           minWidth: { sm: '400px' }
         }}
       >
+        <IconButton 
+        onClick={closeAuthModal}
+        sx={{
+          position: 'absolute',
+          top: 4,
+          right: 4
+        }}
+        >
+          <CloseRoundedIcon />
+        </IconButton>
         <Typography variant='h1' fontSize={{xs: '28px', sm: '36px'}} fontWeight={'500'}>Tạo tài khoản mới</Typography>
         <Typography fontSize={{xs: '14px', sm: '16px'}} marginTop={'8px'}>Điền thông tin của bạn phía dưới</Typography>
         <FormControl

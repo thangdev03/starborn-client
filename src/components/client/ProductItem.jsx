@@ -1,11 +1,15 @@
-import { Box, IconButton, Rating, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
+import { Box, IconButton, Rating, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { formatVNDCurrency, getPriceAfterDiscount } from "../../utils/currencyUtils";
 import { colors } from "../../services/const";
 import StarRateIcon from '@mui/icons-material/StarRate';
+import { useNavigate, Link } from "react-router-dom";
 
 const ProductItem = ({ productData }) => {
-    const [variantIndex, setVariantIndex] = useState(0);
+  const [variantIndex, setVariantIndex] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Box
       sx={{
@@ -31,14 +35,17 @@ const ProductItem = ({ productData }) => {
           position: "relative",
         }}
       >
-        <img
-          src={productData.variants[variantIndex]?.images[0]}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-        />
+        <Link to={`/product/${productData.slug}?color=${productData.variants[variantIndex]?.variant_slug}`}>
+          <img
+            src={productData.variants[variantIndex]?.images[0]}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              cursor: "pointer"
+            }}
+          />
+        </Link>
         {productData.variants[variantIndex]?.discount > 0 && (
           <Typography
             sx={{
@@ -112,19 +119,23 @@ const ProductItem = ({ productData }) => {
                 </Box>
             ))}
         </Stack>
-        <Typography
+        <Link
           title={productData.name}
-          sx={{
-            fontSize: { xs: "12px", md: "14px" },
+          to={`/product/${productData.slug}?color=${productData.variants[variantIndex]?.variant_slug}`}
+          style={{
+            fontSize: isMobile ? "12px" : "14px",
             fontWeight: 500,
             WebkitLineClamp: 2,
             textOverflow: "ellipsis",
             overflow: "hidden",
             textWrap: "nowrap",
+            cursor: "pointer",
+            color: colors.primaryColor,
+            textDecoration: "none",
           }}
         >
           {productData.name}
-        </Typography>
+        </Link>
         {productData.variants[variantIndex]?.discount > 0 ? (
           <Stack
             direction={"row"}

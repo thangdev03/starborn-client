@@ -16,7 +16,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import AddPhotoAlternateRoundedIcon from '@mui/icons-material/AddPhotoAlternateRounded';
 import AddImagesModal from '../../components/admin/AddImagesModal'
 
-const ProductDetail = () => {
+const AdminProductDetail = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [objectList, setObjectList] = useState([]);
@@ -836,4 +836,4 @@ const VariantItem = ({ item, handleVariantChange, handleOptionChange, setDeleteI
   )
 };
 
-export default ProductDetail
+export default AdminProductDetail

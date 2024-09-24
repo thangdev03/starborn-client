@@ -5,8 +5,10 @@ import { colors } from '../../services/const';
 import SearchIcon from '@mui/icons-material/Search'
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
+  const { openAuthModal } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
 
   const toggleDrawer = (state) => {
@@ -100,15 +102,18 @@ const Header = () => {
                 </IconButton>
             </Box>
 
-            <Typography
+            <Link
+                href="/"
                 sx={{
                     width: {xl: '200px'},
                     fontWeight: 700,
-                    fontSize: '24px'
+                    fontSize: '24px',
+                    textDecoration: 'none',
+                    color: colors.primaryColor
                 }}
             >
                 Starborn
-            </Typography>
+            </Link>
 
             <List 
                 sx={{
@@ -174,8 +179,12 @@ const Header = () => {
                             <path d="M10 18H25.59C25.7056 18.0001 25.8177 17.9601 25.9072 17.8868C25.9966 17.8135 26.0579 17.7115 26.0806 17.5981L27.8806 8.59813C27.8951 8.52555 27.8934 8.45066 27.8755 8.37886C27.8575 8.30705 27.8239 8.24012 27.7769 8.1829C27.73 8.12567 27.6709 8.07959 27.604 8.04796C27.5371 8.01633 27.464 7.99995 27.39 8H8" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </IconButton>
-
-                    <Avatar sx={{ marginLeft: '4px', bgcolor: colors.red, width: '34px', height: '34px' }}>T</Avatar>
+                    
+                    <Avatar 
+                    onClick={openAuthModal} 
+                    sx={{ marginLeft: '4px', bgcolor: colors.red, width: '34px', height: '34px', cursor: 'pointer' }}>
+                        T
+                    </Avatar>
                 </Stack>
             </Stack>
         </Stack>

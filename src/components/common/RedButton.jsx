@@ -7,6 +7,8 @@ const RedButton = ({
     href, 
     fontSize = '14px',
     disabled = false,
+    customStyle,
+    icon,
     onClick = () => {} 
 }) => {
   return (
@@ -24,10 +26,12 @@ const RedButton = ({
         '&:hover': {
             bgcolor: '#ed6161',
         },
-        fontSize: fontSize
+        fontSize: fontSize,
+        ...customStyle,
     }}
     >
-        {title}
+      {icon}
+      {title}
     </Button>
   )
 }
