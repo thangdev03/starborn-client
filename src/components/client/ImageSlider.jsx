@@ -2,7 +2,7 @@ import { Box, ButtonGroup, IconButton, Stack } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 import { colors } from '../../services/const';
 
-const ImageSlider = ({ imageUrls = [] }) => {
+const ImageSlider = ({ imageUrls = [], height = '60vh' }) => {
   const [imageIndex, setImageIndex] = useState(0);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const ImageSlider = ({ imageUrls = [] }) => {
   }, [imageIndex])
 
   return (
-    <Box sx={{ width: '100%', height: '60vh' ,position: 'relative' }}>
+    <Box sx={{ width: '100%', height: height, position: 'relative' }}>
         <Stack direction={'row'} sx={{ width: '100%', height: '100%', overflow: 'hidden' }}>
             {imageUrls.map((url, index) => (
                 <img 

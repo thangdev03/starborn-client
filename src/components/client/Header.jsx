@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Box, Stack, Typography, Link, List, InputBase, ListItemButton, IconButton, Avatar, Drawer, Button, Icon } from '@mui/material'
+import { Box, Stack, Typography, List, InputBase, ListItemButton, IconButton, Avatar, Drawer, Button, Icon } from '@mui/material'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { colors } from '../../services/const';
 import SearchIcon from '@mui/icons-material/Search'
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const { openAuthModal } = useAuth();
@@ -43,7 +44,7 @@ const Header = () => {
                 6.6 NGÀY ĐÔI SALE BỘI - GIẢM TỚI 50% VÀ NHIỀU MÃ FREESHIP!
             </Typography>
             <Link
-            href='/'
+            to='/'
             sx={{
                 cursor: 'pointer',
                 textDecoration: 'underline',
@@ -103,8 +104,8 @@ const Header = () => {
             </Box>
 
             <Link
-                href="/"
-                sx={{
+                to="/"
+                style={{
                     width: {xl: '200px'},
                     fontWeight: 700,
                     fontSize: '24px',
@@ -124,24 +125,24 @@ const Header = () => {
                     color: colors.primaryColor,
                 }}
             >
-                <ListItemButton href='/'>
+                <Link to={'/'} className='nav-link'>
                     SALE
-                </ListItemButton>
-                <ListItemButton href='/'>
+                </Link>
+                <Link to={'/'} className='nav-link'>
                     Bộ sưu tập
-                </ListItemButton>
-                <ListItemButton href='/'>
+                </Link>
+                <Link to={'/nam'} className='nav-link'>
                     Nam
-                </ListItemButton>
-                <ListItemButton href='/'>
+                </Link>
+                <Link to={'/nu'} className='nav-link'>
                     Nữ
-                </ListItemButton>
-                <ListItemButton href='/'>
+                </Link>
+                <Link to={'/'} className='nav-link'>
                     Đồ thể thao
-                </ListItemButton>
-                <ListItemButton href='/'>
+                </Link>
+                <Link to={'/'} className='nav-link'>
                     Mặc hàng ngày
-                </ListItemButton>
+                </Link>
             </List>
             
             <Stack direction={'row'} alignItems={'center'} gap='24px'>

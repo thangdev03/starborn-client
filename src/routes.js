@@ -13,12 +13,21 @@ import Vouchers from './pages/admin/Vouchers';
 import CustomerDetail from './pages/admin/CustomerDetail';
 import Home from './pages/client/Home';
 import ProductDetail from './pages/client/ProductDetail';
+import AllProducts from './pages/client/AllProducts';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path='/' element={<Home />}/>
+      <Route path='/'>
+        <Route path='' element={<Home />}/>
+        <Route path=':objectSlug' element={<AllProducts />}/>
+      </Route>
+      <Route path='/collection' element={''}>
+        <Route path=':collectionSlug' element={''}/>
+      </Route>
+
       <Route path='/product/:productName' element={<ProductDetail />}/>
+
 
         {/* Admin Routes */}
       <Route path='/admin'>

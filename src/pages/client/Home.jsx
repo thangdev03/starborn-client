@@ -22,21 +22,29 @@ const IMAGES = [
 ]
 
 const Home = () => {
-  const [flashSaleProducts, setFlashSaleProducts] = useState([]);
+  const [flashSaleProducts, setFlashSaleProducts] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Small devices (mobile)
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md')); // Tablets
 
   const getFlashSaleProducts = () => {
+    setIsLoading(true);
     axios.get(serverUrl + 'products?getVariants=1')
-    .then((res) => setFlashSaleProducts(res.data))
-    .catch((err) => console.log(err))
+    .then((res) => {
+        setFlashSaleProducts(res.data)
+        setIsLoading(false)
+    })
+    .catch((err) => {
+        console.log(err)
+        setIsLoading(false)
+    })
   }
+  console.log({flashSaleProducts, isLoading})
 
   useEffect(() => {
     getFlashSaleProducts();
   }, [])
-  console.log(flashSaleProducts)
 
   const getStyles = () => {
     if (isMobile) {
@@ -102,7 +110,7 @@ const Home = () => {
             </Stack>
 
             <Box sx={{ marginTop: '24px' }}>
-                <ProductCarousel products={flashSaleProducts} />
+                <ProductCarousel products={flashSaleProducts} isLoading={isLoading} />
             </Box>
 
             <Stack width={'100%'} direction={'row'} justifyContent={'center'} marginTop={'32px'}>
@@ -136,7 +144,7 @@ const Home = () => {
             </Stack>
 
             <Box sx={{ marginTop: '24px' }}>
-                <ProductCarousel products={flashSaleProducts} />
+                <ProductCarousel products={flashSaleProducts} isLoading={isLoading} />
             </Box>
         </Box>
 
@@ -164,7 +172,7 @@ const Home = () => {
             </Stack>
 
             <Box sx={{ marginTop: '24px' }}>
-                <ProductCarousel products={flashSaleProducts} />
+                <ProductCarousel products={flashSaleProducts} isLoading={isLoading} />
             </Box>
         </Box>
 

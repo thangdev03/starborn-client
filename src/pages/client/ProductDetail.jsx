@@ -23,6 +23,8 @@ import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import RedButton from "../../components/common/RedButton";
 import AddShoppingCartRoundedIcon from "@mui/icons-material/AddShoppingCartRounded";
+import HeadingText from "../../components/client/HeadingText";
+import ProductCarousel from "../../components/client/ProductCarousel";
 
 const ProductDetail = () => {
   const { productName } = useParams();
@@ -33,6 +35,7 @@ const ProductDetail = () => {
   const [imageIndex, setImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   const changeNextImage = () => {
     setImageIndex((prev) => prev + 1);
@@ -69,6 +72,17 @@ const ProductDetail = () => {
     if (e.target.value >= 1) setSelectedQuantity(Number(e.target.value));
   };
 
+  // --------------CHƯA CÓ API LẤY RELATED PRODUCTS--------------------
+  const getRelatedProducts = () => {
+    axios
+      .get(serverUrl + 'products?getVariants=1')
+      .then((res) => setRelatedProducts(res.data))
+      .catch((err) => {
+        console.log(err);
+        setProduct([]);
+      })
+  }
+
   useEffect(() => {
     axios
       .get(serverUrl + "products/slug/" + productName)
@@ -83,10 +97,10 @@ const ProductDetail = () => {
         .then((res) => setVariant(res.data))
         .catch((err) => console.log(err));
     }
+
+    getRelatedProducts();
   }, [product, color]);
 
-    console.log({product})
-  //   console.log({variant})
 
   return (
     <Box
@@ -537,12 +551,21 @@ const ProductDetail = () => {
             <Typography sx={{ fontSize: '20px', fontWeight: 500 }}>
               Mô tả sản phẩm
             </Typography>
-            <Typography whiteSpace={'pre-line'} marginTop={'16px'}>
+            <Typography whiteSpace={'pre-line'} marginTop={'4px'}>
                 {product?.detail}
             </Typography>
           </Box>
         </Stack>
       </Stack>
+
+      <Box paddingX={{ xs: '16px', md: 0}} marginTop={{ xs: '52px', md: '72px' }}>
+        <HeadingText
+          title={'Sản phẩm liên quan'}
+        />
+        <Box sx={{ marginTop: '24px' }}>
+          <ProductCarousel products={relatedProducts} />
+        </Box>
+      </Box>
     </Box>
   );
 };

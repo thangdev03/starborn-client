@@ -12,7 +12,8 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import ProductItem from "./ProductItem";
 
-const ProductCarousel = ({ products }) => {
+const ProductCarousel = ({ products, isLoading }) => {
+  console.log(products)
   const responsive = {
     largeDesktop: {
       breakpoint: {
@@ -57,7 +58,7 @@ const ProductCarousel = ({ products }) => {
       responsive={responsive}
       swipeable={true}
     >
-      {products.map((product, index) => (
+      {(isLoading ? Array.from(new Array(6)) : products).map((product, index) => (
         <ProductItem key={index} productData={product}/>
       ))}
     </Carousel>
