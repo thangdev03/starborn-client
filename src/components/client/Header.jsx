@@ -209,11 +209,11 @@ const Header = () => {
                     />
                     <MobileNavItem 
                         title={'Nam'}
-                        href={'/'}
+                        href={'/nam'}
                     />
                     <MobileNavItem 
                         title={'Nữ'}
-                        href={'/'}
+                        href={'/nu'}
                     />
                     <MobileNavItem 
                         title={'Đồ thể thao'}
@@ -243,10 +243,10 @@ const Header = () => {
 
 const MobileNavItem = ({ title, href }) => {
     return (
-        <ListItemButton href={href} sx={{ justifyContent: 'space-between' }}>
-            <Typography>
+        <ListItemButton sx={{ justifyContent: 'space-between' }}>
+            <Link to={href} style={{ color: colors.primaryColor, textDecoration: 'none', padding: '10px 16px' }}>
                 {title}
-            </Typography>
+            </Link>
             <ChevronRightRoundedIcon sx={{ fontSize: '18px' }}/>
         </ListItemButton>
     )
