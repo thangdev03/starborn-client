@@ -9,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
-  const { openAuthModal } = useAuth();
+  const { openAuthModal, currentUser } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
 
   const toggleDrawer = (state) => {
@@ -172,7 +172,7 @@ const Header = () => {
                         </svg>
                     </IconButton>
 
-                    <IconButton>
+                    <IconButton href='/cart'>
                         <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M11 27C11.5523 27 12 26.5523 12 26C12 25.4477 11.5523 25 11 25C10.4477 25 10 25.4477 10 26C10 26.5523 10.4477 27 11 27Z" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             <path d="M25 27C25.5523 27 26 26.5523 26 26C26 25.4477 25.5523 25 25 25C24.4477 25 24 25.4477 24 26C24 26.5523 24.4477 27 25 27Z" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -180,12 +180,16 @@ const Header = () => {
                             <path d="M10 18H25.59C25.7056 18.0001 25.8177 17.9601 25.9072 17.8868C25.9966 17.8135 26.0579 17.7115 26.0806 17.5981L27.8806 8.59813C27.8951 8.52555 27.8934 8.45066 27.8755 8.37886C27.8575 8.30705 27.8239 8.24012 27.7769 8.1829C27.73 8.12567 27.6709 8.07959 27.604 8.04796C27.5371 8.01633 27.464 7.99995 27.39 8H8" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </IconButton>
-                    
-                    <Avatar 
-                    onClick={openAuthModal} 
-                    sx={{ marginLeft: '4px', bgcolor: colors.red, width: '34px', height: '34px', cursor: 'pointer' }}>
-                        T
-                    </Avatar>
+                    {console.log(currentUser)}
+                    {currentUser ? (
+                        <Avatar 
+                        onClick={openAuthModal} 
+                        sx={{ marginLeft: '4px', bgcolor: colors.red, width: '34px', height: '34px', cursor: 'pointer' }}>
+                            {currentUser.fullname[0]}
+                        </Avatar>
+                    ) : (
+                        <Typography>Đăng nhập</Typography>
+                    )}
                 </Stack>
             </Stack>
         </Stack>

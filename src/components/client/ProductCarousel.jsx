@@ -13,7 +13,6 @@ import "react-multi-carousel/lib/styles.css";
 import ProductItem from "./ProductItem";
 
 const ProductCarousel = ({ products, isLoading }) => {
-  console.log(products)
   const responsive = {
     largeDesktop: {
       breakpoint: {

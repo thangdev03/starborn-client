@@ -30,7 +30,11 @@ const Home = () => {
 
   const getFlashSaleProducts = () => {
     setIsLoading(true);
-    axios.get(serverUrl + 'products?getVariants=1')
+    axios.get(serverUrl + 'products?getVariants=1',{
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
     .then((res) => {
         setFlashSaleProducts(res.data)
         setIsLoading(false)

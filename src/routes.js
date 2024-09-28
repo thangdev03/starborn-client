@@ -14,8 +14,13 @@ import CustomerDetail from './pages/admin/CustomerDetail';
 import Home from './pages/client/Home';
 import ProductDetail from './pages/client/ProductDetail';
 import AllProducts from './pages/client/AllProducts';
+import Cart from './pages/client/Cart';
+import CustomerPrivateRoutes from './utils/CustomerPrivateRoutes';
+import { useAuth } from './contexts/AuthContext';
 
 const AppRoutes = () => {
+  const { token } = useAuth();
+
   return (
     <Routes>
       <Route path='/'>
@@ -25,9 +30,10 @@ const AppRoutes = () => {
       <Route path='/collection' element={''}>
         <Route path=':collectionSlug' element={''}/>
       </Route>
-
       <Route path='/product/:productName' element={<ProductDetail />}/>
-
+      <Route element={<CustomerPrivateRoutes />}>
+        <Route path='/cart' element={<Cart />}/>
+      </Route>
 
         {/* Admin Routes */}
       <Route path='/admin'>

@@ -7,7 +7,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AuthModal = () => {
-  const { closeAuthModal, isAuthModalOpen } = useAuth();
+  const { closeAuthModal, isAuthModalOpen, handleLogin, authToken, currentUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formName, setFormName] = useState('login');
   const [values, setValues] = useState({
@@ -129,19 +129,12 @@ const AuthModal = () => {
     })
   }
 
-  const onSubmitLogin = () => {
+  const onSubmitLogin = async () => {
     if (Object.values(loginValues).some((value) => value.length === 0)) {
       return alert('Vui lòng nhập đầy đủ các trường!');
     }
 
-    axios.post(serverUrl + 'auth/login/customer', {
-      emailOrPhone: loginValues.emailOrPhone,
-      password: loginValues.password
-    })
-    .then((res) => {
-      alert(res.data.message)
-    })
-    .catch((err) => alert(err.response?.data?.message))
+    await handleLogin(loginValues.emailOrPhone, loginValues.password)
   }
 
   return formName === 'login' ? (

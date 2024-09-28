@@ -75,7 +75,6 @@ const AllProducts = () => {
   }, [objectSlug, searchParams, sortType])
 
   // console.log(products)
-  console.log(open)
 
   return (
     <Box paddingX={{ xs: '16px', sm: '52px' }}>
