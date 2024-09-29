@@ -9,8 +9,6 @@ const AuthContextProvider = ({ children }) => {
     const [authToken, setAuthToken] = useState();
     const [currentUser, setCurrentUser] = useState();
 
-    console.log(authToken)
-
     const openAuthModal = () => setAuthModalOpen(true);
     const closeAuthModal = () => setAuthModalOpen(false);
 
@@ -26,6 +24,8 @@ const AuthContextProvider = ({ children }) => {
             setCurrentUser(res.data.user);
             closeAuthModal();
             alert(res.data.message);
+            sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+            sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
         })
         .catch((err) => {
             setAuthToken(null);

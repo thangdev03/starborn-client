@@ -25,6 +25,7 @@ import RedButton from "../../components/common/RedButton";
 import AddShoppingCartRoundedIcon from "@mui/icons-material/AddShoppingCartRounded";
 import HeadingText from "../../components/client/HeadingText";
 import ProductCarousel from "../../components/client/ProductCarousel";
+import { useAuth } from "../../contexts/AuthContext";
 
 const ProductDetail = () => {
   const { productName } = useParams();
@@ -36,6 +37,9 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+  const { openAuthModal } = useAuth();
 
   const changeNextImage = () => {
     setImageIndex((prev) => prev + 1);
@@ -81,6 +85,35 @@ const ProductDetail = () => {
         console.log(err);
         setProduct([]);
       })
+  }
+
+  const addToCart = async () => {
+    if (!currentUser) {
+      return openAuthModal();
+    }
+    if (!selectedSize) {
+      return alert('Vui lòng chọn size sản phẩm mong muốn')
+    }
+    setIsAdding(true);
+    axios.post(serverUrl + `cart/${currentUser?.id}`, {
+      variant_option_id: selectedSize.id,
+      quantity: selectedQuantity
+    })
+    .then((res) => {
+      if (res.status === 201) {
+        alert('Đã thêm vào giỏ hàng');
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+
+      if (error.status === 403 || error.status === 401) {
+        openAuthModal();
+      }
+    })
+    .finally(() => {
+      setIsAdding(false);
+    })
   }
 
   useEffect(() => {
@@ -292,7 +325,7 @@ const ProductDetail = () => {
             fontWeight={600}
             paddingX={{ xs: "16px", md: 0 }}
           >
-            Áo bra thể thao tập gym có khóa kéo giữa L34AD001
+            {product?.name}
           </Typography>
           <Stack
             order={{ md: 1 }}
@@ -510,7 +543,8 @@ const ProductDetail = () => {
                 </Box>
               </Box>
               <RedButton
-                title={"Thêm vào giỏ hàng"}
+                disabled={isAdding}
+                title={!isAdding ? "Thêm vào giỏ hàng" : "...Đang thêm vào giỏ"}
                 customStyle={{
                   textTransform: "initial",
                   height: { md: "38px" },
@@ -521,7 +555,7 @@ const ProductDetail = () => {
                     sx={{ fontSize: "20px", marginRight: "4px" }}
                   />
                 }
-                onClick={() => console.log({ selectedSize, selectedQuantity })}
+                onClick={addToCart}
               />
               <Button
                 sx={{

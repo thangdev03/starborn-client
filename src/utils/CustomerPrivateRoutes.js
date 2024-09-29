@@ -3,13 +3,15 @@ import { useAuth } from "../contexts/AuthContext"
 import { useEffect } from "react";
 
 const CustomerPrivateRoutes = () => {
-  const { token, openAuthModal } = useAuth();
+  const { openAuthModal } = useAuth();
 
-  console.log(token)
+  const accessToken = JSON.parse(sessionStorage.getItem('accessToken'))
+  console.log(accessToken)
 
-  if (token) {
+  if (accessToken) {
     return <Outlet />  
   } else {
+    openAuthModal();
     return <Navigate to="/" />
   }
 }
