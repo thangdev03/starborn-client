@@ -35,8 +35,16 @@ const AuthContextProvider = ({ children }) => {
     }
 
     async function handleLogout() {
-        setAuthToken(null);
-        setCurrentUser(null);
+        axios.post(serverUrl + 'auth/logout/customer', {}, {
+            withCredentials: true
+        })
+        .then(() => {
+            setAuthToken(null);
+            setCurrentUser(null);
+            sessionStorage.removeItem('accessToken');
+            sessionStorage.removeItem('currentUser');
+        })
+        .catch((error) => console.log(error))
     }
 
     useLayoutEffect(() => {
@@ -73,6 +81,8 @@ const AuthContextProvider = ({ children }) => {
                         .then((res) => {
                             setAuthToken(res.data.accessToken);
                             setCurrentUser(res.data.user);
+                            sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+                            sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
 
                             originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
 
@@ -101,6 +111,9 @@ const AuthContextProvider = ({ children }) => {
             .then((res) => {
                 setAuthToken(res.data.accessToken);
                 setCurrentUser(res.data.user);
+                console.log('accessToken: ', res.data.accessToken)
+                sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+                sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
             })
             .catch((err) => {
                 setAuthToken(null);
