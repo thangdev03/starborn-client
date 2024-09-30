@@ -6,7 +6,6 @@ const CustomerPrivateRoutes = () => {
   const { openAuthModal } = useAuth();
 
   const accessToken = JSON.parse(sessionStorage.getItem('accessToken'))
-  console.log(accessToken)
 
   if (accessToken) {
     return <Outlet />  

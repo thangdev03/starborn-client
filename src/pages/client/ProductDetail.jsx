@@ -107,7 +107,7 @@ const ProductDetail = () => {
     .catch((error) => {
       console.log(error);
 
-      if (error.status === 403 || error.status === 401) {
+      if (error.status === 401) {
         openAuthModal();
       }
     })

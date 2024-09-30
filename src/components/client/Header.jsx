@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box, Stack, Typography, List, InputBase, ListItemButton, IconButton, Avatar, Drawer, Button, Icon } from '@mui/material'
+import { Box, Stack, Typography, List, InputBase, ListItemButton, IconButton, Avatar, Drawer, Button, Icon, Paper } from '@mui/material'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import { colors } from '../../services/const';
 import SearchIcon from '@mui/icons-material/Search'
@@ -7,14 +7,24 @@ import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import HomeWorkOutlinedIcon from '@mui/icons-material/HomeWorkOutlined';
+import InventoryOutlinedIcon from '@mui/icons-material/InventoryOutlined';
+import StarsOutlinedIcon from '@mui/icons-material/StarsOutlined';
+import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
 
 const Header = () => {
-  const { openAuthModal } = useAuth();
+  const { openAuthModal, handleLogout } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
-  const currentUser = JSON.parse(sessionStorage.getItem('currentUser'))
+  const [openUserActions, setOpenUserActions] = useState(false);
+  const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
   const toggleDrawer = (state) => {
     setOpenMenu(state)
+  };
+
+  const toggleActionsModal = (state) => {
+    setOpenUserActions(state);
   };
 
   return (
@@ -173,20 +183,80 @@ const Header = () => {
                         </svg>
                     </IconButton>
 
-                    <IconButton href='/cart'>
-                        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M11 27C11.5523 27 12 26.5523 12 26C12 25.4477 11.5523 25 11 25C10.4477 25 10 25.4477 10 26C10 26.5523 10.4477 27 11 27Z" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M25 27C25.5523 27 26 26.5523 26 26C26 25.4477 25.5523 25 25 25C24.4477 25 24 25.4477 24 26C24 26.5523 24.4477 27 25 27Z" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M3 5H7L10 22H26" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M10 18H25.59C25.7056 18.0001 25.8177 17.9601 25.9072 17.8868C25.9966 17.8135 26.0579 17.7115 26.0806 17.5981L27.8806 8.59813C27.8951 8.52555 27.8934 8.45066 27.8755 8.37886C27.8575 8.30705 27.8239 8.24012 27.7769 8.1829C27.73 8.12567 27.6709 8.07959 27.604 8.04796C27.5371 8.01633 27.464 7.99995 27.39 8H8" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                    </IconButton>
+                    <Link to={'/cart'} style={{ position: "relative" }}>
+                        <IconButton>
+                            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11 27C11.5523 27 12 26.5523 12 26C12 25.4477 11.5523 25 11 25C10.4477 25 10 25.4477 10 26C10 26.5523 10.4477 27 11 27Z" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M25 27C25.5523 27 26 26.5523 26 26C26 25.4477 25.5523 25 25 25C24.4477 25 24 25.4477 24 26C24 26.5523 24.4477 27 25 27Z" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M3 5H7L10 22H26" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M10 18H25.59C25.7056 18.0001 25.8177 17.9601 25.9072 17.8868C25.9966 17.8135 26.0579 17.7115 26.0806 17.5981L27.8806 8.59813C27.8951 8.52555 27.8934 8.45066 27.8755 8.37886C27.8575 8.30705 27.8239 8.24012 27.7769 8.1829C27.73 8.12567 27.6709 8.07959 27.604 8.04796C27.5371 8.01633 27.464 7.99995 27.39 8H8" stroke="#1B2141" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </IconButton>
+                        <Typography
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            right: '-4px',
+                            borderRadius: '20px',
+                            paddingX: 1,
+                            paddingY: "2px",
+                            color: 'white',
+                            bgcolor: colors.red,
+                            fontSize: "10px"
+                          }}
+                        >
+                            12
+                        </Typography>
+                    </Link>
                     {currentUser ? (
-                        <Avatar 
-                        onClick={() => {}} 
-                        sx={{ marginLeft: '4px', bgcolor: colors.red, width: '34px', height: '34px', cursor: 'pointer' }}>
-                            {currentUser.avatar ? currentUser.avatar : currentUser.fullname[0]}
-                        </Avatar>
+                        <Box sx={{ position: 'relative' }}>
+                            <Avatar 
+                            onClick={() => toggleActionsModal(!openUserActions)} 
+                            src={currentUser?.avatar}
+                            sx={{ marginLeft: '4px', bgcolor: colors.red, width: '34px', height: '34px', cursor: 'pointer' }}
+                            >
+                                {!currentUser.avatar && currentUser.fullname[0]}
+                            </Avatar>
+                            <Paper 
+                            sx={{
+                                position: 'absolute',
+                                top: { xs: '120%', sm: '140%' },
+                                right: { xs: 0, sm: -20 },
+                                display: openUserActions ? 'block' : 'none'
+                            }}
+                            >
+                                <List onClick={() => toggleActionsModal(false)} sx={{ width: '240px', color: colors.primaryColor }}>
+                                    <Link to={'/'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
+                                        <ListItemButton sx={{ gap: '4px' }}>
+                                            <PermIdentityOutlinedIcon />
+                                            Tài khoản của tôi
+                                        </ListItemButton>
+                                    </Link>
+                                    <Link to={'/'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
+                                        <ListItemButton sx={{ gap: '4px' }}>
+                                            <HomeWorkOutlinedIcon />
+                                            Sổ địa chỉ
+                                        </ListItemButton>
+                                    </Link>
+                                    <Link to={'/'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
+                                        <ListItemButton sx={{ gap: '4px' }}>
+                                            <InventoryOutlinedIcon />
+                                            Lịch sử đơn hàng
+                                        </ListItemButton>
+                                    </Link>
+                                    <Link to={'/'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
+                                        <ListItemButton sx={{ gap: '4px' }}>
+                                            <StarsOutlinedIcon />
+                                            Đánh giá và phản hồi
+                                        </ListItemButton>
+                                    </Link>
+                                    <ListItemButton onClick={handleLogout} sx={{ gap: '4px' }}>
+                                        <LogoutOutlinedIcon />
+                                        Đăng xuất
+                                    </ListItemButton>
+                                </List>
+                            </Paper>
+                        </Box>
                     ) : (
                         <Button 
                           sx={{ color: colors.primaryColor }}
