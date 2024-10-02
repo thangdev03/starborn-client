@@ -26,6 +26,7 @@ import AddShoppingCartRoundedIcon from "@mui/icons-material/AddShoppingCartRound
 import HeadingText from "../../components/client/HeadingText";
 import ProductCarousel from "../../components/client/ProductCarousel";
 import { useAuth } from "../../contexts/AuthContext";
+import { useCart } from "../../contexts/CartContext";
 
 const ProductDetail = () => {
   const { productName } = useParams();
@@ -40,6 +41,7 @@ const ProductDetail = () => {
   const [isAdding, setIsAdding] = useState(false);
   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
   const { openAuthModal } = useAuth();
+  const { getCartQuantity } = useCart();
 
   const changeNextImage = () => {
     setImageIndex((prev) => prev + 1);
@@ -98,9 +100,12 @@ const ProductDetail = () => {
     axios.post(serverUrl + `cart/${currentUser?.id}`, {
       variant_option_id: selectedSize.id,
       quantity: selectedQuantity
+    },{
+      withCredentials: true
     })
     .then((res) => {
       if (res.status === 201) {
+        getCartQuantity();
         alert('Đã thêm vào giỏ hàng');
       }
     })
@@ -130,6 +135,8 @@ const ProductDetail = () => {
         .then((res) => setVariant(res.data))
         .catch((err) => console.log(err));
     }
+    setSelectedQuantity(1);
+    setSelectedSize(null)
 
     getRelatedProducts();
   }, [product, color]);

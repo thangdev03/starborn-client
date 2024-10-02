@@ -12,12 +12,14 @@ import HomeWorkOutlinedIcon from '@mui/icons-material/HomeWorkOutlined';
 import InventoryOutlinedIcon from '@mui/icons-material/InventoryOutlined';
 import StarsOutlinedIcon from '@mui/icons-material/StarsOutlined';
 import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
+import { useCart } from "../../contexts/CartContext";
 
 const Header = () => {
   const { openAuthModal, handleLogout } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
   const [openUserActions, setOpenUserActions] = useState(false);
   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+  const { quantity } = useCart();
 
   const toggleDrawer = (state) => {
     setOpenMenu(state)
@@ -205,7 +207,7 @@ const Header = () => {
                             fontSize: "10px"
                           }}
                         >
-                            12
+                            {quantity}
                         </Typography>
                     </Link>
                     {currentUser ? (

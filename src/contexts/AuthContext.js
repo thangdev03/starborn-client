@@ -111,7 +111,6 @@ const AuthContextProvider = ({ children }) => {
             .then((res) => {
                 setAuthToken(res.data.accessToken);
                 setCurrentUser(res.data.user);
-                console.log('accessToken: ', res.data.accessToken)
                 sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
                 sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
             })
