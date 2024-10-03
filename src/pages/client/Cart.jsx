@@ -9,6 +9,12 @@ import {
   Button,
   TextField,
   Divider,
+  Select,
+  MenuItem,
+  useTheme,
+  useMediaQuery,
+  Paper,
+  Modal,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
@@ -20,6 +26,10 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import RedButton from "../../components/common/RedButton";
+import { useNavigate } from "react-router-dom";
+import DiscountOutlinedIcon from '@mui/icons-material/DiscountOutlined';
+import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState();
@@ -31,6 +41,8 @@ const Cart = () => {
   const [shippingFee, setShippingFee] = useState(30000);
   const [codeInput, setCodeInput] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
+  const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(false);
 
   const getCartItems = async () => {
     if (currentUser) {
@@ -88,6 +100,10 @@ const Cart = () => {
   };
 
   const deleteCartItem = async (itemId) => {
+    if (isSelected(itemId)) {
+      toggleCheckbox(itemId);
+    }
+
     axios
       .delete(
         serverUrl + `cart/item/${itemId}`,
@@ -108,11 +124,13 @@ const Cart = () => {
       orderValue: subtotal,
       code: codeInput,
       customerId: currentUser?.id
+    },{
+      withCredentials: true
     })
     .then((res) => setCoupon(res.data))
     .catch((error) => {
       setCoupon(null);
-      alert(error.message);
+      alert(error.response.data.message);
     })
   };
 
@@ -147,12 +165,20 @@ const Cart = () => {
 
   const isSelected = (id) => selectedItems.indexOf(id) !== -1;
 
+  const proceedToCheckout = () => {
+    const encodedList = btoa(JSON.stringify(selectedItems));
+
+    navigate(`/checkout?orderItems=${encodedList}`)
+  }
+
   useEffect(() => {
     if (selectedItems.length !== 0) {
       setShippingFee(30000);
     } else {
       setShippingFee(0);
     }
+
+    const encodeIds = btoa(JSON.stringify(selectedItems));
   }, [selectedItems])
 
   useEffect(() => {
@@ -187,17 +213,22 @@ const Cart = () => {
       sx={{
         marginTop: "32px",
         padding: {
-          sm: "8px",
+          xs: "0px",
           md: "0 52px",
         },
         minHeight: "50vh",
       }}
     >
-      <Typography fontSize={"20px"} fontWeight={500}>
+      <Typography
+        paddingX={{ xs: "16px", md: 0 }}
+        fontSize={"20px"}
+        fontWeight={600}
+      >
         Giỏ hàng
       </Typography>
 
       <Box></Box>
+      {/* ---------------START: DESKTOP CART LIST--------------- */}
       <Grid
         container
         columnSpacing={"4px"}
@@ -206,19 +237,21 @@ const Cart = () => {
         marginBottom={"32px"}
         width={"100%"}
         sx={{
+          display: { xs: "none", md: "flex" },
           justifyContent: "space-between",
           borderRadius: "4px",
           paddingY: "12px",
           paddingX: "8px",
         }}
       >
-        <Grid item>
-          <Checkbox onClick={(event) => toggleCheckAll(event)}/>
+        <Grid item alignSelf={"center"}>
+          <Checkbox
+            onClick={(event) => toggleCheckAll(event)}
+            sx={{ padding: 0 }}
+          />
         </Grid>
         <Grid item alignSelf={"center"} xs={3}>
-          <Typography fontSize={"14px"}>
-            Sản phẩm
-          </Typography>
+          <Typography fontSize={"14px"}>Sản phẩm</Typography>
         </Grid>
         <Grid item alignSelf={"center"} xs={1} lg={2}>
           <Typography fontSize={"14px"} textAlign={"center"}>
@@ -247,7 +280,14 @@ const Cart = () => {
         </Grid>
       </Grid>
 
-      <Box id={"cartList"} sx={{ height: "396px", overflowY: "auto" }}>
+      <Box
+        id={"cartList"}
+        sx={{
+          height: "396px",
+          overflowY: "auto",
+          display: { xs: "none", md: "block" },
+        }}
+      >
         {loading ? (
           [1, 2, 3].map((i) => (
             <Skeleton
@@ -277,8 +317,12 @@ const Cart = () => {
                   marginBottom: "16px",
                 }}
               >
-                <Grid item>
-                  <Checkbox checked={isItemSelected} onClick={() => toggleCheckbox(item.id)}/>
+                <Grid item alignSelf={"center"}>
+                  <Checkbox
+                    checked={isItemSelected}
+                    onClick={() => toggleCheckbox(item.id)}
+                    sx={{ padding: 0 }}
+                  />
                 </Grid>
                 <Grid item alignSelf={"center"} xs={3}>
                   <Stack direction={"row"} alignItems={"center"} gap={1}>
@@ -330,7 +374,7 @@ const Cart = () => {
                   />
                 </Grid>
                 <Grid item alignSelf={"center"} xs={1} lg={2}>
-                  {!item.discount ? (
+                  {Number(item.discount) === 0 ? (
                     <Typography fontSize={"14px"} textAlign={"center"}>
                       {formatVNDCurrency(item.price)}
                     </Typography>
@@ -344,7 +388,7 @@ const Cart = () => {
                           position: "absolute",
                           top: 0,
                           left: "50%",
-                          translate: "-50% -100%"
+                          translate: "-50% -100%",
                         }}
                       >
                         {formatVNDCurrency(item.price)}
@@ -363,14 +407,19 @@ const Cart = () => {
                     textAlign={"center"}
                     sx={{ color: colors.red }}
                   >
-                    {formatVNDCurrency(getPriceAfterDiscount(item.price, item.discount) * item.quantity)}
+                    {formatVNDCurrency(
+                      getPriceAfterDiscount(item.price, item.discount) *
+                        item.quantity
+                    )}
                   </Typography>
                 </Grid>
                 <Grid item>
                   <IconButton
                     onClick={() => {
                       if (
-                        window.confirm("Xóa sản phẩm này khỏi giỏ hàng của bạn?")
+                        window.confirm(
+                          "Xóa sản phẩm này khỏi giỏ hàng của bạn?"
+                        )
                       ) {
                         deleteCartItem(item.id);
                       }
@@ -382,7 +431,7 @@ const Cart = () => {
                   </IconButton>
                 </Grid>
               </Grid>
-            )
+            );
           })
         ) : (
           <Typography textAlign={"center"}>
@@ -390,11 +439,168 @@ const Cart = () => {
           </Typography>
         )}
       </Box>
+      {/* ---------------END: DESKTOP CART LIST--------------- */}
 
+      {/* ---------------START: MOBILE CART LIST--------------- */}
+      <Stack gap={"16px"}>
+        {cartItems ? (
+          cartItems.map((item) => {
+            const isItemSelected = isSelected(item.id);
+            return (
+              <Stack
+                key={item.id}
+                direction={"row"}
+                gap={"6px"}
+                sx={{
+                  display: { md: "none" },
+                  padding: "16px 8px",
+                  bgcolor: "rgba(183, 183, 183, 0.15)",
+                }}
+              >
+                <Checkbox
+                  checked={isItemSelected}
+                  onClick={() => toggleCheckbox(item.id)}
+                  sx={{ padding: 0 }}
+                />
+                <Box>
+                  <img
+                    src={item.image_url}
+                    alt={item.name}
+                    width={"96px"}
+                    height={"160px"}
+                    style={{
+                      objectFit: "cover",
+                      objectPosition: "center",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </Box>
+                <Stack justifyContent={"space-between"} flexGrow={1}>
+                  <Stack gap={"12px"}>
+                    <Typography fontSize={"14px"}>{item.name}</Typography>
+                    <Stack direction={"row"} gap={"8px"} flexWrap={"wrap"}>
+                      <Select
+                        value={10}
+                        // onChange={handleChange}
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          fontSize: "12px",
+                          borderRadius: "8px",
+                        }}
+                        SelectDisplayProps={{
+                          style: {
+                            paddingLeft: "8px",
+                          },
+                        }}
+                      >
+                        <MenuItem value={10}>Xanh</MenuItem>
+                        <MenuItem value={20}>Twenty</MenuItem>
+                        <MenuItem value={30}>Thirty</MenuItem>
+                      </Select>
+                      <Select
+                        value={10}
+                        // onChange={handleChange}
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          fontSize: "12px",
+                          borderRadius: "8px",
+                        }}
+                        SelectDisplayProps={{
+                          style: {
+                            paddingLeft: "8px",
+                          },
+                        }}
+                      >
+                        <MenuItem value={10}>XS</MenuItem>
+                        <MenuItem value={20}>Twenty</MenuItem>
+                        <MenuItem value={30}>Thirty</MenuItem>
+                      </Select>
+                    </Stack>
+                  </Stack>
+
+                  <Stack
+                    direction={"row"}
+                    justifyContent={"space-between"}
+                    alignItems={"end"}
+                  >
+                    <Box>
+                      <ProductQuantity
+                        currentQuantity={item.quantity}
+                        updateQuantity={(changeRange) =>
+                          updateQuantity(changeRange, item.id)
+                        }
+                        updateExactQuantity={(newQuantity) =>
+                          updateExactQuantity(newQuantity, item.id)
+                        }
+                        deleteCartItem={() => deleteCartItem(item.id)}
+                      />
+                      <IconButton
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Xóa sản phẩm này khỏi giỏ hàng của bạn?"
+                            )
+                          ) {
+                            deleteCartItem(item.id);
+                          }
+                        }}
+                        sx={{ padding: "2px", marginTop: "8px" }}
+                      >
+                        <DeleteOutlineRoundedIcon
+                          sx={{ color: colors.primaryColor }}
+                        />
+                      </IconButton>
+                    </Box>
+
+                    <Box>
+                      {Number(item.discount) === 0 ? (
+                        <Typography sx={{ fontSize: "14px" }}>
+                          {formatVNDCurrency(item.price)}
+                        </Typography>
+                      ) : (
+                        <Box pb={"2px"}>
+                          <Typography
+                            sx={{ fontSize: "14px", marginBottom: "4px" }}
+                          >
+                            {formatVNDCurrency(
+                              getPriceAfterDiscount(item.price, item.discount)
+                            )}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              textDecoration: "line-through",
+                              fontSize: "12px",
+                              color: "rgba(27, 33, 65, 0.5)",
+                            }}
+                          >
+                            {formatVNDCurrency(item.price)}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  </Stack>
+                </Stack>
+              </Stack>
+            );
+          })
+        ) : (
+          <Typography textAlign={"center"}>
+            Chưa có sản phẩm nào trong giỏ hàng
+          </Typography>
+        )}
+      </Stack>
+      {/* ---------------END: MOBILE CART LIST--------------- */}
+
+      {/* ---------------START: DESKTOP COUPON & TOTAL--------------- */}
       <Stack
+        display={{ xs: "none", md: "flex" }}
         direction={"row"}
         justifyContent={"space-between"}
         marginTop={"44px"}
+        flexWrap={"wrap"}
+        gap={"24px"}
       >
         <Stack direction={"row"} gap={"16px"} alignSelf={"start"}>
           <TextField
@@ -408,10 +614,7 @@ const Cart = () => {
               },
             }}
           />
-          <RedButton 
-            title={"Áp dụng"} 
-            onClick={() => applyCoupon()}
-          />
+          <RedButton title={"Áp dụng"} onClick={() => applyCoupon()} />
         </Stack>
 
         <Box
@@ -431,7 +634,15 @@ const Cart = () => {
             <Divider />
             <Stack direction={"row"} justifyContent={"space-between"}>
               <Typography>Lượng giảm:</Typography>
-              <Typography>{coupon ? (`${coupon.type === "VNĐ" ? formatVNDCurrency(coupon.amount) : coupon.amount}${coupon.type}`) : formatVNDCurrency(0)}</Typography>
+              <Typography>
+                {coupon
+                  ? `${
+                      coupon.type === "VNĐ"
+                        ? formatVNDCurrency(coupon.amount)
+                        : coupon.amount
+                    }${coupon.type}`
+                  : formatVNDCurrency(0)}
+              </Typography>
             </Stack>
             <Divider />
             <Stack direction={"row"} justifyContent={"space-between"}>
@@ -445,18 +656,158 @@ const Cart = () => {
                 {formatVNDCurrency(totalCart)}
               </Typography>
             </Stack>
-            <RedButton title={"Thanh toán"} customStyle={{ marginX: "auto" }} />
+            <RedButton
+              disabled={selectedItems.length === 0}
+              title={"Thanh toán"}
+              customStyle={{ marginX: "auto" }}
+              // onClick={() =>
+              //   navigate("/checkout", {
+              //     state: {
+              //       choseCoupon: coupon?.code || null,
+              //       orderItems: selectedItems,
+              //     },
+              //   })
+              // }
+              onClick={proceedToCheckout}
+            />
           </Stack>
         </Box>
       </Stack>
+      {/* ---------------END: DESKTOP COUPON & TOTAL--------------- */}
+
+      {/* ---------------START: MOBILE COUPON & TOTAL--------------- */}
+      <Modal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        sx={{
+          display: { xs: "block", md: "none" },
+        }}
+      >
+        <Stack 
+          gap={"16px"} 
+          sx={{
+            position: "absolute",
+            top: "20%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            bgcolor: "white",
+            width: "80%",
+            padding: "32px 16px",
+            borderRadius: "4px"
+          }}
+        >
+          <TextField
+            variant="outlined"
+            value={codeInput}
+            onChange={(e) => setCodeInput(e.target.value)}
+            label="Nhập mã giảm giá"
+            InputProps={{
+              style: {
+                borderRadius: "8px",
+              },
+            }}
+          />
+          <RedButton 
+            title={"Áp dụng"} 
+            onClick={() => {
+              applyCoupon();
+              setOpenModal(false);
+            }} 
+          />
+        </Stack>
+      </Modal>
+      <Paper
+        sx={{
+          display: { xs: "block", md: "none" },
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          paddingX: "16px",
+          paddingBottom: "12px",
+          bgcolor: "white",
+        }}
+      >
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+          paddingY={"8px"}
+        >
+          <Stack direction={"row"} gap={"4px"} alignItems={"center"}>
+            <DiscountOutlinedIcon fontSize="14px" />
+            <Typography fontSize={"14px"}>Voucher</Typography>
+          </Stack>
+          <Stack onClick={() => setOpenModal(true)} direction={"row"} gap={"4px"} alignItems={"center"} sx={{ cursor: "pointer" }}>
+            <Typography fontSize={"14px"}>{ coupon ? coupon.code : "Nhập mã"}</Typography>
+            <ArrowForwardIosRoundedIcon sx={{ fontSize: "12px" }} />
+          </Stack>
+        </Stack>
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+          paddingY={"8px"}
+          marginTop={"8px"}
+        >
+          <Stack direction={"row"} gap={"4px"} alignItems={"center"}>
+            <LocalShippingOutlinedIcon fontSize="14px" />
+            <Typography fontSize={"14px"}>Phí vận chuyển</Typography>
+          </Stack>
+          <Stack direction={"row"} gap={"4px"} alignItems={"center"}>
+            <Typography fontSize={"14px"}>
+              {formatVNDCurrency(shippingFee)}
+            </Typography>
+          </Stack>
+        </Stack>
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+          marginTop={"8px"}
+        >
+          <Stack direction={"row"} gap={"6px"} alignItems={"center"}>
+            <Checkbox
+              onClick={(event) => toggleCheckAll(event)}
+              sx={{ padding: 0, height: "14px", width: "14px" }}
+              size="small"
+            />
+            <Typography fontSize={"14px"}>Tất cả</Typography>
+          </Stack>
+          <Stack direction={"row"} gap={"4px"} alignItems={"center"}>
+            <Typography fontSize={"16px"} color={colors.red} fontWeight={500}>
+              {formatVNDCurrency(totalCart)}
+            </Typography>
+            <RedButton
+              disabled={selectedItems.length === 0}
+              title={"Thanh toán"}
+              // onClick={() =>
+              //   navigate("/checkout", {
+              //     state: {
+              //       choseCoupon: coupon?.code || null,
+              //       orderItems: selectedItems,
+              //     },
+              //   })
+              // }
+              onClick={proceedToCheckout}
+              customStyle={{
+                padding: "6px 12px",
+                fontSize: "14px",
+                textTransform: "inherit",
+              }}
+            />
+          </Stack>
+        </Stack>
+      </Paper>
+      {/* ---------------END: MOBILE COUPON & TOTAL--------------- */}
     </Box>
   );
 };
 
-const ProductQuantity = ({ currentQuantity, updateQuantity = () => {}, updateExactQuantity = () => {}, deleteCartItem = () => {} }) => {
+const ProductQuantity = ({ customStyle, currentQuantity, updateQuantity = () => {}, updateExactQuantity = () => {}, deleteCartItem = () => {} }) => {
   const [quantity, setQuantity] = useState(currentQuantity);
   const [changeRange, setChangeRange] = useState(0)
   const updateRef = useRef(null);
+  const theme = useTheme();
+  const isMobileAndTable = useMediaQuery(theme.breakpoints.down("md"));
 
   const clearUpdateRef = () => {
     clearTimeout(updateRef.current);
@@ -504,11 +855,12 @@ const ProductQuantity = ({ currentQuantity, updateQuantity = () => {}, updateExa
     <Stack
       direction={"row"}
       sx={{
-        marginTop: { xs: "12px", sm: 0 },
+        marginTop: { xs: 0, md: 0 },
         border: "1px solid rgba(27, 33, 65, 0.5)",
         borderRadius: "4px",
-        mx: "auto",
+        mx: { md: "auto" },
         maxWidth: { lg: "50%" },
+        customStyle
       }}
     >
       <Button
@@ -517,7 +869,8 @@ const ProductQuantity = ({ currentQuantity, updateQuantity = () => {}, updateExa
           borderRight: "1px solid rgba(27, 33, 65, 0.5)",
           borderRadius: 0,
           minWidth: 0,
-          padding: "2px 4px",
+          paddingY: { xs: 0, md: "2px" }, 
+          paddingX: "4px"
         }}
       >
         <RemoveRoundedIcon
@@ -530,13 +883,13 @@ const ProductQuantity = ({ currentQuantity, updateQuantity = () => {}, updateExa
         onChange={handleChangeQuantity}
         onBlur={() => updateExactQuantity(quantity)}
         style={{
-          fontSize: "14px",
-          height: "32px",
+          fontSize: isMobileAndTable ?  "12px" : "14px",
+          height: isMobileAndTable ? "26px" : "32px",
           margin: 0,
           border: 0,
           outline: "none",
           textAlign: "center",
-          width: "64px",
+          width: isMobileAndTable ? "36px" : "64px",
           fontFamily: "Inter",
           fontWeight: 500,
           flexGrow: 1,
@@ -549,7 +902,8 @@ const ProductQuantity = ({ currentQuantity, updateQuantity = () => {}, updateExa
           borderLeft: "1px solid rgba(27, 33, 65, 0.5)",
           borderRadius: 0,
           minWidth: 0,
-          padding: "2px 4px",
+          paddingY: { xs: 0, md: "2px" }, 
+          paddingX: "4px"
         }}
       >
         <AddRoundedIcon sx={{ fontSize: "16px", color: colors.primaryColor }} />

@@ -17,6 +17,7 @@ import AllProducts from './pages/client/AllProducts';
 import Cart from './pages/client/Cart';
 import CustomerPrivateRoutes from './utils/CustomerPrivateRoutes';
 import { useAuth } from './contexts/AuthContext';
+import Checkout from './pages/client/Checkout';
 
 const AppRoutes = () => {
   const { token } = useAuth();
@@ -33,6 +34,7 @@ const AppRoutes = () => {
       <Route path='/product/:productName' element={<ProductDetail />}/>
       <Route element={<CustomerPrivateRoutes />}>
         <Route path='/cart' element={<Cart />}/>
+        <Route path='/checkout' element={<Checkout />}/>
       </Route>
 
         {/* Admin Routes */}
