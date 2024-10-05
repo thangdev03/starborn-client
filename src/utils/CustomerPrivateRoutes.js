@@ -3,11 +3,16 @@ import { useAuth } from "../contexts/AuthContext"
 import { useEffect } from "react";
 
 const CustomerPrivateRoutes = () => {
-  const { openAuthModal } = useAuth();
+  const { openAuthModal, checking } = useAuth();
 
-  const accessToken = JSON.parse(sessionStorage.getItem('accessToken'))
+  const accessToken = sessionStorage.getItem('accessToken');
+  const parsedToken  = accessToken ? JSON.parse(accessToken) : null;
 
-  if (accessToken) {
+  if (checking) {
+    return null;
+  }
+
+  if (parsedToken) {
     return <Outlet />  
   } else {
     openAuthModal();

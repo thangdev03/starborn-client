@@ -262,7 +262,7 @@ const Header = () => {
                     ) : (
                         <Button 
                           sx={{ color: colors.primaryColor }}
-                          onClick={openAuthModal} 
+                          onClick={() => openAuthModal()} 
                         >
                             Đăng nhập
                         </Button>

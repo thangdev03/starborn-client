@@ -34,7 +34,7 @@ import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined
 const Cart = () => {
   const [cartItems, setCartItems] = useState();
   const [loading, setLoading] = useState(true);
-  const { openAuthModal, authToken, currentUser } = useAuth();
+  const { authToken, currentUser } = useAuth();
   const [subtotal, setSubtotal] = useState(0);
   const [totalCart, setTotalCart] = useState(0);
   const [coupon, setCoupon] = useState(null);
@@ -54,9 +54,7 @@ const Cart = () => {
         .catch((error) => {
           console.log(error);
 
-          if (error.status === 403) {
-            openAuthModal();
-          } else if (error.status === 404) {
+          if (error.status === 404) {
             setCartItems(null);
           }
         })
@@ -127,7 +125,7 @@ const Cart = () => {
     },{
       withCredentials: true
     })
-    .then((res) => setCoupon(res.data))
+    .then((res) => setCoupon(res.data.coupon))
     .catch((error) => {
       setCoupon(null);
       alert(error.response.data.message);
@@ -168,7 +166,13 @@ const Cart = () => {
   const proceedToCheckout = () => {
     const encodedList = btoa(JSON.stringify(selectedItems));
 
-    navigate(`/checkout?orderItems=${encodedList}`)
+    navigate(`/checkout?orderItems=${encodedList}`,
+      {
+        state: {
+          choseCoupon: coupon?.code,
+        }
+      }
+    )
   }
 
   useEffect(() => {
@@ -645,11 +649,11 @@ const Cart = () => {
               </Typography>
             </Stack>
             <Divider />
-            <Stack direction={"row"} justifyContent={"space-between"}>
+            {/* <Stack direction={"row"} justifyContent={"space-between"}>
               <Typography>Phí vận chuyển:</Typography>
               <Typography>{formatVNDCurrency(shippingFee)}</Typography>
             </Stack>
-            <Divider />
+            <Divider /> */}
             <Stack direction={"row"} justifyContent={"space-between"}>
               <Typography>Thành tiền</Typography>
               <Typography fontWeight={600} color={colors.red}>

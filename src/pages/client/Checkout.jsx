@@ -49,8 +49,9 @@ const paymentOptions = [
     name: 'banking',
     label: 'Chuyển khoản',
     logoUrls: [
-      '../assets/img/mastercard.png',
-      '../assets/img/visa.png'
+      // '../assets/img/mastercard.png',
+      // '../assets/img/visa.png',
+      '../assets/img/Logo-VNPAY-QR.webp'
     ]
   },
   {
@@ -65,11 +66,11 @@ const Checkout = () => {
   const accessToken = sessionStorage.getItem('accessToken');
   const { currentUser } = useAuth();
   const location = useLocation();
-  const choseCoupon = location.state?.choseCoupon || null;
+  const choseCoupon = location.state?.choseCoupon || "";
   const [searchParams, setSearchParams] = useSearchParams();
-  const [appliedCoupon, setAppliedCoupon] = useState(choseCoupon);
-  const [codeInput, setCodeInput] = useState("");
-  const [cityList, setCityList] = useState([]);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [codeInput, setCodeInput] = useState(choseCoupon);
+  const [provinceList, setProvinceList] = useState([]);
   const [districtList, setDistrictList] = useState([]);
   const [errors, setErrors] = useState({
     name: false,
@@ -82,19 +83,22 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState(paymentOptions[0].label);
   const [products, setProducts] = useState([]);
   const [saveAddress, setSaveAddress] = useState(true);
+  const [shippingFee, setShippingFee] = useState(0);
   const [shippingInfo, setShippingInfo] = useState({
     name: "",
     phone: "",
     email: "",
     address: "",
-    city: "",
-    district: "",
-    ward: ""
+    // city: "",
+    // district: "",
+    // ward: ""
   })
-  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
   const [subtotal, setSubtotal] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [totalDiscount, setTotalDiscount] = useState(0);
   const [wardList, setWardList] = useState([]);
 
   const handleChange = (event, inputPattern) => {
@@ -113,7 +117,7 @@ const Checkout = () => {
     return JSON.parse(atob(data));
   }
 
-  const getCities = () => {
+  const getProvinces = () => {
     axios.get("https://vapi.vnappmob.com/api/province/",
       {
         headers: {
@@ -121,12 +125,12 @@ const Checkout = () => {
         }
       }
     )
-    .then((res) => setCityList(res.data.results))
+    .then((res) => setProvinceList(res.data.results))
     .catch((error) => console.log(error))
   }
 
   const getDistricts = () => {
-    axios.get("https://vapi.vnappmob.com/api/province/district/" + selectedCity.province_id,
+    axios.get("https://vapi.vnappmob.com/api/province/district/" + selectedProvince.province_id,
       {
         headers: {
           "Content-Type": "application/json"
@@ -150,7 +154,7 @@ const Checkout = () => {
   };
 
   const handleChangeCity = (e) => {
-    setSelectedCity(e.target.value);
+    setSelectedProvince(e.target.value);
     setSelectedDistrict("");
     setSelectedWard("");
   };
@@ -164,15 +168,68 @@ const Checkout = () => {
     setSelectedWard(e.target.value);
   };
 
+  const applyCoupon = async () => {
+    axios.post(serverUrl + "coupons/apply", {
+      orderValue: subtotal,
+      code: codeInput,
+      customerId: currentUser?.id
+    }, {
+      withCredentials: true
+    })
+    .then((res) => {
+      setAppliedCoupon(res.data.coupon);
+      setTotalDiscount(res.data.discountAmount);
+      alert(`Đã áp dụng mã ${res.data?.coupon?.code} thành công`)
+    })
+    .catch((error) => {
+      setAppliedCoupon(null);
+      alert(error.response.data.message);
+    })
+  };
+
+  const handleSubmit = () => {
+    axios
+      .post(serverUrl + `orders/${currentUser.id}`,
+        {
+          address: shippingInfo.address,
+          ward: selectedWard.ward_name,
+          district: selectedDistrict.district_name,
+          province: selectedProvince.province_name,
+          email: shippingInfo.email,
+          name: shippingInfo.name,
+          phone: shippingInfo.phone,
+          coupon: appliedCoupon,
+          orderItems: products, 
+          clientShippingFee: shippingFee
+        },
+        {
+          withCredentials: true
+        }
+      )
+      .then((res) => {
+        if (res.status === 201) {
+          return alert("Đặt hàng thành công!");
+        }
+      })
+      .catch((error) => {
+        if (error.response.status !== 500) {
+          alert(error.response.data.message);
+          // return window.location.reload();
+        }
+
+        console.log(error)
+      })
+  }
+
   useEffect(() => {
-    getCities();
+    getProvinces();
   }, [])
 
   useEffect(() => {
-    if (selectedCity) {
+    if (selectedProvince) {
       getDistricts();
     }
-  }, [selectedCity])
+  }, [selectedProvince])
 
   useEffect(() => {
     if (selectedDistrict) {
@@ -193,6 +250,22 @@ const Checkout = () => {
   }, [searchParams])
 
   useEffect(() => {
+    if (selectedProvince && selectedDistrict && subtotal && products) {
+      axios.get(serverUrl + "shipping/get/fee", {
+        params: {
+          province: selectedProvince.province_name,
+          district: selectedDistrict.district_name,
+          ward: selectedWard.ward_name,
+          weight: products.length * 250,
+          value: subtotal,
+        }
+      })
+      .then((res) => setShippingFee(res.data?.fee))
+      .catch((error) => console.log(error))
+    }
+  }, [selectedProvince, selectedDistrict, selectedWard, products, subtotal])
+
+  useEffect(() => {
     if (orderItems && orderItems.length > 0) {
       setLoading(true)
       axios.post(serverUrl + "cart/items/toOrder", {
@@ -203,27 +276,26 @@ const Checkout = () => {
         },
         withCredentials: true
       })
-      .then((res) => setProducts(res.data))
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false))
+        .then((res) => {
+          setProducts(res.data.items);
+          setSubtotal(res.data.subtotal);
+        })
+        .catch((error) => console.log(error))
+        .finally(() => setLoading(false))
     }
   }, [orderItems])
 
-  // console.log(products)
-  const applyCoupon = async () => {
-    axios.post(serverUrl + "coupons/apply", {
-      orderValue: subtotal,
-      code: codeInput,
-      customerId: currentUser?.id
-    }, {
-      withCredentials: true
-    })
-    .then((res) => setAppliedCoupon(res.data))
-    .catch((error) => {
-      setAppliedCoupon(null);
-      alert(error.response.data.message);
-    })
-  };
+  useEffect(() => {
+    if (products.length !== 0) {
+      setTotal(subtotal + shippingFee - totalDiscount);
+    }
+  }, [products, appliedCoupon, shippingFee])
+
+  useEffect(() => {
+    if (choseCoupon && subtotal && currentUser) {
+      applyCoupon()
+    }
+  }, [choseCoupon, subtotal, currentUser])
 
   return (
     <Box paddingX={{ xs: "16px", sm: "52px" }}>
@@ -285,7 +357,7 @@ const Checkout = () => {
                   hiddenLabel
                   displayEmpty
                   size="small"
-                  value={selectedCity}
+                  value={selectedProvince}
                   sx={{
                     marginTop: "8px",
                   }}
@@ -299,7 +371,7 @@ const Checkout = () => {
                   <MenuItem disabled value="" sx={{ fontStyle: "italic" }}>
                     Chọn thành phố/ tỉnh
                   </MenuItem>
-                  {cityList.map((city) => (
+                  {provinceList.map((city) => (
                     <MenuItem key={city.province_id} value={city}>
                       {city.province_name}
                     </MenuItem> 
@@ -317,7 +389,7 @@ const Checkout = () => {
                   hiddenLabel
                   displayEmpty
                   size="small"
-                  disabled={selectedCity === "" ? true : false}
+                  disabled={selectedProvince === "" ? true : false}
                   value={selectedDistrict}
                   onChange={handleChangeDistrict}
                   sx={{
@@ -391,6 +463,12 @@ const Checkout = () => {
               </Typography>
             </Stack>
           </Stack>
+          <Stack gap={"8px"} marginTop={"20px"}>
+            <Typography fontSize={"20px"} fontWeight={500}>Đơn vị vận chuyển: </Typography>
+            <Box>
+              <img src="../assets/img/Logo-GHTK.webp" alt="Logo Giao hàng tiết kiệm" height={"32px"}/>
+            </Box>
+          </Stack>
         </Box>
 
         <Box flexGrow={1} maxWidth={"640px"}>
@@ -442,7 +520,7 @@ const Checkout = () => {
                   (products.length !== 0
                     ? products.map((i) => (
                       <Stack
-                        key={i.id}
+                        key={i.variant_option_id}
                         direction={"row"}
                         justifyContent={"space-between"}
                         gap={"20px"}
@@ -477,11 +555,11 @@ const Checkout = () => {
                         </Stack>
                         {i.discount > 0 ? (
                           <Stack>
-                            <Typography>{formatVNDCurrency(getPriceAfterDiscount(i.price, i.discount))}</Typography>
-                            <Typography fontSize={"12px"} color={"rgba(27, 33, 65, 0.4)"} sx={{ textDecoration: "line-through" }}>{formatVNDCurrency(i.price)}</Typography>
+                            <Typography>{formatVNDCurrency(getPriceAfterDiscount(i.price, i.discount) * i.quantity)}</Typography>
+                            <Typography fontSize={"12px"} color={"rgba(27, 33, 65, 0.4)"} sx={{ textDecoration: "line-through" }}>{formatVNDCurrency(i.price * i.quantity)}</Typography>
                           </Stack>
                         ) : (
-                          <Typography>{formatVNDCurrency(i.price)}</Typography>
+                          <Typography>{formatVNDCurrency(i.price * i.quantity)}</Typography>
                         )}
                       </Stack>
                       ))
@@ -495,23 +573,23 @@ const Checkout = () => {
           <Stack gap={"16px"} marginTop={"56px"}>
             <Stack direction={"row"} justifyContent={"space-between"}>
               <Typography>Tạm tính:</Typography>
-              <Typography>{formatVNDCurrency(176000)}</Typography>
+              <Typography>{formatVNDCurrency(subtotal)}</Typography>
             </Stack>
             <Divider sx={{ borderColor: "rgba(0, 0, 0, 0.4)" }} />
             <Stack direction={"row"} justifyContent={"space-between"}>
               <Typography>Phí giao hàng:</Typography>
-              <Typography>{formatVNDCurrency(176000)}</Typography>
+              <Typography>{formatVNDCurrency(shippingFee)}</Typography>
             </Stack>
             <Divider sx={{ borderColor: "rgba(0, 0, 0, 0.4)" }} />
             <Stack direction={"row"} justifyContent={"space-between"}>
               <Typography>Giảm giá:</Typography>
-              <Typography>{formatVNDCurrency(176000)}</Typography>
+              <Typography>{formatVNDCurrency(totalDiscount)}</Typography>
             </Stack>
             <Divider sx={{ borderColor: "rgba(0, 0, 0, 0.4)" }} />
             <Stack direction={"row"} justifyContent={"space-between"}>
               <Typography>Tổng tiền:</Typography>
               <Typography fontWeight={600}>
-                {formatVNDCurrency(176000)}
+                {formatVNDCurrency(total)}
               </Typography>
             </Stack>
           </Stack>
@@ -550,7 +628,7 @@ const Checkout = () => {
                       <Stack direction={"row"} alignItems={"center"} gap={"8px"}>
                         {option.logoUrls.map((logoUrl, index) => (
                           <Box key={index}>
-                            <img src={logoUrl}/>
+                            <img src={logoUrl} height={"28x"} style={{ objectFit: "contain" }}/>
                           </Box>
                         ))}
                       </Stack>
@@ -673,7 +751,7 @@ const Checkout = () => {
               />
             </svg>
             <Typography fontSize={"16px"} fontWeight={appliedCoupon ? 600 : 400}>
-              { appliedCoupon ? appliedCoupon.code : "Chưa dùng voucher" }
+              { appliedCoupon ? `${appliedCoupon.code} ${appliedCoupon.type === "%" ? "(" + appliedCoupon.amount + "%)" : ""}` : "Chưa dùng voucher" }
             </Typography>
           </Stack>
         </Stack>
@@ -681,12 +759,15 @@ const Checkout = () => {
         <Stack direction={"row"} justifyContent={"right"} paddingRight={"52px"} gap={"52px"} flexGrow={1}>
           <Stack direction={"row"} alignItems={"center"} gap={"8px"}>
             <Typography>Thành tiền</Typography>
-            <Typography fontSize={"24px"} fontWeight={500} color={colors.red}>{formatVNDCurrency(280000)}</Typography>
+            <Typography fontSize={"24px"} fontWeight={500} color={colors.red}>{formatVNDCurrency(total)}</Typography>
           </Stack>
           <Box alignSelf={"center"}>
             <RedButton 
+              disabled={
+                !(shippingInfo.address && shippingInfo.email && shippingInfo.name && shippingInfo.phone && selectedDistrict)
+              }
               title={"ĐẶT HÀNG"}
-              onClick={() => {}}
+              onClick={() => handleSubmit()}
             />
           </Box>
         </Stack>
