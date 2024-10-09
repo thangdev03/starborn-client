@@ -15,7 +15,7 @@ export const CartProvider = ({ children }) => {
                 withCredentials: true
             })
             .then((res) => {
-                setQuantity(res.data[0]?.total);
+                setQuantity(res.data.length || 0);
             })
             .catch((error) => { 
                 setQuantity(0);

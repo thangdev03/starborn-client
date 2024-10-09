@@ -15,6 +15,8 @@ import {
   useMediaQuery,
   Paper,
   Modal,
+  Popper,
+  Fade,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
@@ -26,13 +28,15 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import RedButton from "../../components/common/RedButton";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DiscountOutlinedIcon from '@mui/icons-material/DiscountOutlined';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import { useCart } from "../../contexts/CartContext";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState();
+  const { getCartQuantity } = useCart();
+  const [cartItems, setCartItems] = useState(null);
   const [loading, setLoading] = useState(true);
   const { authToken, currentUser } = useAuth();
   const [subtotal, setSubtotal] = useState(0);
@@ -43,6 +47,22 @@ const Cart = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
+  const [openOptions, setOpenOptions] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [variantList, setVariantList] = useState([]);
+  const [targetedProduct, setTargetedProduct] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+
+  const handleClickOptions = (event, item) => {
+    setAnchorEl(event.currentTarget);
+    setTargetedProduct(item);
+    if (anchorEl !== null && event.currentTarget !== anchorEl) {
+      setOpenOptions(true)
+    } else {
+      setOpenOptions((prev) => !prev);
+    }
+  };
 
   const getCartItems = async () => {
     if (currentUser) {
@@ -92,6 +112,7 @@ const Cart = () => {
       )
       .then((res) => {
         console.log(res.data);
+        getCartQuantity();
         getCartItems();
       })
       .catch((error) => console.log(error))
@@ -104,18 +125,42 @@ const Cart = () => {
 
     axios
       .delete(
-        serverUrl + `cart/item/${itemId}`,
+        serverUrl + `cart/items`,
         {
+          data: {
+            itemIds: [itemId]
+          },
+          withCredentials: true
+        }
+      )
+      .then((res) => {
+        getCartQuantity();
+        getCartItems();
+      })
+      .catch((error) => console.log(error))
+  };
+
+  const deleteSelectedItems = async () => {
+    setSelectedItems([])
+
+    axios
+      .delete(
+        serverUrl + `cart/items`,
+        {
+          data: {
+            itemIds: selectedItems
+          },
           withCredentials: true
         }
       )
       .then((res) => {
         if (res.status === 200) {
+          getCartQuantity();
           getCartItems();
         }
       })
       .catch((error) => console.log(error))
-  };
+  }
 
   const applyCoupon = async () => {
     axios.post(serverUrl + "coupons/apply", {
@@ -210,7 +255,21 @@ const Cart = () => {
     }
   }, [selectedItems, coupon, shippingFee, cartItems])
 
-  // console.log(cartItems);
+  useEffect(() => {
+    if (targetedProduct) {
+      setSelectedColor(targetedProduct.color);
+      setSelectedSize(targetedProduct.variant_option_id);
+
+      axios.get(serverUrl + `products/${targetedProduct.product_id}/variants`)
+      .then((res) => {
+        setVariantList(res.data)
+      })
+      .catch((error) => console.log(error))
+    }
+  }, [targetedProduct])
+
+  // console.log(cartItems)
+  console.log(variantList)
 
   return (
     <Box
@@ -277,8 +336,8 @@ const Cart = () => {
             Thành tiền
           </Typography>
         </Grid>
-        <Grid item>
-          <IconButton>
+        <Grid item width={"52px"} height={"40px"}>
+          <IconButton title="Xóa tất cả đã chọn" onClick={() => deleteSelectedItems()} sx={{ display: selectedItems.length !== 0 ? "inline-flex" : "none" }}>
             <DeleteOutlineRoundedIcon sx={{ color: colors.primaryColor }} />
           </IconButton>
         </Grid>
@@ -323,6 +382,7 @@ const Cart = () => {
               >
                 <Grid item alignSelf={"center"}>
                   <Checkbox
+                    disabled={item.stock === 0}
                     checked={isItemSelected}
                     onClick={() => toggleCheckbox(item.id)}
                     sx={{ padding: 0 }}
@@ -330,16 +390,26 @@ const Cart = () => {
                 </Grid>
                 <Grid item alignSelf={"center"} xs={3}>
                   <Stack direction={"row"} alignItems={"center"} gap={1}>
-                    <Box>
-                      <img
-                        src={item.image_url}
-                        alt=""
-                        width={"80px"}
-                        height={"80px"}
-                        style={{ objectFit: "cover", borderRadius: "8px" }}
-                      />
-                    </Box>
-                    <Typography fontSize={"14px"}>{item.name}</Typography>
+                    <Link to={`/product/${item.product_slug}?color=${item.variant_slug}`}>
+                      <Box>
+                        <img
+                          src={item.image_url}
+                          alt=""
+                          width={"80px"}
+                          height={"80px"}
+                          style={{ objectFit: "cover", borderRadius: "8px" }}
+                        />
+                      </Box>
+                    </Link>
+                    <Link 
+                      to={`/product/${item.product_slug}?color=${item.variant_slug}`}
+                      style={{
+                        textDecoration: "none",
+                        color: colors.primaryColor
+                      }}  
+                    >
+                      <Typography fontSize={"14px"}>{item.name}</Typography>
+                    </Link>
                   </Stack>
                 </Grid>
                 <Grid
@@ -353,6 +423,7 @@ const Cart = () => {
                     alignItems: "center",
                     cursor: "pointer",
                   }}
+                  onClick={(e) => handleClickOptions(e, item)}
                 >
                   <Typography
                     fontSize={"14px"}
@@ -365,17 +436,23 @@ const Cart = () => {
                   </Typography>
                   <ArrowDropDownIcon />
                 </Grid>
-                <Grid item alignSelf={"center"} xs={1} lg={2}>
-                  <ProductQuantity
-                    currentQuantity={item.quantity}
-                    updateQuantity={(changeRange) =>
-                      updateQuantity(changeRange, item.id)
-                    }
-                    updateExactQuantity={(newQuantity) =>
-                      updateExactQuantity(newQuantity, item.id)
-                    }
-                    deleteCartItem={() => deleteCartItem(item.id)}
-                  />
+                <Grid item alignSelf={"center"} xs={1} lg={2} justifyContent={"center"}>
+                  {item.stock === 0 ? (
+                    <Typography textAlign={"center"} sx={{ opacity: .3 }}>{item.quantity}</Typography>
+                  ) : (
+                    <ProductQuantity
+                      currentQuantity={item.quantity}
+                      updateQuantity={(changeRange) =>
+                        updateQuantity(changeRange, item.id)
+                      }
+                      updateExactQuantity={(newQuantity) =>
+                        updateExactQuantity(newQuantity, item.id)
+                      }
+                      deleteCartItem={() => deleteCartItem(item.id)}
+                      maxStock={item.stock}
+                    />
+                  )}
+                  <Typography marginTop={"4px"} fontSize={"12px"} textAlign={"center"} display={item.stock === 0 ? "block" : "none"} sx={{ opacity: .3 }}>Còn 0 sản phẩm</Typography>
                 </Grid>
                 <Grid item alignSelf={"center"} xs={1} lg={2}>
                   {Number(item.discount) === 0 ? (
@@ -443,6 +520,95 @@ const Cart = () => {
           </Typography>
         )}
       </Box>
+      <Popper
+        sx={{ zIndex: 50 }}
+        open={openOptions}
+        anchorEl={anchorEl}
+        placement={"bottom"}
+        transition
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={350}>
+            <Paper sx={{ py: 2, px: 2, maxWidth: "320px" }}>
+              <Typography>Màu sắc:</Typography>
+              <Stack direction={"row"} gap={"4px"} marginTop={"4px"} flexWrap={"wrap"}>
+                {variantList?.map((variant) => {
+                  const isSelected = variant.color === selectedColor ? true : false;
+                  return (
+                    <Button
+                      key={variant.color}
+                      disabled={!variant.is_active}
+                      variant="outlined"
+                      onClick={() => setSelectedColor(variant.color)}
+                      sx={{ 
+                        color: isSelected ? colors.red : colors.primaryColor, 
+                        borderColor: isSelected ? colors.red : "rgba(27, 33, 65, 0.5)",
+                        "&:hover": {
+                          borderColor: isSelected && colors.red,
+                          bgcolor: isSelected && "transparent"
+                        }
+                      }}
+                    >
+                      {variant.color}
+                    </Button>
+                  )
+                })}
+              </Stack>
+              <Typography sx={{ marginTop: "8px" }}>Kích cỡ:</Typography>
+              <Stack direction={"row"} gap={"4px"} marginTop={"4px"} flexWrap={"wrap"}>
+                {variantList
+                ?.find((variant) => variant.color === selectedColor)
+                ?.options.map((option) => {
+                  const isSelected = option.option_id === selectedSize ? true : false;
+                  return (
+                  <Button
+                    key={option.option_id}
+                    disabled={!option.option_isActive || option.option_stock === 0}
+                    variant="outlined"
+                    onClick={() => setSelectedSize(option.option_id)}
+                    sx={{ 
+                      color: isSelected ? colors.red : colors.primaryColor, 
+                      borderColor: isSelected ? colors.red : "rgba(27, 33, 65, 0.5)",
+                      "&:hover": {
+                        borderColor: isSelected && colors.red,
+                        bgcolor: isSelected && "transparent"
+                      }
+                    }}
+                  >
+                    {option.option_size}
+                  </Button>
+                  )
+                })}
+              </Stack>
+              <Stack direction={"row"} marginTop={"8px"} gap={"4px"} justifyContent={"end"}>
+                <Button
+                  onClick={() => {
+                    setOpenOptions(false);
+                    setTargetedProduct(null);
+                  }} 
+                  sx={{
+                    borderColor: colors.primaryColor,
+                    color: colors.primaryColor,
+                    borderRadius: "8px"
+                  }}
+                >
+                  Trở lại
+                </Button>
+                <RedButton 
+                  title={"Xác nhận"}
+                  customStyle={{
+                    paddingX: "12px"
+                  }}
+                  onClick={() => console.log({
+                    selectedSize,
+                    cartItem: targetedProduct.id
+                  })}
+                />
+              </Stack>
+            </Paper>
+          </Fade>
+        )}
+      </Popper>
       {/* ---------------END: DESKTOP CART LIST--------------- */}
 
       {/* ---------------START: MOBILE CART LIST--------------- */}
@@ -539,6 +705,7 @@ const Cart = () => {
                           updateExactQuantity(newQuantity, item.id)
                         }
                         deleteCartItem={() => deleteCartItem(item.id)}
+                        maxStock={item.stock}
                       />
                       <IconButton
                         onClick={() => {
@@ -806,7 +973,7 @@ const Cart = () => {
   );
 };
 
-const ProductQuantity = ({ customStyle, currentQuantity, updateQuantity = () => {}, updateExactQuantity = () => {}, deleteCartItem = () => {} }) => {
+const ProductQuantity = ({ customStyle, currentQuantity, maxStock, updateQuantity = () => {}, updateExactQuantity = () => {}, deleteCartItem = () => {} }) => {
   const [quantity, setQuantity] = useState(currentQuantity);
   const [changeRange, setChangeRange] = useState(0)
   const updateRef = useRef(null);
@@ -819,8 +986,10 @@ const ProductQuantity = ({ customStyle, currentQuantity, updateQuantity = () => 
   }
   
   const handleIncrease = () => {
-    setQuantity(quantity + 1);
-    setChangeRange((prev) => prev + 1);
+    if (quantity < maxStock) {
+      setQuantity(quantity + 1);
+      setChangeRange((prev) => prev + 1);
+    }
   }
 
   const handleDecrease = () => {
@@ -837,7 +1006,7 @@ const ProductQuantity = ({ customStyle, currentQuantity, updateQuantity = () => 
 
   const handleChangeQuantity = (e) => {
     const newQuantity = Number(e.target.value);
-    if (newQuantity >= 1) {
+    if (newQuantity >= 1 && newQuantity <= maxStock) {
       setQuantity(newQuantity);
     }
   }

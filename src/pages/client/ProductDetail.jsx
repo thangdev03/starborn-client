@@ -59,10 +59,11 @@ const ProductDetail = () => {
     setSearchParams({ color: variantSlug });
   };
 
-  const handleChooseSize = (size, optionId) => {
+  const handleChooseSize = (size, optionId, stock) => {
     setSelectedSize({
       size,
       id: optionId,
+      stock
     });
   };
 
@@ -75,7 +76,13 @@ const ProductDetail = () => {
   };
 
   const onChangeQuantity = (e) => {
-    if (e.target.value >= 1) setSelectedQuantity(Number(e.target.value));
+    if (e.target.value >= 1) {
+      if (e.target.value >= selectedSize?.stock) {
+        setSelectedQuantity(selectedSize?.stock);
+      } else {
+        setSelectedQuantity(Number(e.target.value));
+      }
+    }
   };
 
   // --------------CHƯA CÓ API LẤY RELATED PRODUCTS--------------------
@@ -141,6 +148,11 @@ const ProductDetail = () => {
     getRelatedProducts();
   }, [product, color]);
 
+  useEffect(() => {
+    if (selectedSize?.stock < selectedQuantity) {
+      setSelectedQuantity(selectedSize.stock);
+    }
+  }, [selectedSize])
 
   return (
     <Box
@@ -455,8 +467,9 @@ const ProductDetail = () => {
               {variant?.options.map((option) => (
                 <Button
                   key={option.option_id}
+                  disabled={option.stock === 0}
                   onClick={() =>
-                    handleChooseSize(option.size, option.option_id)
+                    handleChooseSize(option.size, option.option_id, option.stock)
                   }
                   sx={{
                     width: "36px",
@@ -483,9 +496,25 @@ const ProductDetail = () => {
                       bgcolor: colors.red,
                       color: "white",
                     },
+                    position: "relative"
                   }}
                 >
                   {option.size}
+                  <Box
+                    sx={{
+                      display: option.stock === 0 ? "block" : "none",
+                      position: "absolute",
+                      height: "100%",
+                      width: "2px",
+                      left: "50%",
+                      transform: "translateX(-50%) rotate(45deg)",
+                      transformOrigin: "center",
+                      bgcolor: colors.red,
+                      borderRadius: "4px",
+                      opacity: 0.8
+                    }}
+                  >
+                  </Box>
                 </Button>
               ))}
             </Stack>
@@ -497,7 +526,7 @@ const ProductDetail = () => {
             >
               <Box>
                 <Typography display={{ xs: "block", md: "none" }}>
-                  Số lượng:{" "}
+                  Số lượng:
                 </Typography>
                 <Box
                   sx={{
@@ -509,7 +538,7 @@ const ProductDetail = () => {
                 >
                   <Button
                     onClick={onDecreaseQuantity}
-                    disabled={selectedQuantity <= 1}
+                    disabled={selectedQuantity <= 1 || selectedSize === null}
                     sx={{
                       borderRight: "1px solid rgba(27, 33, 65, 0.5)",
                       borderRadius: 0,
@@ -520,6 +549,7 @@ const ProductDetail = () => {
                     <RemoveRoundedIcon sx={{ color: colors.primaryColor }} />
                   </Button>
                   <input
+                    disabled={selectedSize === null}
                     type="number"
                     min={1}
                     value={selectedQuantity}
@@ -537,6 +567,7 @@ const ProductDetail = () => {
                     }}
                   />
                   <Button
+                    disabled={selectedSize === null || selectedQuantity === selectedSize.stock}
                     onClick={onIncreaseQuantity}
                     sx={{
                       borderLeft: "1px solid rgba(27, 33, 65, 0.5)",
@@ -567,7 +598,7 @@ const ProductDetail = () => {
               <Button
                 sx={{
                   border: "1px solid rgba(27, 33, 65, 0.5)",
-                  display: { md: "block" },
+                  display: { xs: "none", md: "block" },
                   minWidth: 0,
                   lineHeight: 0,
                   width: '38px'

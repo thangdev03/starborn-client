@@ -7,6 +7,7 @@ import { formatVNDCurrency, getPriceAfterDiscount } from "../../utils/currencyUt
 import RedButton from "../../components/common/RedButton";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { useCart } from "../../contexts/CartContext";
 
 const shippingInfoInputs = [
   {
@@ -68,6 +69,7 @@ const Checkout = () => {
   const location = useLocation();
   const choseCoupon = location.state?.choseCoupon || "";
   const [searchParams, setSearchParams] = useSearchParams();
+  const { getCartQuantity } = useCart();
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [codeInput, setCodeInput] = useState(choseCoupon);
   const [provinceList, setProvinceList] = useState([]);
@@ -208,6 +210,7 @@ const Checkout = () => {
       )
       .then((res) => {
         if (res.status === 201) {
+          getCartQuantity();
           return alert("Đặt hàng thành công!");
         }
       })
@@ -304,9 +307,10 @@ const Checkout = () => {
         justifyContent={"space-between"}
         marginTop={"32px"}
         gap={"120px"}
+        flexWrap={"wrap"}
       >
         <Box flexGrow={1}>
-          <Stack direction={"row"} justifyContent={"space-between"}>
+          <Stack direction={"row"} justifyContent={"space-between"} flexWrap={"wrap"} gap={"4px"}>
             <Typography fontSize={{ xs: "20px", md: "24px" }} fontWeight={600}>
               Thông tin giao hàng
             </Typography>
@@ -316,6 +320,7 @@ const Checkout = () => {
                 fontSize: "12px",
                 color: colors.red,
                 textTransform: "inherit",
+                transform: { xs: "translateX(-8px)", sm: "none" }
               }}
             >
               <BookIcon sx={{ fill: colors.red }} />
@@ -323,7 +328,7 @@ const Checkout = () => {
             </Button>
           </Stack>
 
-          <Stack marginTop={"40px"} gap={"16px"}>
+          <Stack marginTop={{ xs: "24px", sm: "40px" }} gap={"16px"}>
             {shippingInfoInputs.map((input, index) => (
               <Box key={input.id}>
                 <Typography
@@ -345,8 +350,8 @@ const Checkout = () => {
                 />
               </Box>
             ))}
-            <Stack direction={"row"} gap={"12px"} width={"100%"}>
-              <Box width={"33.33%"}>
+            <Stack direction={{ xs: "column", md: "row" }} gap={"12px"} width={"100%"}>
+              <Box width={{ xs: "100%", md: "33.33%" }}>
                 <Typography color={"rgba(27, 33, 65, 0.5)"}>
                   Thành phố/ Tỉnh
                 </Typography>
@@ -378,7 +383,7 @@ const Checkout = () => {
                   ))}
                 </Select>
               </Box>
-              <Box width={"33.33%"}>
+              <Box width={{ xs: "100%", md: "33.33%" }}>
                 <Typography color={"rgba(27, 33, 65, 0.5)"}>
                   Quận/ Huyện
                 </Typography>
@@ -411,7 +416,7 @@ const Checkout = () => {
                   ))}
                 </Select>
               </Box>
-              <Box width={"33.33%"}>
+              <Box width={{ xs: "100%", md: "33.33%" }}>
                 <Typography color={"rgba(27, 33, 65, 0.5)"}>
                   Phường/ Xã
                 </Typography>
@@ -471,7 +476,7 @@ const Checkout = () => {
           </Stack>
         </Box>
 
-        <Box flexGrow={1} maxWidth={"640px"}>
+        <Box flexGrow={1} maxWidth={{ lg: "640px" }}>
           <Typography fontWeight={500} fontSize={"20px"}>
             Chi tiết đơn hàng
           </Typography>
@@ -672,26 +677,30 @@ const Checkout = () => {
           bottom: 0,
           left: 0,
           right: 0,
-          height: "100px",
+          height: { md: "100px" },
           zIndex: 20,
           filter: "drop-shadow(0px -1px 12px rgba(0,0,0,0.15))",
-          display: "flex"
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          padding: { xs: "8px 16px 12px", md: 0 }
         }}
       >
         <Stack
-          direction={"row"}
+          direction={{ xs: "column", md: "row" }}
           justifyContent={"space-around"}
           height={"100%"}
-          alignItems={"center"}
-          width={"50%"}
-          bgcolor={"#ECF3FF"}
+          alignItems={{ xs: "start", md: "center" }}
+          width={{ xs: "100%", md: "50%" }}
+          bgcolor={{ md: "#ECF3FF" }}
+          paddingX={{ xs: "8px", md: "auto" }}
+          gap={{ xs: "16px", md: 0 }}
         >
           <Stack
             direction={"row"}
             alignItems={"center"}
-            justifyContent={"center"}
+            justifyContent={{ xs: "start", md: "center" }}
             gap={"4px"}
-            width={"50%"}
+            width={{ xs: "100%", md: "50%" }}
           >
             <svg
               width="16"
@@ -729,7 +738,7 @@ const Checkout = () => {
           <Divider
             orientation="vertical"
             variant="middle"
-            sx={{ height: "30px", borderColor: "rgba(27, 33, 65, 0.6)" }}
+            sx={{ height: "30px", borderColor: "rgba(27, 33, 65, 0.6)", display: { xs: "none", md: "block" } }}
           />
           <Stack
             direction={"row"}
@@ -756,10 +765,10 @@ const Checkout = () => {
           </Stack>
         </Stack>
 
-        <Stack direction={"row"} justifyContent={"right"} paddingRight={"52px"} gap={"52px"} flexGrow={1}>
-          <Stack direction={"row"} alignItems={"center"} gap={"8px"}>
-            <Typography>Thành tiền</Typography>
-            <Typography fontSize={"24px"} fontWeight={500} color={colors.red}>{formatVNDCurrency(total)}</Typography>
+        <Stack direction={"row"} justifyContent={{ xs: "space-between", md: "right" }} marginTop={{ xs: "16px", md: 0 }} paddingRight={{ xs: 0, md: "52px" }} gap={{ md: "52px" }} flexGrow={1}>
+          <Stack direction={{ xs: "column", md: "row" }} alignItems={"center"} gap={{ md: "8px" }}>
+            <Typography fontSize={{ xs: "12px", md: "16px" }}>Thành tiền</Typography>
+            <Typography fontSize={{ xs: "20px", md: "24px"}} fontWeight={500} color={colors.red}>{formatVNDCurrency(total)}</Typography>
           </Stack>
           <Box alignSelf={"center"}>
             <RedButton 
