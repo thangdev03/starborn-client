@@ -8,13 +8,16 @@ const AppBreadcrumbs = ({ item = null }) => {
   const location = useLocation();
 
   const [breadcrumbsItem, setBreadcrumbsItem] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const paths = (location.pathname.split('/').filter((x) => x));
+
+    setIsAdmin(paths[0] === 'admin' ? true : false)
     
     const result = paths.map((p, index, allPath) => {
       let title;
-    
+      
       switch (p) {
         case 'admin': 
           title = 'Trang chủ';
@@ -48,6 +51,12 @@ const AppBreadcrumbs = ({ item = null }) => {
             title = 'Thêm sản phẩm mới';
           }
           break;
+        case 'info':
+          title = 'Tài khoản của tôi';
+          break;
+        case 'address':
+          title = 'Sổ địa chỉ'
+          break;
         default:
           return null;
       }
@@ -64,18 +73,24 @@ const AppBreadcrumbs = ({ item = null }) => {
 
   return (
     <Breadcrumbs
-      separator={<NavigateNextIcon fontSize='14px' color='inherit'/>}
+      separator={isAdmin ? <NavigateNextIcon fontSize='14px' color='inherit'/> : "/"}
       aria-label='breadcrumb'
       sx={{
         display: 'flex',
         alignItems: 'center',
         '& .MuiBreadcrumbs-separator': {
           mx: '4px',
+          mt: '2px'
         },
       }}
       maxItems={3}
       itemsAfterCollapse={2}
     >
+      {!isAdmin && (
+        <Link underline='hover' color={colors.primaryColor} href={"/"} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+          Trang chủ
+        </Link>
+      )}
       {breadcrumbsItem?.map((b, index) => {
         return (index === breadcrumbsItem.length - 1) && !item ? (
           <Link key={index} underline='none' color={colors.primaryColor} fontSize={'14px'}>

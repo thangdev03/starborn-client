@@ -8,6 +8,8 @@ import AdminHeaderBar from './components/admin/AdminHeaderBar';
 import Header from './components/client/Header';
 import Footer from './components/client/Footer';
 import AuthModal from './components/client/AuthModal';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/ReactToastify.min.css';
 
 function App() {
   const theme = createTheme({
@@ -40,6 +42,7 @@ function App() {
       >
         {/* <AdminHeaderBar /> */}
         <Header />
+        <ToastContainer />
         <AuthModal />
         
         <AppRoutes />

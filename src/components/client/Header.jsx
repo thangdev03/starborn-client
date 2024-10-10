@@ -228,19 +228,19 @@ const Header = () => {
                             }}
                             >
                                 <List onClick={() => toggleActionsModal(false)} sx={{ width: '240px', color: colors.primaryColor }}>
-                                    <Link to={'/'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
+                                    <Link to={'/account/info'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
                                         <ListItemButton sx={{ gap: '4px' }}>
                                             <PermIdentityOutlinedIcon />
                                             Tài khoản của tôi
                                         </ListItemButton>
                                     </Link>
-                                    <Link to={'/'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
+                                    <Link to={'/account/address'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
                                         <ListItemButton sx={{ gap: '4px' }}>
                                             <HomeWorkOutlinedIcon />
                                             Sổ địa chỉ
                                         </ListItemButton>
                                     </Link>
-                                    <Link to={'/'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
+                                    <Link to={'/account/orders'} style={{ textDecoration: 'none', color: colors.primaryColor }}>
                                         <ListItemButton sx={{ gap: '4px' }}>
                                             <InventoryOutlinedIcon />
                                             Lịch sử đơn hàng

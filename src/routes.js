@@ -18,6 +18,7 @@ import Cart from './pages/client/Cart';
 import CustomerPrivateRoutes from './utils/CustomerPrivateRoutes';
 import { useAuth } from './contexts/AuthContext';
 import Checkout from './pages/client/Checkout';
+import Account from './pages/client/Account';
 
 const AppRoutes = () => {
   const { token } = useAuth();
@@ -35,6 +36,16 @@ const AppRoutes = () => {
       <Route element={<CustomerPrivateRoutes />}>
         <Route path='/cart' element={<Cart />}/>
         <Route path='/checkout' element={<Checkout />}/>
+        <Route path='/account'>
+          <Route path='' element={<Navigate to='/account/info' replace/>}/>
+          <Route path='info' element={<Account />} />
+          <Route path='address' element={<Account />} />
+          <Route path='orders' element={<Account />} >
+            <Route path=''/>
+            <Route path=':orderId'/>
+          </Route>
+          <Route path='reviews'/>
+        </Route>
       </Route>
 
         {/* Admin Routes */}
