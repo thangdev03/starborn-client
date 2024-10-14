@@ -163,7 +163,8 @@ const Header = () => {
                 sx={{ 
                     bgcolor: colors.secondaryColor, 
                     width: '200px', 
-                    display: {xs: 'none', lg: 'flex'}
+                    display: {xs: 'none', lg: 'flex'},
+                    borderRadius: '4px'
                 }}
                 >
                     <InputBase
@@ -171,7 +172,6 @@ const Header = () => {
                     sx={{ 
                         padding: '4px 0px 4px 12px', 
                         color: colors.primaryColor,
-                        borderRadius: '4px'
                     }}
                     />
                     <IconButton>

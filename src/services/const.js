@@ -7,3 +7,10 @@ export const colors = {
 };
 
 export const serverUrl = 'http://localhost:5000/';
+
+export const ORDER_STATUS = {
+    0: "Đã hủy",
+    1: "Chờ xác nhận",
+    2: "Đang giao",
+    3: "Đã giao",
+}

@@ -44,7 +44,7 @@ const AddressItem = ({ address, handleSetDefault = () => {}, onClickUpdate = () 
             )}
           </Stack>
           <Typography sx={{ opacity: 0.6 }}>{address.receiver_phone}</Typography>
-          <Typography sx={{ opacity: 0.6, textWrap: "wrap" }}>{fullAddress.join(", ")}</Typography>
+          <Typography sx={{ opacity: 0.6, textWrap: "wrap" }}>{fullAddress.filter(i => i !== null).join(", ")}</Typography>
         </Stack>
 
         <Stack justifyContent={"space-between"}>

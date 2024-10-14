@@ -69,6 +69,7 @@ const AddressBook = () => {
       sx={{
         flexGrow: 1,
         padding: "40px",
+        minHeight: "480px"
       }}
     >
         <Stack direction={"row"} justifyContent={"space-between"}>

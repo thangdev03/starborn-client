@@ -14,6 +14,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 import { colors, serverUrl } from "../../services/const";
 import RedButton from "../../components/common/RedButton";
+import { toast } from "react-toastify";
 
 const MyInfo = () => {
   const { currentUser } = useAuth();
@@ -43,7 +44,6 @@ const MyInfo = () => {
   };
 
   const handleChange = (e, field) => {
-    console.log(e.target.value);
     setUserInfo((prev) => ({
       ...prev,
       [field]: e.target.value,
@@ -61,11 +61,41 @@ const MyInfo = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          return getData();
+          getData();
+          toast.success(res.data.message)
         }
       })
       .catch((error) => console.log(error));
   };
+
+  const handleUpdatePassword = async () => {
+    if (!password.current || !password.new) {
+      toast.warning("Vui lòng nhập đầy đủ các trường")
+      return;
+    }
+
+    if (password.new.length < 6) {
+      toast.warning("Mật khẩu phải dài ít nhất 6 ký tự")
+      return;
+    }
+
+    axios.put(serverUrl + "auth/customer/password/update", {
+      id: currentUser.id,
+      oldPassword: password.current,
+      newPassword: password.new
+    })
+    .then((res) => {
+      toast.success(res.data.message)
+      handleClose();
+    })
+    .catch((error) => {
+      if (error.status !== 500) {
+        toast.error(error.response?.data?.message)
+      }
+      return console.log(error);
+    })
+  }
+
   const getData = async () => {
     setLoading(true);
     axios
@@ -372,6 +402,7 @@ const MyInfo = () => {
           </Typography>
           <TextField
             label="Mật khẩu hiện tại"
+            type="password"
             value={password.current}
             onChange={(e) =>
               setPassword((prev) => ({ ...prev, current: e.target.value }))
@@ -380,6 +411,7 @@ const MyInfo = () => {
 
           <TextField
             label="Mật khẩu mới"
+            type="password"
             value={password.new}
             sx={{
               marginY: "16px",
@@ -389,7 +421,10 @@ const MyInfo = () => {
             }
           />
 
-          <RedButton title={"Lưu"} />
+          <RedButton 
+            title={"Lưu"}
+            onClick={() => handleUpdatePassword()}
+          />
           <Button
             variant="outlined"
             sx={{
