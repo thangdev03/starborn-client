@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { Box, Button, Checkbox, Divider, FormControlLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Stack, TextField, Typography } from "@mui/material";
+import { redirect, useLocation, useSearchParams } from "react-router-dom";
+import { Box, Button, Checkbox, CircularProgress, Divider, FormControlLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Stack, TextField, Typography } from "@mui/material";
 import BookIcon from '@mui/icons-material/Book';
 import { colors, serverUrl } from "../../services/const";
 import { formatVNDCurrency, getPriceAfterDiscount } from "../../utils/currencyUtils";
@@ -8,6 +8,7 @@ import RedButton from "../../components/common/RedButton";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
+import { toast } from "react-toastify"
 
 const shippingInfoInputs = [
   {
@@ -52,7 +53,8 @@ const paymentOptions = [
     logoUrls: [
       // '../assets/img/mastercard.png',
       // '../assets/img/visa.png',
-      '../assets/img/Logo-VNPAY-QR.webp'
+      // '../assets/img/Logo-VNPAY-QR.webp',
+      '../assets/img/Logo-MoMo-Circle.webp',
     ]
   },
   {
@@ -82,7 +84,7 @@ const Checkout = () => {
   });
   const [loading, setLoading] = useState(true);
   const [orderItems, setOrderItems] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(paymentOptions[0].label);
+  const [paymentMethod, setPaymentMethod] = useState(paymentOptions[0].name);
   const [products, setProducts] = useState([]);
   const [saveAddress, setSaveAddress] = useState(true);
   const [shippingFee, setShippingFee] = useState(0);
@@ -102,6 +104,7 @@ const Checkout = () => {
   const [total, setTotal] = useState(0);
   const [totalDiscount, setTotalDiscount] = useState(0);
   const [wardList, setWardList] = useState([]);
+  const [sendingRequest, setSendingRequest] = useState(false);
 
   const handleChange = (event, inputPattern) => {
     setShippingInfo({...shippingInfo, [event.target.name]: event.target.value});
@@ -181,15 +184,16 @@ const Checkout = () => {
     .then((res) => {
       setAppliedCoupon(res.data.coupon);
       setTotalDiscount(res.data.discountAmount);
-      alert(`Đã áp dụng mã ${res.data?.coupon?.code} thành công`)
+      toast.success(`Đã áp dụng mã ${res.data?.coupon?.code} thành công`)
     })
     .catch((error) => {
       setAppliedCoupon(null);
-      alert(error.response.data.message);
+      toast.error(error.response.data.message);
     })
   };
 
   const handleSubmit = () => {
+    setSendingRequest(true);
     axios
       .post(serverUrl + `orders/${currentUser.id}`,
         {
@@ -202,7 +206,8 @@ const Checkout = () => {
           phone: shippingInfo.phone,
           coupon: appliedCoupon,
           orderItems: products, 
-          clientShippingFee: shippingFee
+          clientShippingFee: shippingFee,
+          paymentMethod
         },
         {
           withCredentials: true
@@ -211,17 +216,23 @@ const Checkout = () => {
       .then((res) => {
         if (res.status === 201) {
           getCartQuantity();
-          return alert("Đặt hàng thành công!");
+          toast.success("Đặt hàng thành công");
+          if (paymentMethod === "banking") {
+            return window.location.href = res.data.payUrl;
+          } else {
+            return redirect(`/account/orders/${res.data.orderId}`)
+          }
         }
       })
       .catch((error) => {
         if (error.response.status !== 500) {
-          alert(error.response.data.message);
+          toast.error(error.response.data.message);
           // return window.location.reload();
         }
 
         console.log(error)
       })
+      .finally(() => setSendingRequest(false))
   }
 
   useEffect(() => {
@@ -619,7 +630,7 @@ const Checkout = () => {
                     <Stack direction={"row"} alignItems={"center"}>
                       <Radio
                         name={`${option.name}-option`}
-                        value={option.label}
+                        value={option.name}
                         sx={{
                           color: colors.primaryColor,
                           "&.Mui-checked": {
@@ -732,7 +743,7 @@ const Checkout = () => {
               </defs>
             </svg>
             <Typography fontSize={"16px"}>
-              {paymentMethod}
+              {paymentOptions.find(i => i.name === paymentMethod)?.label}
             </Typography>
           </Stack>
           <Divider
@@ -773,9 +784,12 @@ const Checkout = () => {
           <Box alignSelf={"center"}>
             <RedButton 
               disabled={
-                !(shippingInfo.address && shippingInfo.email && shippingInfo.name && shippingInfo.phone && selectedDistrict)
+                !(shippingInfo.address && shippingInfo.email && shippingInfo.name && shippingInfo.phone && selectedDistrict) || sendingRequest
               }
-              title={"ĐẶT HÀNG"}
+              title={sendingRequest ? <CircularProgress size={"24px"}/> : "ĐẶT HÀNG"}
+              customStyle={{
+                width: "152px"
+              }}
               onClick={() => handleSubmit()}
             />
           </Box>

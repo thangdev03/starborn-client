@@ -33,6 +33,7 @@ import DiscountOutlinedIcon from '@mui/icons-material/DiscountOutlined';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import { useCart } from "../../contexts/CartContext";
+import { toast } from "react-toastify";
 
 const Cart = () => {
   const { getCartQuantity } = useCart();
@@ -173,7 +174,7 @@ const Cart = () => {
     .then((res) => setCoupon(res.data.coupon))
     .catch((error) => {
       setCoupon(null);
-      alert(error.response.data.message);
+      toast.error(error.response.data.message);
     })
   };
 

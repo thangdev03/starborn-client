@@ -27,6 +27,7 @@ import HeadingText from "../../components/client/HeadingText";
 import ProductCarousel from "../../components/client/ProductCarousel";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
+import { toast } from "react-toastify";
 
 const ProductDetail = () => {
   const { productName } = useParams();
@@ -113,7 +114,7 @@ const ProductDetail = () => {
     .then((res) => {
       if (res.status === 201) {
         getCartQuantity();
-        alert('Đã thêm vào giỏ hàng');
+        toast.success('Đã thêm vào giỏ hàng');
       }
     })
     .catch((error) => {
