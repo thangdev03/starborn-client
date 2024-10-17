@@ -143,7 +143,7 @@ const AllProducts = () => {
                   flexShrink: 0
                 }}
                 >
-                  (104 kết quả)
+                  ({products?.length} kết quả)
                 </Typography>
                 <IconButton onClick={toggleDrawer(true)} sx={{ display: {xs: 'block', md: 'none'} }}>
                   <FilterAltIcon />

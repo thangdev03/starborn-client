@@ -19,6 +19,7 @@ import CustomerPrivateRoutes from './utils/CustomerPrivateRoutes';
 import { useAuth } from './contexts/AuthContext';
 import Checkout from './pages/client/Checkout';
 import Account from './pages/client/Account';
+import Favorites from './pages/client/Favorites';
 
 const AppRoutes = () => {
   const { token } = useAuth();
@@ -46,6 +47,7 @@ const AppRoutes = () => {
           </Route>
           <Route path='reviews'/>
         </Route>
+        <Route path='/favorites' element={<Favorites />}/>
       </Route>
 
         {/* Admin Routes */}

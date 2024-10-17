@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 import axios from "axios"
 import { serverUrl } from "../services/const";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -26,7 +27,7 @@ const AuthContextProvider = ({ children }) => {
                 setAuthToken(res.data.accessToken);
                 setCurrentUser(res.data.user);
                 closeAuthModal();
-                alert(res.data.message);
+                toast.success(res.data.message);
                 sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
                 sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
             }
@@ -34,7 +35,7 @@ const AuthContextProvider = ({ children }) => {
         .catch((err) => {
             setAuthToken(null);
             setCurrentUser(null);
-            alert(err.response.data?.message);
+            toast.error(err.response.data?.message);
         })
         .finally(() => setChecking(false))
     }
@@ -81,26 +82,25 @@ const AuthContextProvider = ({ children }) => {
 
                 if (error?.response.status === 403 && !originalRequest?._retry) {
                     originalRequest._retry = true;
-                    try {
-                        axios.get(serverUrl + 'auth/refreshToken', {
-                            headers: { 'Content-Type': 'application/json' },
-                            withCredentials: true,
-                        })
-                        .then((res) => {
-                            setAuthToken(res.data.accessToken);
-                            setCurrentUser(res.data.user);
-                            sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
-                            sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                    axios.get(serverUrl + 'auth/refreshToken', {
+                        headers: { 'Content-Type': 'application/json' },
+                        withCredentials: true,
+                    })
+                    .then((res) => {
+                        setAuthToken(res.data.accessToken);
+                        setCurrentUser(res.data.user);
+                        sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+                        sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
 
-                            originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
+                        originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
 
-                            return axios(originalRequest);
-                        })
-                        .catch((error) => {throw new Error(error)})
-                    } catch (error) {
+                        return axios(originalRequest);
+                    })
+                    .catch((error) => {
+                        console.log(error)
                         setAuthToken(null);
                         setCurrentUser(null);
-                    }
+                    })
                 }
                 return Promise.reject(error);
             },

@@ -5,6 +5,7 @@ import RedButton from '../common/RedButton';
 import axios from 'axios';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-toastify';
 
 const AuthModal = () => {
   const { closeAuthModal, isAuthModalOpen, handleLogin, authToken, currentUser } = useAuth();
@@ -105,10 +106,10 @@ const AuthModal = () => {
 
   const onSubmitRegister = () => {
     if (Object.values(values).some((value) => value.length === 0)) {
-      return alert('Vui lòng nhập đầy đủ các trường!')
+      return toast.warning('Vui lòng nhập đầy đủ các trường!')
     }
     if (Object.values(errors).some((error) => error === true)) {
-      return alert('Các trường thông tin chưa đúng yêu cầu!')
+      return toast.warning('Các trường thông tin chưa đúng yêu cầu!')
     }
 
     setIsLoading(true)
@@ -119,19 +120,19 @@ const AuthModal = () => {
       password: values.password
     })
     .then((res) => {
-      alert(res.data.message)
+      toast.success(res.data.message)
       setIsLoading(false);
     })
     .catch(err => {
       // console.log(err);
-      alert(err.response?.data?.message)
+      toast.error(err.response?.data?.message)
       setIsLoading(false);
     })
   }
 
   const onSubmitLogin = async () => {
     if (Object.values(loginValues).some((value) => value.length === 0)) {
-      return alert('Vui lòng nhập đầy đủ các trường!');
+      return toast.warning('Vui lòng nhập đầy đủ các trường!');
     }
 
     await handleLogin(loginValues.emailOrPhone, loginValues.password)
