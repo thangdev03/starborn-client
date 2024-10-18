@@ -234,6 +234,21 @@ const TabsList = styled(BaseTabsList)(
 
 const OrderItems = ({ order }) => {
   const [openRating, setOpenRating] = useState(false);
+  const requestPayment = async (orderId) => {
+    axios
+      .post(serverUrl + "payment",
+        {
+          orderId
+        }, 
+        {
+          withCredentials: true
+        }
+      )
+      .then((res) => {
+        return window.location.href = res.data.payUrl;
+      })
+      .catch((error) => console.log(error))
+  };
 
   return (
     <Box
@@ -303,7 +318,7 @@ const OrderItems = ({ order }) => {
               fontWeight={500}
               fontSize={"14px"}
             >
-              {ORDER_STATUS[order?.status]}
+              {order?.status === 1 && order?.confirmed_at !== null ? "Đã xác nhận" : ORDER_STATUS[order?.status]}
             </Typography>
           </Stack>
         </Stack>
@@ -326,6 +341,22 @@ const OrderItems = ({ order }) => {
             >
               Xem chi tiết
             </Link>
+
+            {order.payment_method === 'banking' && order.payment_status === 1 && (
+              <Stack direction={"row"} gap={"20px"}>
+                <Divider orientation="vertical" flexItem sx={{ borderColor: "rgba(27, 33, 65, 0.5)" }}/>
+                <Link
+                  onClick={() => requestPayment(order.id)}
+                  style={{
+                    fontSize: "14px",
+                    color: "#334FE0",
+                  }}
+                >
+                  Thanh toán
+                </Link>
+              </Stack>
+            )}
+
             {order.orderItems?.find(i => i.rating === null) && order.status === 3 && (
               <Stack direction={"row"} gap={"20px"}>
                 <Divider orientation="vertical" flexItem sx={{ borderColor: "rgba(27, 33, 65, 0.5)" }}/>

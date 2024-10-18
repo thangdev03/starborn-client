@@ -138,7 +138,7 @@ export default function OrderStepper({ data }) {
           <Step key={item.step}>
             <StepLabel StepIconComponent={ColorlibStepIcon}>{item.label}</StepLabel>
             {/* <Typography textAlign={"center"} fontSize={"12px"}>{item.timestamp && new dayjs(item.timestamp).format("HH:mm DD-MM-YYYY")}</Typography> */}
-            <Typography textAlign={"center"} fontSize={"12px"}>{item.timestamp && createUTCDate(item.timestamp).toLocaleString()}</Typography>
+            <Typography textAlign={"center"} fontSize={"12px"}>{item.timestamp && new Date(item.timestamp)?.toLocaleString()}</Typography>
           </Step>
         ))}
       </Stepper>

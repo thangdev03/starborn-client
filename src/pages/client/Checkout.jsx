@@ -9,6 +9,7 @@ import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
 import { toast } from "react-toastify"
+import dayjs from "dayjs";
 
 const shippingInfoInputs = [
   {
@@ -207,7 +208,8 @@ const Checkout = () => {
           coupon: appliedCoupon,
           orderItems: products, 
           clientShippingFee: shippingFee,
-          paymentMethod
+          paymentMethod,
+          created_at: new dayjs().format("YYYY-MM-DD HH:mm:ss")
         },
         {
           withCredentials: true

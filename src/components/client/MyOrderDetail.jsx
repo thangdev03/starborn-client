@@ -1,14 +1,13 @@
-import { IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
+import { Button, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import ArrowBackIosRoundedIcon from '@mui/icons-material/ArrowBackIosRounded';
-import { colors, ORDER_STATUS, serverUrl } from '../../services/const';
+import { colors, ORDER_STATUS, PAYMENT_METHOD, serverUrl } from '../../services/const';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import RedButton from '../common/RedButton';
 import axios from 'axios';
 import OrderStepper from './OrderStepper';
 import { formatVNDCurrency } from '../../utils/currencyUtils';
 import { toast } from 'react-toastify';
-import dayjs from 'dayjs';
 import { createUTCDate } from '../../utils/timeUtils';
 
 const MyOrderDetail = () => {
@@ -54,11 +53,25 @@ const MyOrderDetail = () => {
       .catch((error) => console.log(error))
   } 
 
+  const requestPayment = async () => {
+    axios
+      .post(serverUrl + "payment",
+        {
+          orderId: orderData?.id, 
+        }, 
+        {
+          withCredentials: true
+        }
+      )
+      .then((res) => {
+        return window.location.href = res.data.payUrl;
+      })
+      .catch((error) => console.log(error))
+  }
+
   useEffect(() => {
     getData();
   }, [orderId])
-
-  console.log(orderData)
 
   return (
     <Paper
@@ -88,7 +101,7 @@ const MyOrderDetail = () => {
           borderColor={orderData?.status !== 0 ? "#334FE0" : colors.red}
           borderRadius={"4px"}
         >
-          {ORDER_STATUS[orderData?.status]}
+          {orderData?.status === 1 && orderData?.confirmed_at !== null ? "Đã xác nhận" : ORDER_STATUS[orderData?.status]}
         </Typography>
       </Stack>
 
@@ -109,7 +122,7 @@ const MyOrderDetail = () => {
           <Typography width={"180px"} fontSize={"14px"}>
             Phương thức thanh toán:
           </Typography>
-          <Typography fontSize={"14px"}>CHƯA CÓ</Typography>
+          <Typography fontSize={"14px"}>{PAYMENT_METHOD[orderData?.payment_method]}</Typography>
         </Stack>
         <Stack direction={"row"} gap={"80px"}>
           <Typography width={"180px"} fontSize={"14px"}>
@@ -121,21 +134,39 @@ const MyOrderDetail = () => {
           <Typography width={"180px"} fontSize={"14px"}>
             Ghi chú:
           </Typography>
-          <Typography fontSize={"14px"}>CHƯA CÓ</Typography>
+          <Typography fontSize={"14px"}>Không có</Typography>
         </Stack>
       </Stack>
       
       {
         orderData?.status === 1 && (
-          <RedButton
-            title={"Hủy đơn hàng"}
-            onClick={() => handleCancelOrder()}
-            customStyle={{
-              marginTop: "24px",
-              marginBottom: "32px",
-              paddingX: "24px",
-            }}
-          />
+          <Stack direction={"row"} marginTop="24px" marginBottom="32px" gap={"12px"}>
+            <RedButton
+              title={"Hủy đơn hàng"}
+              onClick={() => handleCancelOrder()}
+              customStyle={{
+                paddingX: "24px",
+              }}
+            />
+            {
+              orderData?.payment_method === 'banking' && orderData.payment_status === 1 && (
+                <Button
+                  variant="outlined"
+                  onClick={requestPayment}
+                  sx={{
+                    borderRadius: "8px",
+                    color: colors.primaryColor,
+                    borderColor: colors.primaryColor,
+                    "&:hover": {
+                      borderColor: "#1B2141aa"
+                    }
+                  }}
+                >
+                  Thanh toán
+                </Button>
+              )
+            }
+          </Stack>
         )
       }
 

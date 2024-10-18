@@ -250,7 +250,8 @@ const Cart = () => {
           result = result - coupon.amount;
         }
       }
-      setTotalCart(result + shippingFee);
+      // setTotalCart(result + shippingFee);
+      setTotalCart(result);
     } else {
       setTotalCart(0);
     }

@@ -14,3 +14,8 @@ export const ORDER_STATUS = {
     2: "Đang giao",
     3: "Đã giao",
 }
+
+export const PAYMENT_METHOD = {
+    "banking": "Chuyển khoản",
+    "cod": "Thanh toán khi nhận hàng (COD)"
+}
