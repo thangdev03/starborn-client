@@ -10,6 +10,7 @@ const AuthContextProvider = ({ children }) => {
     const [authToken, setAuthToken] = useState();
     const [currentUser, setCurrentUser] = useState();
     const [checking, setChecking] = useState(true);
+    const [accountType, setAccountType] = useState();
 
     const openAuthModal = () => setAuthModalOpen(true);
     const closeAuthModal = () => setAuthModalOpen(false);
@@ -26,15 +27,47 @@ const AuthContextProvider = ({ children }) => {
             if (res.data) {
                 setAuthToken(res.data.accessToken);
                 setCurrentUser(res.data.user);
+                setAccountType(res.data.accountType);
                 closeAuthModal();
                 toast.success(res.data.message);
                 sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
                 sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));
             }
         })
         .catch((err) => {
             setAuthToken(null);
             setCurrentUser(null);
+            setAccountType(null);
+            toast.error(err.response.data?.message);
+        })
+        .finally(() => setChecking(false))
+    }
+
+    async function handleLoginEmployee(username, password) {
+        setChecking(true);
+        axios.post(serverUrl + 'auth/login/employee', {
+            username: username,
+            password: password
+        }, {
+            withCredentials: true
+        })
+        .then((res) => {
+            if (res.data) {
+                setAuthToken(res.data.accessToken);
+                setCurrentUser(res.data.user);
+                setAccountType(res.data.accountType);
+                console.log(res.data)
+                toast.success(res.data.message);
+                sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+                sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));
+            }
+        })
+        .catch((err) => {
+            setAuthToken(null);
+            setCurrentUser(null);
+            setAccountType(null);
             toast.error(err.response.data?.message);
         })
         .finally(() => setChecking(false))
@@ -42,14 +75,16 @@ const AuthContextProvider = ({ children }) => {
 
     async function handleLogout() {
         setChecking(true);
-        axios.post(serverUrl + 'auth/logout/customer', {}, {
+        axios.post(serverUrl + 'auth/logout', {}, {
             withCredentials: true
         })
         .then(() => {
             setAuthToken(null);
             setCurrentUser(null);
+            setAccountType(null);
             sessionStorage.removeItem('accessToken');
             sessionStorage.removeItem('currentUser');
+            sessionStorage.removeItem('accountType');
         })
         .catch((error) => console.log(error))
         .finally(() => setChecking(false))
@@ -82,15 +117,19 @@ const AuthContextProvider = ({ children }) => {
 
                 if (error?.response.status === 403 && !originalRequest?._retry) {
                     originalRequest._retry = true;
-                    axios.get(serverUrl + 'auth/refreshToken', {
+                    axios.post(serverUrl + 'auth/refreshToken', {
+                        accountType
+                    }, {
                         headers: { 'Content-Type': 'application/json' },
                         withCredentials: true,
                     })
                     .then((res) => {
                         setAuthToken(res.data.accessToken);
                         setCurrentUser(res.data.user);
+                        setAccountType(res.data.accountType);
                         sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
                         sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                        sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));
 
                         originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
 
@@ -100,6 +139,7 @@ const AuthContextProvider = ({ children }) => {
                         console.log(error)
                         setAuthToken(null);
                         setCurrentUser(null);
+                        setAccountType(null);
                     })
                 }
                 return Promise.reject(error);
@@ -115,19 +155,24 @@ const AuthContextProvider = ({ children }) => {
     useLayoutEffect(() => {
         setChecking(true);
         const refresh = async () => {
-            axios.get(serverUrl + 'auth/refreshToken', {
+            axios.post(serverUrl + 'auth/refreshToken', {
+                accountType: JSON.parse(sessionStorage.getItem('accountType'))
+            }, {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true,
             })
             .then((res) => {
                 setAuthToken(res.data.accessToken);
                 setCurrentUser(res.data.user);
+                setAccountType(res.data.accountType);
                 sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
                 sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));
             })
             .catch((err) => {
                 setAuthToken(null);
                 setCurrentUser(null);
+                setAccountType(null);
                 console.log("Error refreshing token: ", err)
             })
             .finally(() => setChecking(false))
@@ -140,12 +185,14 @@ const AuthContextProvider = ({ children }) => {
         value={{ 
             openAuthModal, 
             closeAuthModal, 
-            isAuthModalOpen,
             handleLogin,
             handleLogout,
+            handleLoginEmployee,
+            isAuthModalOpen,
             authToken,
             currentUser,
-            checking
+            checking,
+            accountType
         }}>
             {children}
         </AuthContext.Provider>

@@ -20,9 +20,10 @@ import { useAuth } from './contexts/AuthContext';
 import Checkout from './pages/client/Checkout';
 import Account from './pages/client/Account';
 import Favorites from './pages/client/Favorites';
+import EmployeePrivateRoutes from './utils/EmployeePrivateRoutes';
+import EmployeeLogin from './pages/admin/EmployeeLogin';
 
 const AppRoutes = () => {
-  const { token } = useAuth();
 
   return (
     <Routes>
@@ -52,22 +53,25 @@ const AppRoutes = () => {
 
         {/* Admin Routes */}
       <Route path='/admin'>
-        <Route path='' element={<Navigate to='dashboard' replace/>}/>
-        <Route path='dashboard' element={<Dashboard/>}/>
-        <Route path='objects' element={<Objects/>}/>
-        <Route path='categories' element={<Categories/>}/>
-        <Route path='subcategories' element={<Subcategories/>}/>
-        <Route path='products'>
-          <Route path='' element={<Products />}/>
-          <Route path=':productId' element={<AdminProductDetail/>}/>
-          <Route path='create' element={<AddProduct/>}/>
+        <Route element={<EmployeePrivateRoutes />}>
+          <Route path='' element={<Navigate to='dashboard' replace/>}/>
+          <Route path='dashboard' element={<Dashboard/>}/>
+          <Route path='objects' element={<Objects/>}/>
+          <Route path='categories' element={<Categories/>}/>
+          <Route path='subcategories' element={<Subcategories/>}/>
+          <Route path='products'>
+            <Route path='' element={<Products />}/>
+            <Route path=':productId' element={<AdminProductDetail/>}/>
+            <Route path='create' element={<AddProduct/>}/>
+          </Route>
+          <Route path='orders' element={<Orders/>}/>
+          <Route path='customers'>
+            <Route path='' element={<Customers />} />
+            <Route path=':id' element={<CustomerDetail />} />
+          </Route>
+          <Route path='coupons' element={<Vouchers/>}/>
         </Route>
-        <Route path='orders' element={<Orders/>}/>
-        <Route path='customers'>
-          <Route path='' element={<Customers />} />
-          <Route path=':id' element={<CustomerDetail />} />
-        </Route>
-        <Route path='coupons' element={<Vouchers/>}/>
+        <Route path='login' element={<EmployeeLogin />}/>
       </Route>
 
       <Route path='*' element={<Navigate to="/"/>}/>

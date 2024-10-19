@@ -9,6 +9,8 @@ import {
   Typography,
   Rating,
   Skeleton,
+  Breadcrumbs,
+  Link,
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -32,6 +34,7 @@ import { toast } from "react-toastify";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import debounce from "lodash.debounce";
+import AppBreadcrumbs from "../../components/common/AppBreadcrumbs";
 
 const ProductDetail = () => {
   const { productName } = useParams();
@@ -181,7 +184,7 @@ const ProductDetail = () => {
       })
       .catch((error) => console.log(error))
   };
-
+  console.log({ product })
   useEffect(() => {
     setLoadingProduct(true);
     axios
@@ -243,6 +246,7 @@ const ProductDetail = () => {
         justifyContent={"center"}
         gap={{ xs: 0, sm: "24px", lg: "72px" }}
         flexWrap={{ sm: "wrap", md: "nowrap" }}
+        marginTop={"60px"}
       >
         <Stack
           direction={"row"}
@@ -251,6 +255,44 @@ const ProductDetail = () => {
             position: "relative",
           }}
         >
+          <Box
+            sx={{
+              position: "absolute",
+              top: "-40px",
+              left: 0
+            }}
+          >
+            <Breadcrumbs
+              separator={"/"}
+              aria-label='breadcrumb'
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                '& .MuiBreadcrumbs-separator': {
+                  mx: '4px',
+                  mt: '2px'
+                },
+              }}
+              maxItems={3}
+              itemsAfterCollapse={2}
+            >
+              <Link underline='hover' color={colors.primaryColor} href={"/"} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+                Trang chủ
+              </Link>
+              <Link underline='hover' color={colors.primaryColor} href={`/${product?.object_slug}`} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+                {product?.object}
+              </Link>
+              <Link underline='hover' color={colors.primaryColor} href={`/${product?.object_slug}?category=${product?.category_slug}`} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+                {product?.category}
+              </Link>
+              <Link underline='hover' color={colors.primaryColor} href={`/${product?.object_slug}?category=${product?.category_slug}&subcategory=${product?.subcategory_slug}`} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+                {product?.subcategory}
+              </Link>
+              <Link underline='none' color={colors.primaryColor} fontSize={'14px'}>
+                {product?.name}
+              </Link>
+            </Breadcrumbs>
+          </Box>
           {
             loadingVariant
             ? (

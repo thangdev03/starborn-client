@@ -7,10 +7,10 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
     const [quantity, setQuantity] = useState(0);
-    const { currentUser } = useAuth();
+    const { currentUser, accountType } = useAuth();
 
     const getCartQuantity = async () => {
-        if (currentUser) {
+        if (currentUser && accountType === 'customer') {
             axios.get(serverUrl + `cart/${currentUser.id}`, {
                 withCredentials: true
             })

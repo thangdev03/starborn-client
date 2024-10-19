@@ -19,6 +19,7 @@ const Header = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const [openUserActions, setOpenUserActions] = useState(false);
   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+  const accountType = JSON.parse(sessionStorage.getItem('accountType'));
   const { quantity } = useCart();
 
   const toggleDrawer = (state) => {
@@ -214,7 +215,7 @@ const Header = () => {
                             {quantity}
                         </Typography>
                     </Link>
-                    {currentUser ? (
+                    {currentUser && accountType === "customer" ? (
                         <Box sx={{ position: 'relative' }}>
                             <Avatar 
                             onClick={() => toggleActionsModal(!openUserActions)} 

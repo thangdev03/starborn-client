@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { redirect, useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Box, Button, Checkbox, CircularProgress, Divider, FormControlLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Stack, TextField, Typography } from "@mui/material";
 import BookIcon from '@mui/icons-material/Book';
 import { colors, serverUrl } from "../../services/const";
@@ -67,7 +67,7 @@ const paymentOptions = [
 ];
 
 const Checkout = () => {
-  const accessToken = sessionStorage.getItem('accessToken');
+  // const accessToken = sessionStorage.getItem('accessToken');
   const { currentUser } = useAuth();
   const location = useLocation();
   const choseCoupon = location.state?.choseCoupon || "";
@@ -106,6 +106,7 @@ const Checkout = () => {
   const [totalDiscount, setTotalDiscount] = useState(0);
   const [wardList, setWardList] = useState([]);
   const [sendingRequest, setSendingRequest] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (event, inputPattern) => {
     setShippingInfo({...shippingInfo, [event.target.name]: event.target.value});
@@ -222,7 +223,7 @@ const Checkout = () => {
           if (paymentMethod === "banking") {
             return window.location.href = res.data.payUrl;
           } else {
-            return redirect(`/account/orders/${res.data.orderId}`)
+            return navigate(`/account/orders/${res.data.orderId}`)
           }
         }
       })
@@ -276,7 +277,10 @@ const Checkout = () => {
           value: subtotal,
         }
       })
-      .then((res) => setShippingFee(res.data?.fee))
+      .then((res) => {
+        setShippingFee(res.data?.fee)
+        console.log(res.data)
+      })
       .catch((error) => console.log(error))
     }
   }, [selectedProvince, selectedDistrict, selectedWard, products, subtotal])

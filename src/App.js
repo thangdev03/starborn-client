@@ -10,6 +10,7 @@ import Footer from './components/client/Footer';
 import AuthModal from './components/client/AuthModal';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/ReactToastify.min.css';
+import { useAuth } from './contexts/AuthContext';
 
 function App() {
   const theme = createTheme({
@@ -22,32 +23,35 @@ function App() {
   });
   const { pathname } = useLocation();
   const title = pathname.startsWith('/admin') ? 'Management System' : '';
-
+  const { accountType, currentUser }  = useAuth();
   useTitle(title)
 
   return (
     <ThemeProvider theme={theme}>
       <Box 
-        // ---ADMIN---
-        // sx={{
-        //   bgcolor: colors.adminBack,
-        //   minHeight: '100vh',
-        //   paddingLeft: {xs: '8px', md: '296px'},
-        //   paddingRight: {xs: '8px', md: '0'},
-        //   paddingTop: {xs: '88px', md: '88px'}
-        // }}
-        sx={{
-          
-        }}
+        sx={
+          pathname.startsWith('/admin') && currentUser && accountType === "employee" && {
+            bgcolor: colors.adminBack,
+            minHeight: '100vh',
+            paddingLeft: {xs: '8px', md: '296px'},
+            paddingRight: {xs: '8px', md: '0'},
+            paddingTop: {xs: '88px', md: '88px'}
+          }
+        }
       >
-        {/* <AdminHeaderBar /> */}
-        <Header />
+        {accountType === "employee"
+          ? pathname.startsWith('/admin') ? <AdminHeaderBar /> : <Header />
+          : !pathname.startsWith('/admin') && <Header /> 
+        }
+        
         <ToastContainer />
         <AuthModal />
         
         <AppRoutes />
         
-        <Footer />
+        {!pathname.startsWith('/admin') && (
+          <Footer />
+        )}
       </Box>
     </ThemeProvider>
   );

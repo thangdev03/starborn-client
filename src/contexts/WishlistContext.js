@@ -7,11 +7,11 @@ const WishlistContext = createContext();
 
 export const WishlistProvider = ({ children }) => {
   const [favoriteItems, setFavoriteItems] = useState([]);
-  const { currentUser, openAuthModal } = useAuth();
+  const { currentUser, openAuthModal, accountType } = useAuth();
   const [loadingFavorites, setLoadingFavorites] = useState(true);
 
   const getAllFavorites = async () => {
-    if (currentUser) {
+    if (currentUser && accountType === 'customer') {
       if (currentUser) {
         setLoadingFavorites(true);
         axios
@@ -26,7 +26,7 @@ export const WishlistProvider = ({ children }) => {
   };
 
   const addToFavorites = async (variantId) => {
-    if (!currentUser) {
+    if (!currentUser && accountType !== 'customer') {
       openAuthModal();
       return;
     }
@@ -48,14 +48,16 @@ export const WishlistProvider = ({ children }) => {
   };
 
   const removeFromFavorites = async (variantId) => {
-    axios
-      .delete(serverUrl + `favorites/${variantId}/${currentUser?.id}`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        setFavoriteItems((prev) => prev.filter(i => i.variant_id !== variantId));
-      })
-      .catch((error) => console.log(error))
+    if (accountType === 'customer') {
+      axios
+        .delete(serverUrl + `favorites/${variantId}/${currentUser?.id}`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setFavoriteItems((prev) => prev.filter(i => i.variant_id !== variantId));
+        })
+        .catch((error) => console.log(error))
+    }
   };
 
   useEffect(() => {
