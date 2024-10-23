@@ -12,6 +12,7 @@ import MyInfo from "../../components/client/MyInfo";
 import { useLocation } from "react-router-dom";
 import OrderHistory from "../../components/client/OrderHistory";
 import MyOrderDetail from "../../components/client/MyOrderDetail";
+import CancelOrders from "../../components/client/CancelOrders";
 
 const Account = () => {
   const { currentUser } = useAuth();
@@ -30,6 +31,8 @@ const Account = () => {
           return <MyOrderDetail />
         }
         return <OrderHistory />
+      case 'orders-cancel':
+        return <CancelOrders />
     }
   }
 

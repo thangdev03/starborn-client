@@ -43,6 +43,9 @@ const AppBreadcrumbs = ({ item = null }) => {
         case 'orders': 
           title = 'Đơn hàng';
           break;
+        case 'orders-cancel': 
+        title = 'Đơn hàng đã hủy';
+          break;
         case 'coupons': 
           title = 'Mã giảm giá';
           break;

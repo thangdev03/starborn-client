@@ -47,6 +47,7 @@ const AppRoutes = () => {
             <Route path=''/>
             <Route path=':orderId'/>
           </Route>
+          <Route path='orders-cancel' element={<Account />} />
           <Route path='reviews'/>
         </Route>
         <Route path='/favorites' element={<Favorites />}/>

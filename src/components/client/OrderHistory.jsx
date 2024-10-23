@@ -58,7 +58,7 @@ const OrderHistory = () => {
           withCredentials: true
         })
         .then((res) => {
-          const ordersResult = res.data.filter(i => i.status !== 0);
+          const ordersResult = res.data;
           setOrders(ordersResult);
           setCache((prev) => ({...prev, [selectedTab]: ordersResult}))
         })
@@ -150,7 +150,7 @@ const OrderHistory = () => {
             ) 
             : orders.length !== 0 
               ? orders.map((order) => (
-                <OrderItems key={order.id} order={order}/>
+                <OrderItems key={order.id} order={order} />
               ))
               : <Typography textAlign={"center"}>Chưa có đơn hàng</Typography>
           }

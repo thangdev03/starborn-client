@@ -30,13 +30,13 @@ function App() {
     <ThemeProvider theme={theme}>
       <Box 
         sx={
-          pathname.startsWith('/admin') && currentUser && accountType === "employee" && {
+          pathname.startsWith('/admin') && currentUser && accountType === "employee" ? {
             bgcolor: colors.adminBack,
             minHeight: '100vh',
             paddingLeft: {xs: '8px', md: '296px'},
             paddingRight: {xs: '8px', md: '0'},
             paddingTop: {xs: '88px', md: '88px'}
-          }
+          } : {}
         }
       >
         {accountType === "employee"
