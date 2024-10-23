@@ -52,7 +52,7 @@ const AllProducts = () => {
       setObjectName('Nam');
     }
 
-    axios.get(serverUrl + 'categories/' + objectSlug)
+    axios.get(serverUrl + 'categories/slug/' + objectSlug)
     .then((res) => setCategories(res.data))
     .catch((err) => console.log(err))
   }, [objectSlug])

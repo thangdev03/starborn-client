@@ -1,10 +1,10 @@
 export const shortHandFormat = (value) => {
   if (Math.abs(value) > 999999999) {
-    return Math.abs(value)/1000000000 + 'B'
+    return (Math.abs(value)/1000000000).toFixed(1) + 'B'
   } else if (Math.abs(value) > 999999) {
-    return Math.abs(value)/1000000 + 'M'
+    return (Math.abs(value)/1000000).toFixed(1) + 'M'
   } else if (Math.abs(value) > 999) {
-    return Math.abs(value)/1000 + 'K'
+    return (Math.abs(value)/1000).toFixed(1) + 'K'
   }
   return value;
 }

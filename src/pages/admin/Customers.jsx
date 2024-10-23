@@ -21,6 +21,7 @@ import axios from "axios";
 import { colors } from "../../services/const";
 import { visuallyHidden } from "@mui/utils";
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { formatVNDCurrency } from "../../utils/currencyUtils";
 
 const headCells = [
   {
@@ -45,7 +46,7 @@ const headCells = [
     disablePadding: false,
     label: "Số điện thoại",
     sortable: true,
-    alignDirection: 'left'
+    alignDirection: 'center'
   },
   {
     id: "email",
@@ -53,7 +54,7 @@ const headCells = [
     disablePadding: false,
     label: "Email",
     sortable: true,
-    alignDirection: 'left'
+    alignDirection: 'center'
   },
   {
     id: "totalExpense",
@@ -236,14 +237,14 @@ const Customers = () => {
                         {index + 1}
                       </TableCell>
                       <TableCell align="left">{row.fullname}</TableCell>
-                      <TableCell align="left" sx={{ paddingRight: "40px" }}>
+                      <TableCell align="center" sx={{ paddingRight: "40px" }}>
                         {row.phone}
                       </TableCell>
-                      <TableCell align="left" sx={{ paddingRight: "40px" }}>
+                      <TableCell align="center" sx={{ paddingRight: "40px" }}>
                         {row.email || "Chưa có"}
                       </TableCell>
                       <TableCell align="right">
-                        {'HÀM TÍNH TỔNG'}
+                        {formatVNDCurrency(row.total_purchase)}
                       </TableCell>
                       <TableCell align="center">
                         <IconButton href={`/admin/customers/${row.id}`}>
@@ -259,7 +260,7 @@ const Customers = () => {
                     colSpan={"100%"}
                     sx={{ fontSize: "16px", textAlign: "center" }}
                   >
-                    Không tìm thấy sản phẩm nào!
+                    Không tìm thấy bản ghi nào!
                   </TableCell>
                 </TableRow>
               )}

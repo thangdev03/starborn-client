@@ -6,7 +6,7 @@ const CustomerPrivateRoutes = () => {
 
   const accessToken = sessionStorage.getItem('accessToken');
   const parsedToken  = accessToken ? JSON.parse(accessToken) : null;
-  const accountType = sessionStorage.getItem('accountType');
+  const accountType = JSON.parse(sessionStorage.getItem('accountType'));
 
   if (checking) {
     return null;

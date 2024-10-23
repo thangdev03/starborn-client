@@ -84,6 +84,12 @@ const EmployeeLogin = () => {
             <TextField 
               id="password-input"
               label="Mật khẩu"
+              inputProps={{
+                autoComplete: 'new-password',
+                form: {
+                  autoComplete: 'off',
+                },
+              }}
               value={password}
               type="password"
               onChange={(e) => setPassword(e.target.value)}
