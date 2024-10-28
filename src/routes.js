@@ -23,6 +23,7 @@ import Favorites from './pages/client/Favorites';
 import EmployeePrivateRoutes from './utils/EmployeePrivateRoutes';
 import EmployeeLogin from './pages/admin/EmployeeLogin';
 import OrderDetail from './pages/admin/OrderDetail';
+import DressingRoom from './components/client/DressingRoom';
 
 const AppRoutes = () => {
 
@@ -52,6 +53,7 @@ const AppRoutes = () => {
         </Route>
         <Route path='/favorites' element={<Favorites />}/>
       </Route>
+      <Route path='dressing-room' element={<DressingRoom />}/>
 
         {/* Admin Routes */}
       <Route path='/admin'>
