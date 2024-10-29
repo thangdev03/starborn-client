@@ -17,6 +17,8 @@ import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurned
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import CancelPresentationOutlinedIcon from '@mui/icons-material/CancelPresentationOutlined';
 import { toast } from "react-toastify";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import OrderInvoice from "../../components/admin/OrderInvoice";
 
 const OrderDetail = () => {
   let { orderId } = useParams();
@@ -233,7 +235,7 @@ const OrderDetail = () => {
                     <CancelOutlinedIcon />
                   </Button>
                 )}
-                <Button
+                {/* <Button
                   variant="contained"
                   title="Lưu thay đổi"
                   sx={{
@@ -247,22 +249,39 @@ const OrderDetail = () => {
                   }}
                 >
                   <SaveOutlinedIcon />
-                </Button>
-                <Button
-                  variant="contained"
-                  title="In hóa đơn"
-                  sx={{
-                    padding: "8px 16px",
-                    bgcolor: "#EEECEC",
+                </Button> */}
+                <PDFDownloadLink
+                  document={<OrderInvoice orderData={orderData}/>}
+                  fileName={`Starborn-invoice-order-${orderId}.pdf`}
+                  style={{
                     color: colors.primaryColor,
-                    boxShadow: "none",
-                    ":hover": {
-                      bgcolor: "#EEEEEE",
-                    },
                   }}
                 >
-                  <PrintOutlinedIcon />
-                </Button>
+                  {({ blob, url, loading, error }) => {
+                    {
+                      console.log({ blob, url });
+                    }
+                    return loading ? (
+                      "Loading..."
+                    ) : (
+                      <Button
+                        variant="contained"
+                        title="In hóa đơn"
+                        sx={{
+                          padding: "8px 16px",
+                          bgcolor: "#EEECEC",
+                          color: colors.primaryColor,
+                          boxShadow: "none",
+                          ":hover": {
+                            bgcolor: "#EEEEEE",
+                          },
+                        }}
+                      >
+                        <PrintOutlinedIcon />
+                      </Button>
+                    );
+                  }}
+                </PDFDownloadLink>
               </Stack>
             </Stack>
           </Box>

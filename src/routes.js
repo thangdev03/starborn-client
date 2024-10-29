@@ -23,6 +23,7 @@ import Favorites from './pages/client/Favorites';
 import EmployeePrivateRoutes from './utils/EmployeePrivateRoutes';
 import EmployeeLogin from './pages/admin/EmployeeLogin';
 import OrderDetail from './pages/admin/OrderDetail';
+import OrderInvoice from './pages/admin/OrderInvoice';
 
 const AppRoutes = () => {
 
@@ -74,7 +75,8 @@ const AppRoutes = () => {
             <Route path='' element={<Customers />} />
             <Route path=':customerId' element={<CustomerDetail />} />
           </Route>
-          <Route path='coupons' element={<Vouchers/>}/>
+          <Route path='coupons' element={<Vouchers />}/>
+          <Route path='invoice/:orderId' element={<OrderInvoice />}/>
         </Route>
         <Route path='login' element={<EmployeeLogin />}/>
       </Route>
