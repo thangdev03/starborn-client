@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AppBreadcrumbs from "../../components/common/AppBreadcrumbs";
 import { Box, Button, IconButton, InputBase, MenuItem, Select, Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { colors, ORDER_STATUS, PAYMENT_METHOD, serverUrl } from "../../services/const";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
@@ -25,6 +25,7 @@ const OrderDetail = () => {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const navigate = useNavigate();
 
   const getData = async () => {
     setLoading(true)
@@ -114,7 +115,6 @@ const OrderDetail = () => {
   useEffect(() => {
     getData();
   }, [orderId])
-  console.log(orderData)
 
   return (
     !loading && (
@@ -258,9 +258,6 @@ const OrderDetail = () => {
                   }}
                 >
                   {({ blob, url, loading, error }) => {
-                    {
-                      console.log({ blob, url });
-                    }
                     return loading ? (
                       "Loading..."
                     ) : (
@@ -339,6 +336,7 @@ const OrderDetail = () => {
               <Button
                 fullWidth
                 variant="contained"
+                onClick={() => navigate(`/admin/customers/${orderData?.customer_id}`)}
                 sx={{
                   bgcolor: colors.primaryColor,
                   color: "white",

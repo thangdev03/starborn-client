@@ -7,6 +7,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () => {}, reloadData = () => {} }) => {
     const style = {
@@ -60,7 +61,7 @@ const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () =
         .then((res) => {
             if (res.status === 201) {
                 handleClose();
-                alert('Tạo mã giảm giá thành công');
+                toast.success('Tạo mã giảm giá thành công');
                 reloadData();
             }
         })

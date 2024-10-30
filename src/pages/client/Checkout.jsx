@@ -267,14 +267,16 @@ const Checkout = () => {
   }, [searchParams])
 
   useEffect(() => {
+    console.log(subtotal)
     if (selectedProvince && selectedDistrict && subtotal && products) {
       axios.get(serverUrl + "shipping/get/fee", {
         params: {
           province: selectedProvince.province_name,
           district: selectedDistrict.district_name,
           ward: selectedWard.ward_name,
+          // weight: products?.reduce((acc, p) => acc += p.quantity, 0) * 250,
           weight: products.length * 250,
-          value: subtotal,
+          subtotal: subtotal,
         }
       })
       .then((res) => {
@@ -298,6 +300,7 @@ const Checkout = () => {
       })
         .then((res) => {
           setProducts(res.data.items);
+          console.log(res.data.items)
           setSubtotal(res.data.subtotal);
         })
         .catch((error) => console.log(error))

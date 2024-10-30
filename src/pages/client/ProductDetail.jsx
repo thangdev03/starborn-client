@@ -113,7 +113,7 @@ const ProductDetail = () => {
       return openAuthModal();
     }
     if (!selectedSize) {
-      return alert('Vui lòng chọn size sản phẩm mong muốn')
+      return toast.warn('Vui lòng chọn size sản phẩm mong muốn')
     }
     setIsAdding(true);
     axios.post(serverUrl + `cart/${currentUser?.id}`, {
@@ -408,7 +408,7 @@ const ProductDetail = () => {
           >
             {!loadingVariant ? (
               <img
-                src={variant?.images[imageIndex].image_url}
+                src={variant?.images[imageIndex]?.image_url}
                 alt=""
                 style={{
                   height: "100%",

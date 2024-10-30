@@ -8,6 +8,8 @@ import { checkCouponStatus } from '../../utils/couponUtils'
 import VoucherModal from '../../components/admin/VoucherModal'
 import axios from 'axios'
 import dayjs from 'dayjs'
+import { toast } from 'react-toastify'
+import { formatVNDCurrency } from '../../utils/currencyUtils'
 
 const Vouchers = () => {
   const [data, setData] = useState(null);
@@ -41,7 +43,7 @@ const Vouchers = () => {
       if (res.status === 200) {
         getData();
       } else {
-        alert(res.data?.message)
+        toast.error(res.data?.message)
       }
     })
     .catch((err) => console.log(err))
@@ -174,7 +176,7 @@ const Vouchers = () => {
                     </span>
                   </TableCell>
                   <TableCell align='center' sx={{ color: colors.primaryColor, paddingX: 0, paddingY: '12px' }}>
-                    {coupon.amount}{coupon.type}
+                    {coupon.type === "%" ? coupon.amount + coupon.type : formatVNDCurrency(coupon.amount)}
                   </TableCell>
                   <TableCell align='center' sx={{ color: colors.primaryColor, paddingX: 0, paddingY: '12px' }}>
                     {dayjs(coupon.active_date).format('YYYY-MM-DD HH:mm')} -<br/>{dayjs(coupon.expiration_date).format('YYYY-MM-DD HH:mm')}
