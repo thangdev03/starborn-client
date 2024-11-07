@@ -16,14 +16,13 @@ import ProductDetail from './pages/client/ProductDetail';
 import AllProducts from './pages/client/AllProducts';
 import Cart from './pages/client/Cart';
 import CustomerPrivateRoutes from './utils/CustomerPrivateRoutes';
-import { useAuth } from './contexts/AuthContext';
 import Checkout from './pages/client/Checkout';
 import Account from './pages/client/Account';
 import Favorites from './pages/client/Favorites';
 import EmployeePrivateRoutes from './utils/EmployeePrivateRoutes';
 import EmployeeLogin from './pages/admin/EmployeeLogin';
 import OrderDetail from './pages/admin/OrderDetail';
-import DressingRoom from './components/client/DressingRoom';
+import BodyMeasureRoom from './components/client/BodyMeasureRoom';
 
 const AppRoutes = () => {
 
@@ -53,7 +52,7 @@ const AppRoutes = () => {
         </Route>
         <Route path='/favorites' element={<Favorites />}/>
       </Route>
-      <Route path='dressing-room' element={<DressingRoom />}/>
+      <Route path='measure-body' element={<BodyMeasureRoom />}/>
 
         {/* Admin Routes */}
       <Route path='/admin'>
