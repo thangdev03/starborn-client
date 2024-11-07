@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { colors, serverUrl } from "../../services/const";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
@@ -34,7 +34,7 @@ import { toast } from "react-toastify";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import debounce from "lodash.debounce";
-import AppBreadcrumbs from "../../components/common/AppBreadcrumbs";
+import StraightenIcon from '@mui/icons-material/Straighten';
 
 const ProductDetail = () => {
   const { productName } = useParams();
@@ -54,6 +54,7 @@ const ProductDetail = () => {
   const [isFavored, setIsFavored] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingVariant, setLoadingVariant] = useState(true);
+  const navigate = useNavigate();
 
   const changeNextImage = () => {
     setImageIndex((prev) => prev + 1);
@@ -834,6 +835,23 @@ const ProductDetail = () => {
                 )}
               </Button>
             </Stack>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/measure-body")}
+              sx={{
+                marginTop: "16px",
+                width: "140px",
+                display: "flex",
+                alignItems: "center",
+                bgcolor: colors.red,
+                "&:hover": {
+                  bgcolor: "#f57878"
+                }
+              }}
+            >
+              <StraightenIcon sx={{ height: "20px", mr: "4px" }}/>
+              Đo cơ thể
+            </Button>
           </Stack>
           <Box marginTop={'32px'} order={{ md: 2 }} padding={{ xs: "0 16px", md: 0 }}>
             <Typography sx={{ fontSize: '20px', fontWeight: 500 }}>
