@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AppBreadcrumbs from "../../components/common/AppBreadcrumbs";
-import { Box, Button, IconButton, InputBase, MenuItem, Select, Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Button, IconButton, InputBase, MenuItem, Modal, Select, Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { colors, ORDER_STATUS, PAYMENT_METHOD, serverUrl } from "../../services/const";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
@@ -26,6 +26,16 @@ const OrderDetail = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+
+  const handleOpenReasonModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseReasonModal = () => {
+    setOpenModal(false);
+  };
 
   const getData = async () => {
     setLoading(true)
@@ -59,15 +69,12 @@ const OrderDetail = () => {
   };
 
   const handleCancel = async () => {
-    if (!window.confirm("Xác nhận hủy đơn hàng này và không thể hoàn tác?")) {
-      return;
-    }
-
     setUpdating(true)
     axios
       .put(serverUrl + `orders/cancel/${orderId}`,
         {
-          orderItems: orderData?.orderItems
+          orderItems: orderData?.orderItems,
+          cancelReason
         },
         {
           withCredentials: true
@@ -80,7 +87,10 @@ const OrderDetail = () => {
         }
       })
       .catch((error) => console.log(error))
-      .finally(() => setUpdating(false));
+      .finally(() => {
+        setUpdating(false)
+        handleCloseReasonModal();
+      });
   };
 
   const renderActionBtn = (orderData) => {
@@ -221,7 +231,7 @@ const OrderDetail = () => {
                     variant="contained"
                     title="Hủy đơn"
                     disabled={updating}
-                    onClick={handleCancel}
+                    onClick={handleOpenReasonModal}
                     sx={{
                       padding: "8px 16px",
                       bgcolor: "#EEECEC",
@@ -235,6 +245,13 @@ const OrderDetail = () => {
                     <CancelOutlinedIcon />
                   </Button>
                 )}
+                <ReasonConfirmModel 
+                  open={openModal}
+                  handleClose={handleCloseReasonModal}
+                  inputValue={cancelReason}
+                  onChangeInput={(value) => setCancelReason(value)}
+                  handleSubmit={handleCancel}
+                />
                 {/* <Button
                   variant="contained"
                   title="Lưu thay đổi"
@@ -282,6 +299,10 @@ const OrderDetail = () => {
               </Stack>
             </Stack>
           </Box>
+
+          {orderData?.status === 0 && (
+            <Typography fontStyle={"italic"}>Lý do hủy: {orderData.cancel_reason}</Typography>
+          )}
 
           {/* CUSTOMER AND SHIPPING INFO */}
           <Stack direction={"row"} gap={"16px"}>
@@ -571,5 +592,50 @@ const ActionButton = ({ title, disabled, handleClick = () => {} }) => {
     </Button>
   );
 };
+
+const ReasonConfirmModel = ({ open = true, handleClose = () => {}, inputValue, onChangeInput = () => {}, handleSubmit = () => {} }) => {
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+    >
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 3,
+        borderRadius: "8px"
+      }}>
+        <Typography id="modal-modal-title" variant="h6" component="h2">
+          Lý do hủy đơn*
+        </Typography>
+        <TextField
+          required
+          fullWidth
+          hiddenLabel={true}
+          multiline
+          rows={4}
+          value={inputValue}
+          onChange={(e) => onChangeInput(e.target.value)}
+          sx={{
+            marginTop: 2
+          }}
+        />
+        <Stack mt={1} gap="4px">
+          <Button variant="contained" disabled={!inputValue} onClick={handleSubmit}>
+            Xác nhận hủy đơn
+          </Button>
+          <Button onClick={() => handleClose()}>
+            Hủy thao tác
+          </Button>
+        </Stack>
+      </Box>
+    </Modal>
+  )
+}
 
 export default OrderDetail;

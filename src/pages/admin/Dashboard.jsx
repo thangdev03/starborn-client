@@ -98,54 +98,6 @@ const Dashboard = () => {
     };
   };
 
-  const rows = [
-    createData(
-      "#1",
-      "4",
-      "15/06/2024",
-      "https://static.vecteezy.com/system/resources/previews/026/829/465/non_2x/beautiful-girl-with-autumn-leaves-photo.jpg",
-      "Phuong Le",
-      "Đang giao",
-      2000000
-    ),
-    createData(
-      "#2",
-      "4",
-      "15/06/2024",
-      "https://static.vecteezy.com/system/resources/previews/026/829/465/non_2x/beautiful-girl-with-autumn-leaves-photo.jpg",
-      "Nhật Thăng",
-      "Chờ xác nhận",
-      2000000
-    ),
-    createData(
-      "#3",
-      "4",
-      "15/06/2024",
-      "https://static.vecteezy.com/system/resources/previews/026/829/465/non_2x/beautiful-girl-with-autumn-leaves-photo.jpg",
-      "Đăng Tài",
-      "Đã giao",
-      2000000
-    ),
-    createData(
-      "#4",
-      "4",
-      "15/06/2024",
-      "https://static.vecteezy.com/system/resources/previews/026/829/465/non_2x/beautiful-girl-with-autumn-leaves-photo.jpg",
-      "Thủy Lê",
-      "Đang giao",
-      2000000
-    ),
-    createData(
-      "#5",
-      "4",
-      "15/06/2024",
-      "https://static.vecteezy.com/system/resources/previews/026/829/465/non_2x/beautiful-girl-with-autumn-leaves-photo.jpg",
-      "Phạm Phương",
-      "Đang giao",
-      2000000
-    ),
-  ];
-
   function getCurrentWeekData(data) {
     const now = new Date();
     const currentDay = now.getDay(); // Lấy thứ hiện tại (0: Chủ nhật, 6: Thứ 7)

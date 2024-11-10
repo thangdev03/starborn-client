@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, CircularProgress, Container, IconButton, InputBase, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
+import { Avatar, Box, Button, CircularProgress, Container, FormControl, IconButton, InputBase, InputLabel, MenuItem, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import AppBreadcrumbs from '../../components/common/AppBreadcrumbs'
 import axios from 'axios';
@@ -13,8 +13,14 @@ const Orders = () => {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState(-1);
 
-  
+  const handleChangeStatus = (value) => {
+    setSelectedStatus(value);
+
+    getData(value);
+  }
+
   const handleSearchRequest = () => {
     setLoading(true);
     axios
@@ -29,18 +35,29 @@ const Orders = () => {
       .finally(() => setLoading(false))
   };
 
-  useEffect(() => {
+  const getData = async (status = null) => {
     setLoading(true);
     axios
       .get(serverUrl + "orders")
       .then((res) => {
-        setOrderData(res.data);
+        if (status === -1 || status === null) {
+          setOrderData(res.data);
+        } else {
+          console.log(res.data)
+          console.log({status})
+          const result = res.data.filter((order) => order.status === status);
+          setOrderData(result);
+        }
       })
       .catch((error) => {
         console.log(error);
         setOrderData(null);
       })
       .finally(() => setLoading(false))
+  } 
+
+  useEffect(() => {
+    getData();
   }, []);
 
   return (
@@ -99,6 +116,38 @@ const Orders = () => {
             <SearchIcon />
           </IconButton>
         </Box>
+      </Stack>
+      <Stack
+        direction={"row"}
+        justifyContent={"end"}
+      >
+        <FormControl sx={{ mt: "20px", width: "240px" }} size="small" variant="filled">
+          <InputLabel id="demo-simple-select-label">Bộ lọc Trạng thái</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={selectedStatus}
+            label="Bộ lọc Trạng thái"
+            onChange={(e) => handleChangeStatus(e.target.value)}
+            
+          >
+            <MenuItem value={-1}>
+              Tất cả
+            </MenuItem>
+            <MenuItem value={0}>
+              Đã hủy
+            </MenuItem>
+            <MenuItem value={1}>
+              Chờ xác nhận
+            </MenuItem>
+            <MenuItem value={2}>
+              Đang giao
+            </MenuItem>
+            <MenuItem value={3}>
+              Đã giao
+            </MenuItem>
+          </Select>
+        </FormControl>
       </Stack>
 
       <Box
