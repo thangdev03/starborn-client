@@ -49,7 +49,7 @@ const Account = () => {
       <Stack direction={"row"} justifyContent={"space-between"}>
         <AppBreadcrumbs item={breadcrumbItem}/>
         <Typography fontSize={"14px"}>
-          {`Chào mừng, ${currentUser.fullname}!`}
+          {`Chào mừng, ${currentUser?.fullname}!`}
         </Typography>
       </Stack>
 
