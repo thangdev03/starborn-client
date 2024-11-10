@@ -18,6 +18,6 @@ export const formatVNDCurrency = (value) => {
 }
 
 export const getPriceAfterDiscount = (oldPrice, discount) => {
-  const newPrice = oldPrice * (100 - discount) / 100;
+  const newPrice = Number(oldPrice) * (100 - Number(discount)) / 100;
   return newPrice;
 }

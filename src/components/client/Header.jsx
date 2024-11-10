@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Box, Stack, Typography, List, InputBase, ListItemButton, IconButton, Avatar, Drawer, Button, Icon, Paper } from '@mui/material'
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
-import { colors } from '../../services/const';
+import { colors, serverUrl } from '../../services/const';
 import SearchIcon from '@mui/icons-material/Search'
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
@@ -13,6 +13,8 @@ import InventoryOutlinedIcon from '@mui/icons-material/InventoryOutlined';
 import StarsOutlinedIcon from '@mui/icons-material/StarsOutlined';
 import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
 import { useCart } from "../../contexts/CartContext";
+import SearchBarResults from './SearchBarResults';
+import axios from 'axios';
 
 const Header = () => {
   const { openAuthModal, handleLogout } = useAuth();
@@ -21,6 +23,42 @@ const Header = () => {
   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
   const accountType = JSON.parse(sessionStorage.getItem('accountType'));
   const { quantity } = useCart();
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResult, setSearchResult] = useState(null);
+  const [showSearchResult, setShowSearchResult] = useState(false);
+  const searchBarRef = useRef(null);
+
+  const closeSearchResult = () => {
+    setShowSearchResult(false);
+    setSearchInput("");
+  };
+
+  const openSearchResult = () => {
+    setShowSearchResult(true);
+  };
+
+  const getProducts = async (value) => {
+    axios
+      .get(serverUrl + "products?getVariants=1")
+      .then((res) => {
+        if (value) {
+            const results = res.data?.filter((product) => (
+                product.name.toLowerCase().includes(value.toLowerCase())
+            ));
+            console.log(results)
+            setSearchResult(results);
+        } else {
+            setSearchResult([]);
+        }
+      })
+      .catch((error) => console.log(error))
+  };
+
+  const handleChangeSearch = (value) => {
+    setSearchInput(value);
+
+    getProducts(value);
+  };
 
   const toggleDrawer = (state) => {
     setOpenMenu(state)
@@ -29,6 +67,18 @@ const Header = () => {
   const toggleActionsModal = (state) => {
     setOpenUserActions(state);
   };
+
+  useEffect(() => {
+    const handleClickOutsideSearch = (e) => {
+        if (searchBarRef.current && !searchBarRef.current.contains(e.target)) {
+            closeSearchResult();
+        }
+    };
+
+    window.addEventListener("click", handleClickOutsideSearch);
+
+    return () => window.removeEventListener("click", handleClickOutsideSearch);
+  }, [])
 
   return (
     <Box sx={{ position: 'sticky', top: 0, zIndex: 20, borderBottom: '0.5px solid', borderColor: 'rgba(27,33,65,0.5)', bgcolor: 'white' }}>
@@ -160,16 +210,20 @@ const Header = () => {
             </List>
             
             <Stack direction={'row'} alignItems={'center'} gap='24px'>
-                <Stack direction={'row'} alignItems={'center'} 
+                <Stack ref={searchBarRef} direction={'row'} alignItems={'center'} 
                 sx={{ 
                     bgcolor: colors.secondaryColor, 
                     width: '200px', 
                     display: {xs: 'none', lg: 'flex'},
-                    borderRadius: '4px'
+                    borderRadius: '4px',
+                    position: "relative"
                 }}
                 >
                     <InputBase
                     placeholder='Tìm kiếm sản phẩm'
+                    value={searchInput}
+                    onChange={(e) => handleChangeSearch(e.target.value)}
+                    onFocus={() => openSearchResult()}
                     sx={{ 
                         padding: '4px 0px 4px 12px', 
                         color: colors.primaryColor,
@@ -178,6 +232,18 @@ const Header = () => {
                     <IconButton>
                         <SearchIcon sx={{ color: colors.primaryColor }}/>
                     </IconButton>
+
+                    <Paper
+                      sx={{
+                        position: "absolute",
+                        top: "100%",
+                        left: "-20px",
+                        marginTop: "20px",
+                        display: showSearchResult && searchResult ? "display" : "none"
+                      }}
+                    >
+                        <SearchBarResults results={searchResult} closeSearchResult={() => closeSearchResult()}/>
+                    </Paper>
                 </Stack>
                 <Stack direction={'row'} alignItems={'center'}>
                     {/* BUTTON TO FAVORITES PAGE */}
