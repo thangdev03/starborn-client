@@ -190,7 +190,8 @@ const Products = () => {
       detail: product.detail,
       subcategory_id: product.subcategory_id,
       is_featured: type === 'feature' ? !currentValue : product.is_featured,
-      is_active: type === 'active' ? !currentValue : product.is_active
+      is_active: type === 'active' ? !currentValue : product.is_active,
+      slug: product.slug
     })
     .then((res) => {
       if (res.status === 200) {
