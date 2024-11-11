@@ -443,7 +443,7 @@ const OrderInvoice = ({ orderData }) => {
               gap: 4,
             }}
           >
-            <View
+            {/* <View
               style={{
                 display: "flex",
                 flexDirection: "row",
@@ -466,7 +466,7 @@ const OrderInvoice = ({ orderData }) => {
               >
                 {formatVNDCurrency(orderData?.total)}
               </Text>
-            </View>
+            </View> */}
             <View
               style={{
                 display: "flex",
@@ -488,7 +488,7 @@ const OrderInvoice = ({ orderData }) => {
                   fontFamily: "Roboto",
                 }}
               >
-                {formatVNDCurrency(30000)}
+                {formatVNDCurrency(orderData.shipping_fee)}
               </Text>
             </View>
             <View
@@ -512,7 +512,7 @@ const OrderInvoice = ({ orderData }) => {
                   fontFamily: "Roboto",
                 }}
               >
-                {formatVNDCurrency(2030000)}
+                {formatVNDCurrency(orderData.total)}
               </Text>
             </View>
           </View>

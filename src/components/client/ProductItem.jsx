@@ -227,7 +227,7 @@ const ProductItem = ({ productData }) => {
                 fontWeight: 500,
               }}
             >
-              ({100})
+              ({productData.total_purchase})
             </Typography>
           </Stack>
         )}

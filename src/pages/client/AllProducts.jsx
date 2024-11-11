@@ -74,7 +74,7 @@ const AllProducts = () => {
     .catch((err) => console.log(err))
   }, [objectSlug, searchParams, sortType])
 
-  // console.log(products)
+  console.log(products)
 
   return (
     <Box paddingX={{ xs: '16px', sm: '52px' }}>
@@ -165,7 +165,7 @@ const AllProducts = () => {
                     size="small"
                   >
                     <MenuItem sx={{ fontSize: '14px' }} value="">Mặc định</MenuItem>
-                    <MenuItem sx={{ fontSize: '14px' }} value={"highestSales"}>Bán chạy nhất (CHƯA LÀM)</MenuItem>
+                    <MenuItem sx={{ fontSize: '14px' }} value={"highestSales"}>Bán chạy nhất</MenuItem>
                     <MenuItem sx={{ fontSize: '14px' }} value={"newest"}>Mới nhất</MenuItem>
                     <MenuItem sx={{ fontSize: '14px' }} value={"highestRating"}>Xếp hạng cao nhất</MenuItem>
                     <MenuItem sx={{ fontSize: '14px' }} value={"priceAZ"}>Giá thấp đến cao</MenuItem>
