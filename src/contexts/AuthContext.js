@@ -29,7 +29,11 @@ const AuthContextProvider = ({ children }) => {
                 setCurrentUser(res.data.user);
                 setAccountType(res.data.accountType);
                 closeAuthModal();
-                toast.success(res.data.message);
+                toast.success(res.data.message, {
+                    autoClose: 500,
+                    pauseOnHover: false,
+                    hideProgressBar: true
+                });
                 sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
                 sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
                 sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));

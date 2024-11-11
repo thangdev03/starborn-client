@@ -107,6 +107,7 @@ const Checkout = () => {
   const [wardList, setWardList] = useState([]);
   const [sendingRequest, setSendingRequest] = useState(false);
   const navigate = useNavigate();
+  const [isDefaultAddress, setIsDefaultAddress] = useState(true);
 
   const handleChange = (event, inputPattern) => {
     setShippingInfo({...shippingInfo, [event.target.name]: event.target.value});
@@ -161,17 +162,26 @@ const Checkout = () => {
   };
 
   const handleChangeCity = (e) => {
+    if (isDefaultAddress) {
+      setIsDefaultAddress(false)
+    }
     setSelectedProvince(e.target.value);
     setSelectedDistrict("");
     setSelectedWard("");
   };
 
   const handleChangeDistrict = (e) => {
+    if (isDefaultAddress) {
+      setIsDefaultAddress(false)
+    }
     setSelectedDistrict(e.target.value);
     setSelectedWard("");
   };
 
   const handleChangeWard = (e) => {
+    if (isDefaultAddress) {
+      setIsDefaultAddress(false)
+    }
     setSelectedWard(e.target.value);
   };
 
@@ -243,13 +253,13 @@ const Checkout = () => {
   }, [])
 
   useEffect(() => {
-    if (selectedProvince) {
+    if (selectedProvince && !isDefaultAddress) {
       getDistricts();
     }
   }, [selectedProvince])
 
   useEffect(() => {
-    if (selectedDistrict) {
+    if (selectedDistrict && !isDefaultAddress) {
       getWards();
     }
   }, [selectedDistrict])
@@ -267,7 +277,6 @@ const Checkout = () => {
   }, [searchParams])
 
   useEffect(() => {
-    console.log(subtotal)
     if (selectedProvince && selectedDistrict && subtotal && products) {
       axios.get(serverUrl + "shipping/get/fee", {
         params: {
@@ -281,7 +290,6 @@ const Checkout = () => {
       })
       .then((res) => {
         setShippingFee(res.data?.fee)
-        console.log(res.data)
       })
       .catch((error) => console.log(error))
     }
@@ -300,7 +308,6 @@ const Checkout = () => {
       })
         .then((res) => {
           setProducts(res.data.items);
-          console.log(res.data.items)
           setSubtotal(res.data.subtotal);
         })
         .catch((error) => console.log(error))
@@ -319,6 +326,51 @@ const Checkout = () => {
       applyCoupon()
     }
   }, [choseCoupon, subtotal, currentUser])
+
+  useEffect(() => {
+    axios.get(serverUrl + `addresses/${currentUser?.id}`, {
+      withCredentials: true
+    })
+    .then((res) => {
+      console.log(res.data)
+      const addresses = res.data;
+      const defaultAddress = addresses.find((i) => i.is_default === 1);
+      if (defaultAddress) {
+        setShippingInfo({
+          name: defaultAddress.receiver_name,
+          phone: defaultAddress.receiver_phone,
+          email: defaultAddress.email,
+          address: defaultAddress.address
+        })
+
+        if (provinceList && provinceList.length !== 0) {
+          const province = provinceList.find(i => i.province_name === defaultAddress.province);
+
+          // Fetch districts based on the default province
+          axios.get(`https://vapi.vnappmob.com/api/province/district/${province.province_id}`)
+          .then((res) => {
+            const districtList = res.data.results;
+            setDistrictList(districtList);
+            const district = districtList.find(d => d.district_name === defaultAddress.district);
+
+            // Fetch wards based on the default district
+            axios.get(`https://vapi.vnappmob.com/api/province/ward/${district.district_id}`)
+            .then((res) => {
+              const wardList = res.data.results;
+              setWardList(wardList);
+              const ward = wardList.find(w => w.ward_name === defaultAddress.ward);
+              setSelectedProvince(province);
+              setSelectedDistrict(district);
+              setSelectedWard(ward);
+            })
+            .catch((error) => console.log(error));
+          })
+          .catch((error) => console.log(error));
+        }
+      }
+    })
+    .catch((err) => console.log(err))
+  }, [currentUser, provinceList])
 
   return (
     <Box paddingX={{ xs: "16px", sm: "52px" }}>
@@ -396,9 +448,9 @@ const Checkout = () => {
                   <MenuItem disabled value="" sx={{ fontStyle: "italic" }}>
                     Chọn thành phố/ tỉnh
                   </MenuItem>
-                  {provinceList.map((city) => (
-                    <MenuItem key={city.province_id} value={city}>
-                      {city.province_name}
+                  {provinceList.map((province) => (
+                    <MenuItem key={province.province_id} value={province}>
+                      {province.province_name}
                     </MenuItem> 
                   ))}
                 </Select>
