@@ -14,7 +14,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import AddPhotoAlternateRoundedIcon from '@mui/icons-material/AddPhotoAlternateRounded';
-import AddImagesModal from '../../components/admin/AddImagesModal'
+import AddImagesModal from '../../components/admin/AddImagesModal';
+import { toast } from 'react-toastify'
 
 const AdminProductDetail = () => {
   const { productId } = useParams();
@@ -156,7 +157,7 @@ const AdminProductDetail = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          alert('Cập nhật thông tin thành công!');
+          toast.success('Cập nhật thông tin thành công!');
           getData();
         }
         setIsUpdatingProduct(false);
@@ -194,7 +195,7 @@ const AdminProductDetail = () => {
     })
     .then(res => {
       if (res.status === 200) {
-        alert('Cập nhật thành công!');
+        toast.success('Cập nhật thành công!');
         getVariantsData();
       }
       setIsUpdatingVariant(false);

@@ -22,8 +22,8 @@ import Favorites from './pages/client/Favorites';
 import EmployeePrivateRoutes from './utils/EmployeePrivateRoutes';
 import EmployeeLogin from './pages/admin/EmployeeLogin';
 import OrderDetail from './pages/admin/OrderDetail';
-import OrderInvoice from './pages/admin/OrderInvoice';
 import BodyMeasureRoom from './components/client/BodyMeasureRoom';
+import Employees from './pages/admin/Employees';
 
 const AppRoutes = () => {
 
@@ -77,7 +77,7 @@ const AppRoutes = () => {
             <Route path=':customerId' element={<CustomerDetail />} />
           </Route>
           <Route path='coupons' element={<Vouchers />}/>
-          <Route path='invoice/:orderId' element={<OrderInvoice />}/>
+          <Route path='employees' element={<Employees />}/>
         </Route>
         <Route path='login' element={<EmployeeLogin />}/>
       </Route>

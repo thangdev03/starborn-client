@@ -70,11 +70,12 @@ const AllProducts = () => {
     }
 
     axios.get(apiUrl)
-    .then((res) => setProducts(res.data))
+    .then((res) => {
+      const result = res.data.filter(i => i.is_active === 1)  
+      setProducts(result)
+    })
     .catch((err) => console.log(err))
   }, [objectSlug, searchParams, sortType])
-
-  console.log(products)
 
   return (
     <Box paddingX={{ xs: '16px', sm: '52px' }}>

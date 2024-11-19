@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   IconButton,
   InputBase,
   Stack,
@@ -21,10 +22,14 @@ import { serverUrl } from "../../services/const";
 import axios from "axios";
 import { colors } from "../../services/const";
 import { visuallyHidden } from "@mui/utils";
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import { formatVNDCurrency } from "../../utils/currencyUtils";
 import { useAuth } from "../../contexts/AuthContext";
 import { toast } from "react-toastify";
+import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
+import CreateEmployeeModal from "../../components/admin/CreateEmployeeModal";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const headCells = [
   {
@@ -33,7 +38,7 @@ const headCells = [
     disablePadding: false,
     label: "STT",
     sortable: false,
-    alignDirection: 'center'
+    alignDirection: "center",
   },
   {
     id: "name",
@@ -41,7 +46,7 @@ const headCells = [
     disablePadding: false,
     label: "Tên",
     sortable: true,
-    alignDirection: 'left'
+    alignDirection: "left",
   },
   {
     id: "phone",
@@ -49,23 +54,7 @@ const headCells = [
     disablePadding: false,
     label: "Số điện thoại",
     sortable: true,
-    alignDirection: 'center'
-  },
-  {
-    id: "email",
-    numeric: true,
-    disablePadding: false,
-    label: "Email",
-    sortable: true,
-    alignDirection: 'center'
-  },
-  {
-    id: "totalExpense",
-    numeric: true,
-    disablePadding: false,
-    label: "Tổng thanh toán",
-    sortable: true,
-    alignDirection: 'right'
+    alignDirection: "center",
   },
   {
     id: "updateActive",
@@ -73,19 +62,27 @@ const headCells = [
     disablePadding: false,
     label: "Trạng thái tài khoản",
     sortable: false,
-    alignDirection: 'center'
+    alignDirection: "center",
   },
   {
-    id: "detailView",
-    numeric: true,
+    id: "updateActive",
+    numeric: false,
     disablePadding: false,
-    label: "Xem chi tiết",
+    label: "Hành động",
     sortable: false,
-    alignDirection: 'center'
+    alignDirection: "center",
   },
+  // {
+  //   id: "detailView",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Lịch sử hoạt động",
+  //   sortable: false,
+  //   alignDirection: 'center'
+  // },
 ];
 
-const Customers = () => {
+const Employees = () => {
   const { currentUser } = useAuth();
   const [data, setData] = useState([]);
   const [order, setOrder] = useState("asc");
@@ -93,10 +90,19 @@ const Customers = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchText, setSearchText] = useState("");
+  const [isOpenModal, setIsOpenModal] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsOpenModal(false);
+  };
 
   const getData = () => {
     axios
-      .get(serverUrl + "customers")
+      .get(serverUrl + "employees")
       .then((res) => setData(res.data))
       .catch((err) => {
         console.log(err);
@@ -138,6 +144,26 @@ const Customers = () => {
       });
   };
 
+  const handleDelete = async (employeeId) => {
+    if (window.confirm("Bạn chắc chắn muốn xóa tài khoản này không?")) {
+        axios
+          .delete(serverUrl + `employees/${employeeId}`,
+            {
+                withCredentials: true
+            }
+          )
+          .then((res) => {
+            if (res.status === 200) {
+                toast.success("Đã xóa thành công!")
+                getData();
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+    }
+  }
+
   // Avoid a layout jump when reaching the last page with empty data.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
@@ -152,21 +178,21 @@ const Customers = () => {
 
   const handleToggleSwitch = async (currentValue, thisCustomerId) => {
     if (currentUser?.is_admin === 1) {
-      axios.put(serverUrl + `customers/activation/${thisCustomerId}`,
-        {
-          is_active: currentValue
-        },
-        {
-          withCredentials: true
-        }
-      )
-      .then((res) => {
-        getData();
-        toast.success("Cập nhật thành công!");
-      })
-      .catch((err) => console.log(err))
+      // axios.put(serverUrl + `customers/activation/${thisCustomerId}`,
+      //   {
+      //     is_active: currentValue
+      //   },
+      //   {
+      //     withCredentials: true
+      //   }
+      // )
+      // .then((res) => {
+      //   getData();
+      //   toast.success("Cập nhật thành công!");
+      // })
+      // .catch((err) => console.log(err))
     }
-  }
+  };
 
   return (
     <Box
@@ -189,7 +215,7 @@ const Customers = () => {
               fontSize: "24px",
             }}
           >
-            KHÁCH HÀNG
+            TÀI KHOẢN NHÂN VIÊN
           </Typography>
           <AppBreadcrumbs />
         </Box>
@@ -229,6 +255,40 @@ const Customers = () => {
               <SearchIcon />
             </IconButton>
           </Box>
+          <Button
+            onClick={handleOpenModal}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              textDecoration: "none",
+              textTransform: "none",
+              color: "white",
+              bgcolor: colors.red,
+              borderRadius: "8px",
+              width: "100px",
+              fontSize: "14px",
+              fontWeight: 500,
+              transitionProperty: "all",
+              transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+              transitionDuration: "150ms",
+              cursor: "pointer",
+              "&:hover": {
+                bgcolor: colors.red,
+                opacity: 0.8,
+              },
+            }}
+          >
+            <AddCircleOutlineRoundedIcon
+              sx={{ width: "18px", marginRight: "4px" }}
+            />
+            Thêm
+          </Button>
+          <CreateEmployeeModal 
+            isOpen={isOpenModal}
+            handleClose={handleCloseModal}
+            reloadData={getData}
+          />
         </Stack>
       </Stack>
 
@@ -254,10 +314,7 @@ const Customers = () => {
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
-                    <TableRow
-                      hover
-                      key={row.id}
-                    >
+                    <TableRow hover key={row.id}>
                       <TableCell
                         id={labelId}
                         scope="row"
@@ -266,28 +323,35 @@ const Customers = () => {
                       >
                         {index + 1}
                       </TableCell>
-                      <TableCell align="left">{row.fullname}</TableCell>
+                      <TableCell align="left">
+                        <Typography fontSize={"14px"}>
+                            {row.username} {row.id === currentUser.id && <span style={{ fontStyle: "italic", fontWeight: 500 }}>(Hiện tại)</span>}
+                        </Typography>
+                      </TableCell>
                       <TableCell align="center" sx={{ paddingRight: "40px" }}>
                         {row.phone}
                       </TableCell>
-                      <TableCell align="center" sx={{ paddingRight: "40px" }}>
-                        {row.email || "Chưa có"}
-                      </TableCell>
-                      <TableCell align="right">
-                        {formatVNDCurrency(row.total_purchase)}
-                      </TableCell>
-                      <TableCell align='center'>
-                        <Switch 
-                          disabled={currentUser?.is_admin === 0}
-                          checked={row.is_active === 1 ? true : false}
-                          onClick={() => handleToggleSwitch(row.is_active, row.id)}
-                        />
+                      <TableCell align="center">
+                        {row?.is_admin === 1 ? (
+                          <Typography>Admin</Typography>
+                        ) : (
+                          <Switch
+                            disabled={currentUser?.is_admin === 0}
+                            checked={row.is_active === 1 ? true : false}
+                            onClick={() =>
+                              handleToggleSwitch(row.is_active, row.id)
+                            }
+                          />
+                        )}
                       </TableCell>
                       <TableCell align="center">
-                        <IconButton href={`/admin/customers/${row.id}`}>
-                          <VisibilityIcon sx={{ color: colors.primaryColor }}/>
-                        </IconButton>
-                      </TableCell>
+                          <IconButton
+                            disabled={row.id === currentUser.id}
+                            onClick={() => handleDelete(row.id)}
+                          >
+                            <DeleteIcon sx={{ color: row.id === currentUser.id ? "#1B214155" : colors.primaryColor }}/>
+                          </IconButton>
+                        </TableCell>
                     </TableRow>
                   );
                 })
@@ -344,11 +408,7 @@ function getComparator(order, orderBy) {
 }
 
 function EnhancedTableHead(props) {
-  const {
-    order,
-    orderBy,
-    onRequestSort,
-  } = props;
+  const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -391,4 +451,4 @@ function EnhancedTableHead(props) {
   );
 }
 
-export default Customers;
+export default Employees;

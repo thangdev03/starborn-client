@@ -114,7 +114,9 @@ const ProductGridItem = ({ variants, name, productSlug, rate, totalPurchase }) =
       </Box>
       <Stack gap={{ xs: "4px", md: "12px" }} sx={{ marginTop: "16px" }}>
         <Stack direction={"row"} gap={"4px"} height={"26px"} sx={{ width: "100%", overflowX: "auto" }}>
-          {variants.map((variant, index) => (
+          {variants
+          .filter(i => i.variant_isActive === 1)
+          .map((variant, index) => (
             <Box
               key={index}
               sx={{ padding: "3px", position: "relative" }}

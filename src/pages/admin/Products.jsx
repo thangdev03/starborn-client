@@ -23,6 +23,7 @@ import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRou
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BlockIcon from '@mui/icons-material/Block';
+import { toast } from 'react-toastify';
 
 const headCells = [
   {
@@ -197,7 +198,7 @@ const Products = () => {
       if (res.status === 200) {
         getData();
       } else {
-        alert(res.data?.message);
+        toast.error(res.data?.message);
       }
     })
     .catch((err) => console.log(err))
@@ -326,7 +327,7 @@ const Products = () => {
                     <TableCell align='left'>{row.name}</TableCell>
                     <TableCell align='center' sx={{ paddingRight: '40px' }}>{row.total_stock}</TableCell>
                     <TableCell align='center' sx={{ paddingRight: '40px' }}>
-                      {row.average_rating || 'Chưa có'}
+                      {row.average_rating ? Number(row.average_rating).toFixed(1) : 'Chưa có'}
                     </TableCell>
                     <TableCell align='center'>
                       {row.subcategory_id ? (
