@@ -40,6 +40,9 @@ const AppBreadcrumbs = ({ item = null }) => {
         case 'objects': 
           title = 'Đối tượng sử dụng';
           break;
+        case 'collection': 
+          title = 'Bộ sưu tập';
+          break;
         case 'products': 
           title = 'Tất cả sản phẩm';
           break;

@@ -24,6 +24,8 @@ import EmployeeLogin from './pages/admin/EmployeeLogin';
 import OrderDetail from './pages/admin/OrderDetail';
 import BodyMeasureRoom from './components/client/BodyMeasureRoom';
 import Employees from './pages/admin/Employees';
+import Collection from './pages/admin/Collection';
+import CollectionDetail from './pages/admin/CollectionDetail';
 
 const AppRoutes = () => {
 
@@ -78,6 +80,10 @@ const AppRoutes = () => {
           </Route>
           <Route path='coupons' element={<Vouchers />}/>
           <Route path='employees' element={<Employees />}/>
+          <Route path='collection'>
+            <Route path='' element={<Collection />} />
+            <Route path=':collectionId' element={<CollectionDetail />} />
+          </Route>
         </Route>
         <Route path='login' element={<EmployeeLogin />}/>
       </Route>

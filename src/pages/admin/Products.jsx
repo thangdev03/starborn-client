@@ -1,4 +1,4 @@
-import { Stack, Typography, InputBase, Switch, Link } from '@mui/material'
+import { Stack, Typography, InputBase, Switch, Link, Button, Menu, MenuItem } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import AppBreadcrumbs from '../../components/common/AppBreadcrumbs'
 import { colors, serverUrl } from '../../services/const';
@@ -17,17 +17,18 @@ import Toolbar from '@mui/material/Toolbar';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BlockIcon from '@mui/icons-material/Block';
 import { toast } from 'react-toastify';
+import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
+import ChooseCollectionModal from '../../components/admin/ChooseCollectionModal';
 
 const headCells = [
   {
-    id: 'number',
+    id: 'id',
     numeric: true,
     disablePadding: true,
     label: 'ID',
@@ -43,7 +44,7 @@ const headCells = [
     sortable: true
   },
   {
-    id: 'quantity',
+    id: 'total_stock',
     numeric: true,
     disablePadding: false,
     label: 'Số lượng tồn kho',
@@ -51,8 +52,8 @@ const headCells = [
     sortable: true
   },
   {
-    id: 'rating',
-    numeric: false,
+    id: 'average_rating',
+    numeric: true,
     disablePadding: false,
     label: 'Đánh giá',
     alignDirection: 'center',
@@ -95,11 +96,12 @@ const headCells = [
 const Products = () => {
   const [data, setData] = useState([]);
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('calories');
+  const [orderBy, setOrderBy] = useState('id');
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchText, setSearchText] = useState('');
+  const [openCollectionModal, setOpenCollectionModal] = useState(false);
 
   const getData = () => {
     axios.get(serverUrl + 'products')
@@ -172,14 +174,14 @@ const Products = () => {
   const handleDeleteRequest = () => {
     if (window.confirm('Bạn có chắc muốn vô hiệu hóa các sản phẩm đã chọn không?')) {
       axios.put(serverUrl + 'products/disable', {
-          productIds: selected
+        productIds: selected
       })
       .then((res) => {
-          if (res.status === 200) {
-            getData();
-          } else {
-            alert(res.data?.message);
-          }
+        if (res.status === 200) {
+          getData();
+        } else {
+          alert(res.data?.message);
+        }
       })
       .catch((err) => console.log(err))
     }
@@ -220,6 +222,12 @@ const Products = () => {
 
   return (
     <Box sx={{ paddingX: {xs: '8px', md: '24px'}, margin: 0, paddingBottom: '160px' }}>
+      <ChooseCollectionModal 
+        open={openCollectionModal}
+        productSelected={selected}
+        handleClose={() => setOpenCollectionModal(false)}
+      />
+
       <Stack direction={{ xs: 'column', md: 'row' }} alignItems={{ md: 'end' }} justifyContent={'space-between'} gap={{ xs: '12px', md: 'auto' }}>
         <Box>
           <Typography
@@ -278,7 +286,7 @@ const Products = () => {
       </Stack>
 
       <Box sx={{ marginTop: '24px', bgcolor: 'white', borderRadius: '16px', width: '100%', overflow: 'hidden' }}>
-        <EnhancedTableToolbar numSelected={selected.length} onDeleteClick={handleDeleteRequest} />
+        <EnhancedTableToolbar numSelected={selected.length} onDeleteClick={handleDeleteRequest} addToCollection={() => setOpenCollectionModal(true)}/>
         <TableContainer>
           <Table>
             <EnhancedTableHead
@@ -327,7 +335,7 @@ const Products = () => {
                     <TableCell align='left'>{row.name}</TableCell>
                     <TableCell align='center' sx={{ paddingRight: '40px' }}>{row.total_stock}</TableCell>
                     <TableCell align='center' sx={{ paddingRight: '40px' }}>
-                      {row.average_rating ? Number(row.average_rating).toFixed(1) : 'Chưa có'}
+                      {Number(row.average_rating).toFixed(1)}
                     </TableCell>
                     <TableCell align='center'>
                       {row.subcategory_id ? (
@@ -404,7 +412,16 @@ function getComparator(order, orderBy) {
 }
 
 function EnhancedTableToolbar(props) {
-  const { numSelected, onDeleteClick } = props;
+  const { numSelected, onDeleteClick, addToCollection } = props;
+  const [anchorActionMenu, setAnchorActionMenu] = useState(null);
+  const open = Boolean(anchorActionMenu);
+  const handleOpenMenu = (event) => {
+    setAnchorActionMenu(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorActionMenu(null);
+  };
+
   return (
     <Toolbar
       sx={[
@@ -420,7 +437,7 @@ function EnhancedTableToolbar(props) {
     >
       {numSelected > 0 ? (
         <Typography
-          sx={{ flex: '1 1 100%' }}
+          sx={{ flex: 1 }}
           color="inherit"
           variant="subtitle1"
           component="div"
@@ -438,17 +455,39 @@ function EnhancedTableToolbar(props) {
         </Typography>
       )}
 
-      {numSelected > 0 ? (
-        <Tooltip title="Vô hiệu hóa">
-          <IconButton onClick={onDeleteClick}>
-            <BlockIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
+      {numSelected > 0 && (
+        <Tooltip>
+          <>
+            <Button 
+              variant='outlined' 
+              onClick={handleOpenMenu}
+              aria-controls={open ? 'action-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+            >
+              Hành động
+              <ArrowDropDownRoundedIcon />
+            </Button>
+            <Menu
+              id="action-menu"
+              anchorEl={anchorActionMenu}
+              onClose={handleCloseMenu}
+              open={open}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              <MenuItem 
+                onClick={() => {
+                  addToCollection();
+                  handleCloseMenu();
+                }}
+              >
+                Thêm vào BST
+              </MenuItem>
+              <MenuItem onClick={onDeleteClick}>Vô hiệu hóa</MenuItem>
+            </Menu>
+          </>
         </Tooltip>
       )}
     </Toolbar>
