@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import AppBreadcrumbs from "../../components/common/AppBreadcrumbs";
-import { Box, Button, IconButton, InputBase, MenuItem, Modal, Select, Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { Box, Button, Modal, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { colors, ORDER_STATUS, PAYMENT_METHOD, serverUrl } from "../../services/const";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
-import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
 import axios from "axios";
@@ -126,6 +125,7 @@ const OrderDetail = () => {
     getData();
   }, [orderId])
 
+  console.log(orderData)
   return (
     !loading && (
       <Box
@@ -252,21 +252,6 @@ const OrderDetail = () => {
                   onChangeInput={(value) => setCancelReason(value)}
                   handleSubmit={handleCancel}
                 />
-                {/* <Button
-                  variant="contained"
-                  title="Lưu thay đổi"
-                  sx={{
-                    padding: "8px 16px",
-                    bgcolor: "#EEECEC",
-                    color: colors.primaryColor,
-                    boxShadow: "none",
-                    ":hover": {
-                      bgcolor: "#EEEEEE",
-                    },
-                  }}
-                >
-                  <SaveOutlinedIcon />
-                </Button> */}
                 <PDFDownloadLink
                   document={<OrderInvoice orderData={orderData}/>}
                   fileName={`Starborn-invoice-order-${orderId}.pdf`}
@@ -533,10 +518,15 @@ const OrderDetail = () => {
                   </TableRow>
                 ))}
                 <TableRow>
-                  <TableCell rowSpan={4} colSpan={3} />
+                  <TableCell rowSpan={orderData.coupon_code ? 5 : 4} colSpan={3} />
                   <TableCell sx={{ fontWeight: 500 }}>Tạm tính</TableCell>
                   <TableCell align="right" sx={{ fontWeight: 500 }}>
-                    {formatVNDCurrency(orderData.total)}
+                    {formatVNDCurrency(
+                      orderData?.orderItems?.reduce(
+                        (acc, item) => acc + Number(item.purchased_price),
+                        0
+                      )
+                    )}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -551,6 +541,14 @@ const OrderDetail = () => {
                     {formatVNDCurrency(orderData.discount_amount)}
                   </TableCell>
                 </TableRow>
+                {orderData.coupon_code && (
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 500 }}>Mã giảm giá</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 500 }}>
+                      {orderData.coupon_code}
+                    </TableCell>
+                  </TableRow>
+                )}
                 <TableRow>
                   <TableCell sx={{ fontWeight: 600, fontSize: "20px" }}>
                     Tổng

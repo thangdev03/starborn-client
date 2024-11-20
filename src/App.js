@@ -44,7 +44,10 @@ function App() {
           : !pathname.startsWith('/admin') && <Header /> 
         }
         
-        <ToastContainer />
+        <ToastContainer 
+          autoClose={3000}
+          pauseOnHover={false}  
+        />
         <AuthModal />
         
         <AppRoutes />

@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const VoucherModal = ({ action, coupon = {}, open = () => {}, handleClose = () => {}, reloadData = () => {} }) => {
+const VoucherModal = ({ action, coupon = {}, open, handleClose = () => {}, reloadData = () => {} }) => {
     const style = {
         position: 'absolute',
         top: {

@@ -139,7 +139,7 @@ const OrderInvoice = ({ orderData }) => {
                 padding: 4,
               }}
             >
-              {orderData?.id}
+              #{orderData?.id}
             </Text>
           </View>
           <View
@@ -464,7 +464,14 @@ const OrderInvoice = ({ orderData }) => {
                   fontFamily: "Roboto",
                 }}
               >
-                {formatVNDCurrency(orderData?.total)}
+                {
+                  formatVNDCurrency(
+                    orderData?.orderItems?.reduce(
+                      (acc, item) => acc + Number(item.purchased_price),
+                      0
+                    )
+                  )  
+                }
               </Text>
             </View>
             <View
@@ -488,7 +495,7 @@ const OrderInvoice = ({ orderData }) => {
                   fontFamily: "Roboto",
                 }}
               >
-                {formatVNDCurrency(30000)}
+                {formatVNDCurrency(orderData.shipping_fee)}
               </Text>
             </View>
             <View
@@ -512,7 +519,7 @@ const OrderInvoice = ({ orderData }) => {
                   fontFamily: "Roboto",
                 }}
               >
-                {formatVNDCurrency(2030000)}
+                {formatVNDCurrency(orderData.total)}
               </Text>
             </View>
           </View>

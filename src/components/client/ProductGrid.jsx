@@ -26,7 +26,7 @@ const ProductGrid = ({ products }) => {
             name={product.name}
             productSlug={product.slug}
             rate={product.average_rating}
-            totalPurchase='64'
+            totalPurchase={product.total_purchase}
             />
           ))
         : [1,2,3,4,5,6].map(i => (

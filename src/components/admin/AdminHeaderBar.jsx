@@ -83,11 +83,11 @@ const AdminHeaderBar = () => {
           {/* </Box> */}
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton size="large">
+            {/* <IconButton size="large">
               <SearchIcon sx={{ color: colors.primaryColor }} />
-            </IconButton>
+            </IconButton> */}
             <IconButton>
-              <Badge badgeContent={12} color="error">
+              <Badge badgeContent={0} color="error">
                 <NotificationsIcon
                   sx={{
                     color: colors.primaryColor,

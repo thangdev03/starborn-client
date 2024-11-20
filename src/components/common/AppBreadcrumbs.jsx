@@ -28,6 +28,9 @@ const AppBreadcrumbs = ({ item = null }) => {
         case 'customers': 
           title = 'Khách hàng';
           break;
+        case 'employees': 
+          title = 'Nhân viên';
+          break;
         case 'categories': 
           title = 'Danh mục sản phẩm';
           break;
@@ -36,6 +39,9 @@ const AppBreadcrumbs = ({ item = null }) => {
           break;
         case 'objects': 
           title = 'Đối tượng sử dụng';
+          break;
+        case 'collection': 
+          title = 'Bộ sưu tập';
           break;
         case 'products': 
           title = 'Tất cả sản phẩm';

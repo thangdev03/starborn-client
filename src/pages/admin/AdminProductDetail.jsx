@@ -14,7 +14,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import AddPhotoAlternateRoundedIcon from '@mui/icons-material/AddPhotoAlternateRounded';
-import AddImagesModal from '../../components/admin/AddImagesModal'
+import AddImagesModal from '../../components/admin/AddImagesModal';
+import { toast } from 'react-toastify'
 
 const AdminProductDetail = () => {
   const { productId } = useParams();
@@ -29,16 +30,21 @@ const AdminProductDetail = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [tagList, setTagList] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [collectionList, setCollectionList] = useState([]);
+  const [selectedCollections, setSelectedCollections] = useState([]);
   const [currTags, setCurrTags] = useState([]);
+  const [currCollections, setCurrCollections] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [allSubcategories, setAllSubcategories] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [variants, setVariants] = useState([]);
   const [currVariants, setCurrVariants] = useState([]);
   const [deleteTags, setDeleteTags] = useState([]);
+  const [deleteCollections, setDeleteCollections] = useState([]);
   const [deleteImages, setDeleteImages] = useState([]);
   const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
   const [isUpdatingVariant, setIsUpdatingVariant] = useState(false);
+  console.log({currCollections, selectedCollections, deleteCollections})
 
   const getData = () => {
     axios
@@ -54,6 +60,16 @@ const AdminProductDetail = () => {
       .then((res) => {
         setSelectedTags(res.data);
         setCurrTags(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+
+    axios
+      .get(serverUrl + 'collection/product/' + productId)
+      .then((res) => {
+        setSelectedCollections(res.data);
+        setCurrCollections(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -112,6 +128,13 @@ const AdminProductDetail = () => {
       .catch((err) => console.log(err))
   };
 
+  const getCollections = () => {
+    axios
+      .get(serverUrl + 'collection')
+      .then((res) => setCollectionList(res.data))
+      .catch((err) => console.log(err))
+  };
+
   const handleVariantChange = (variantId, field, newValue) => {
     setVariants((prev) => (
       prev.map((variant) => 
@@ -143,6 +166,11 @@ const AdminProductDetail = () => {
       selectedTags
         .filter((tag) => !currTags.find((currTag) => currTag.name === tag.name))
         .map((tag) => tag.name)
+
+    const newProductCollections = 
+      selectedCollections
+        .filter((collection) => !currCollections.find((currCollection) => currCollection.name === collection.name))
+        .map((collection) => collection.id)
     
     axios
       .put(serverUrl + 'products/update/' + productId, {
@@ -152,11 +180,13 @@ const AdminProductDetail = () => {
         is_featured: product.is_featured,
         is_active: product.is_active,
         tags: newProductTags,
-        deleteTags: deleteTags
+        deleteTags: deleteTags,
+        collections: newProductCollections,
+        deleteCollections: deleteCollections
       })
       .then((res) => {
         if (res.status === 200) {
-          alert('Cập nhật thông tin thành công!');
+          toast.success('Cập nhật thông tin thành công!');
           getData();
         }
         setIsUpdatingProduct(false);
@@ -194,7 +224,7 @@ const AdminProductDetail = () => {
     })
     .then(res => {
       if (res.status === 200) {
-        alert('Cập nhật thành công!');
+        toast.success('Cập nhật thành công!');
         getVariantsData();
       }
       setIsUpdatingVariant(false);
@@ -245,6 +275,7 @@ const AdminProductDetail = () => {
     getAllCategories();
     getAllSubcategories();
     getTags();
+    getCollections();
   },[])
 
   useEffect(() => {
@@ -471,6 +502,86 @@ const AdminProductDetail = () => {
                 {...params}
                 variant="outlined"
                 placeholder="Gắn nhãn liên quan tới sản phẩm"
+              />
+            )}
+          />
+        </FormControl>
+
+        <FormControl fullWidth variant="outlined" required>
+          <FormHelperText
+            id="tag-helper-text"
+            sx={{ margin: "0 0 12px", fontSize: "16px", fontWeight: "500" }}
+          >
+            Bộ sưu tập
+          </FormHelperText>
+
+          <Autocomplete
+            multiple
+            id="collections-filled"
+            options={collectionList}
+            getOptionLabel={(option) => option?.name}
+            isOptionEqualToValue={(option, value) =>
+              option.name === value?.name
+            }
+            freeSolo
+            value={selectedCollections}
+            onChange={(event, value) => {
+              if (typeof(value[value.length - 1]) === 'object') {
+                setSelectedCollections(value)
+              } else {
+                const collectionName = value[value.length - 1]
+
+                const newCollection = {
+                  id: `id-${collectionName}`, 
+                  name: collectionName
+                }
+                setSelectedTags((prev) => [...prev, newCollection])
+              }
+            }}
+            renderTags={(value, getTagProps) =>
+              value.map((option, index) => {
+                const { key, ...tagProps } = getTagProps({ index });
+                return (
+                  <Chip
+                    variant="filled"
+                    label={option.name}
+                    key={key}
+                    {...tagProps}
+                    sx={{ bgcolor: colors.primaryColor, color: "white" }}
+                    deleteIcon={
+                      <Icon
+                        sx={{
+                          padding: "1px",
+                          borderRadius: "100px",
+                          bgcolor: "#484c61",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <CloseIcon
+                          sx={{ color: "white!important" }} // Customize the color here
+                        />
+                      </Icon>
+                    }
+                    onDelete={(e) => {
+                      e.stopPropagation();
+                      if (currCollections.find(i => i.name === option.name)) {
+                        setDeleteCollections((prev) => [...prev, option.id]);
+                      }
+                      setSelectedCollections((prev) => {
+                        return prev.filter(i => i.name !== option.name);
+                      });
+                    }}
+                  />
+                );
+              })
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="outlined"
+                placeholder="Thêm vào bộ sưu tập"
               />
             )}
           />

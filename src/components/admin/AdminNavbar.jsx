@@ -21,9 +21,13 @@ import DiscountOutlinedIcon from '@mui/icons-material/DiscountOutlined';
 import { Link, useLocation } from 'react-router-dom';
 import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
 import ExpandLessRounded from '@mui/icons-material/ExpandLessRounded';
+import BadgeIcon from '@mui/icons-material/Badge';
+import { useAuth } from '../../contexts/AuthContext';
+import CollectionsBookmarkOutlinedIcon from '@mui/icons-material/CollectionsBookmarkOutlined';
 
 const AdminNavbar = ({activeNav, handleCloseNavbar = () => {}}) => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const handleResize = () => {
@@ -112,7 +116,11 @@ const AdminNavbar = ({activeNav, handleCloseNavbar = () => {}}) => {
             <NavItem link='orders' icon={EventNoteOutlinedIcon} label='ĐƠN HÀNG' handleCloseNavbar={handleCloseNavbar}/>
             <NavItem link='customers' icon={PersonOutlineOutlinedIcon} label='KHÁCH HÀNG' handleCloseNavbar={handleCloseNavbar}/>
             <NavItem link='coupons' icon={DiscountOutlinedIcon} label='MÃ GIẢM GIÁ' handleCloseNavbar={handleCloseNavbar}/>
-            <NavItem link='news' icon={NewspaperOutlinedIcon} label='TIN TỨC' handleCloseNavbar={handleCloseNavbar}/>
+            <NavItem link='collection' icon={CollectionsBookmarkOutlinedIcon} label='BỘ SƯU TẬP' handleCloseNavbar={handleCloseNavbar}/>
+            {/* <NavItem link='news' icon={NewspaperOutlinedIcon} label='TIN TỨC' handleCloseNavbar={handleCloseNavbar}/> */}
+            {currentUser?.is_admin === 1 && (
+              <NavItem link='employees' icon={BadgeIcon} label='NHÂN VIÊN' handleCloseNavbar={handleCloseNavbar}/>
+            )}
           </List>
         </Stack>
       </Box>
@@ -176,7 +184,11 @@ const AdminNavbar = ({activeNav, handleCloseNavbar = () => {}}) => {
           <NavItem link='orders' icon={EventNoteOutlinedIcon} label='ĐƠN HÀNG' />
           <NavItem link='customers' icon={PersonOutlineOutlinedIcon} label='KHÁCH HÀNG' />
           <NavItem link='coupons' icon={DiscountOutlinedIcon} label='MÃ GIẢM GIÁ' />
-          <NavItem link='news' icon={NewspaperOutlinedIcon} label='TIN TỨC' />
+          <NavItem link='collection' icon={CollectionsBookmarkOutlinedIcon} label='BỘ SƯU TẬP' handleCloseNavbar={handleCloseNavbar}/>
+          {/* <NavItem link='news' icon={NewspaperOutlinedIcon} label='TIN TỨC' /> */}
+          {currentUser?.is_admin === 1 && (
+            <NavItem link='employees' icon={BadgeIcon} label='NHÂN VIÊN' handleCloseNavbar={handleCloseNavbar}/>
+          )}
         </List>
       </Stack>
     )

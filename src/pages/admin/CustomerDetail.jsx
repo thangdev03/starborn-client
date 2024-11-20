@@ -8,6 +8,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import { formatVNDCurrency } from "../../utils/currencyUtils";
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 const CustomerDetail = () => {
   const { customerId } = useParams();
@@ -193,6 +194,23 @@ const CustomerDetail = () => {
                     month: "2-digit",
                     year: "numeric",
                   })}
+                </Typography>
+              ) : (
+                <Skeleton 
+                  variant="text"
+                />
+              )}
+            </Box>
+          </Stack>
+          <Stack direction={"row"} alignItems={"start"} gap={"12px"}>
+            <ManageAccountsIcon />
+            <Box>
+              <Typography fontWeight={500} marginBottom={"4px"}>
+                Trạng thái tài khoản
+              </Typography>
+              {!loading ? (
+                <Typography fontSize={"14px"} color={customerData?.is_active === 1 ? "#45C266" : colors.red}>
+                  {customerData?.is_active === 1 ? "Hoạt động" : "Đang bị khóa"}
                 </Typography>
               ) : (
                 <Skeleton 

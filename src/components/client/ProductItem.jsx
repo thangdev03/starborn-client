@@ -124,7 +124,9 @@ const ProductItem = ({ productData }) => {
               ? (
                 <Skeleton variant="rounded"/>
               )
-              : productData.variants.map((variant, index) => (
+              : productData.variants
+              .filter(i => i.variant_isActive === 1)
+              .map((variant, index) => (
                   <Box key={index} sx={{ padding: '3px', position: 'relative' }} title={variant.color}>
                       {index === variantIndex && (
                         <Box 
@@ -227,7 +229,7 @@ const ProductItem = ({ productData }) => {
                 fontWeight: 500,
               }}
             >
-              ({100})
+              ({productData.total_purchase})
             </Typography>
           </Stack>
         )}

@@ -44,7 +44,8 @@ const Home = () => {
         },
       })
       .then((res) => {
-        setFlashSaleProducts(res.data);
+        const result = res.data.filter(i => i.is_active === 1)
+        setFlashSaleProducts(result);
         setIsLoading(false);
       })
       .catch((err) => {

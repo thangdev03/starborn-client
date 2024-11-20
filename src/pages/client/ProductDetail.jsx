@@ -185,12 +185,19 @@ const ProductDetail = () => {
       })
       .catch((error) => console.log(error))
   };
-  console.log({ product })
+  
   useEffect(() => {
     setLoadingProduct(true);
     axios
       .get(serverUrl + "products/slug/" + productName)
-      .then((res) => setProduct(res.data.data))
+      .then((res) => {
+        const productResult = res.data.data;
+        if (productResult.is_active) {
+          setProduct(res.data.data)
+        } else {
+          setProduct(null)
+        }
+      })
       .catch((err) => console.log(err))
       .finally(() => setLoadingProduct(false))
   }, [productName]);
@@ -232,7 +239,7 @@ const ProductDetail = () => {
     }
   }, [variant, favorites])
 
-  return (
+  return product ? (
     <Box
       sx={{
         marginTop: "32px",
@@ -563,7 +570,7 @@ const ProductDetail = () => {
                 fontSize={"12px"}
                 sx={{ color: "rgba(27, 33, 65, 0.7)" }}
               >
-                (150 đánh giá)
+                ({product?.total_rating} đánh giá)
               </Typography>
               <Divider
                 orientation="vertical"
@@ -574,7 +581,7 @@ const ProductDetail = () => {
                 fontSize={"12px"}
                 sx={{ color: "rgba(27, 33, 65, 0.7)" }}
               >
-                Đã bán 162
+                Đã bán {product?.total_purchase}
               </Typography>
             </Stack>
           </Stack>
@@ -879,6 +886,21 @@ const ProductDetail = () => {
           <ProductCarousel products={relatedProducts} />
         </Box>
       </Box>
+    </Box>
+  ) : (
+    <Box 
+      sx={{
+        marginTop: "32px",
+        minHeight: "10vh",
+        padding: {
+          sm: "8px",
+          md: "0 52px",
+        },
+      }}
+    >
+      <Typography textAlign={'center'} fontSize={'20px'} fontWeight={600}>
+        Tạm thời không tìm thấy sản phẩm này!
+      </Typography>
     </Box>
   );
 };
