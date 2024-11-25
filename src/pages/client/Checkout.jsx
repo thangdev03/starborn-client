@@ -126,7 +126,7 @@ const Checkout = () => {
     setShippingInfo({
       name: "",
       phone: "",
-      email: "",
+      email: shippingInfo.email,
       address: "",
       province: "",
       district: "",
@@ -337,7 +337,7 @@ const Checkout = () => {
     } else {
       setShippingFee(0)
     }
-  }, [selectedProvince, selectedDistrict, selectedWard, products, subtotal, isAddressFromBook])
+  }, [selectedProvince, selectedDistrict, selectedWard, products, subtotal, isAddressFromBook, shippingInfo])
 
   useEffect(() => {
     if (orderItems && orderItems.length > 0) {
@@ -376,8 +376,6 @@ const Checkout = () => {
       withCredentials: true
     })
     .then((res) => {
-      console.log(res.data)
-
       const addresses = res.data;
       if (addresses.length > 0) {
         setIsAddressFromBook(true);
@@ -455,7 +453,7 @@ const Checkout = () => {
                   error={errors[input.name]}
                   fullWidth
                   inputProps={{
-                    readOnly: isAddressFromBook,
+                    readOnly: isAddressFromBook || input.name === "email",
                     style: {
                       cursor: isAddressFromBook ? "default" : "auto"
                     }
@@ -956,7 +954,8 @@ const Checkout = () => {
           <Box alignSelf={"center"}>
             <RedButton 
               disabled={
-                !(shippingInfo.address && shippingInfo.email && shippingInfo.name && shippingInfo.phone && selectedDistrict) || sendingRequest
+                !(shippingInfo.address && shippingInfo.email && shippingInfo.name && shippingInfo.phone && (selectedDistrict || shippingInfo.province)) 
+                || sendingRequest
               }
               title={sendingRequest ? <CircularProgress size={"24px"}/> : "ĐẶT HÀNG"}
               customStyle={{
