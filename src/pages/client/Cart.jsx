@@ -348,7 +348,7 @@ const Cart = () => {
       <Box
         id={"cartList"}
         sx={{
-          height: "396px",
+          maxHeight: "396px",
           overflowY: "auto",
           display: { xs: "none", md: "block" },
         }}
