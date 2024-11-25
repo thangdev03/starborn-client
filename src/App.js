@@ -52,7 +52,7 @@ function App() {
         
         <AppRoutes />
         
-        {!pathname.startsWith('/admin') && (
+        {!pathname.startsWith('/admin') && !pathname.startsWith('/checkout') && (
           <Footer />
         )}
       </Box>

@@ -10,6 +10,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
 import { toast } from "react-toastify"
 import dayjs from "dayjs";
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import AddressSelector from "../../components/client/AddressSelector";
 
 const shippingInfoInputs = [
   {
@@ -94,9 +96,10 @@ const Checkout = () => {
     phone: "",
     email: "",
     address: "",
-    // city: "",
-    // district: "",
-    // ward: ""
+    province: "",
+    district: "",
+    ward: "",
+    id: null
   })
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
@@ -107,7 +110,53 @@ const Checkout = () => {
   const [wardList, setWardList] = useState([]);
   const [sendingRequest, setSendingRequest] = useState(false);
   const navigate = useNavigate();
-  const [isDefaultAddress, setIsDefaultAddress] = useState(true);
+  const [isAddressFromBook, setIsAddressFromBook] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const toTypeInAddress = () => {
+    setIsAddressFromBook(false);
+    setShippingInfo({
+      name: "",
+      phone: "",
+      email: "",
+      address: "",
+      province: "",
+      district: "",
+      ward: "",
+      id: null
+    })
+  };
+
+  const handleChooseAddress = (
+    name,
+    phone,
+    email,
+    address,
+    province,
+    district,
+    ward,
+    id,
+  ) => {
+    setShippingInfo({
+      id,
+      name,
+      phone,
+      email,
+      address,
+      province,
+      district,
+      ward,
+    });
+    setIsAddressFromBook(true)
+  };
 
   const handleChange = (event, inputPattern) => {
     setShippingInfo({...shippingInfo, [event.target.name]: event.target.value});
@@ -162,26 +211,17 @@ const Checkout = () => {
   };
 
   const handleChangeCity = (e) => {
-    if (isDefaultAddress) {
-      setIsDefaultAddress(false)
-    }
     setSelectedProvince(e.target.value);
     setSelectedDistrict("");
     setSelectedWard("");
   };
 
   const handleChangeDistrict = (e) => {
-    if (isDefaultAddress) {
-      setIsDefaultAddress(false)
-    }
     setSelectedDistrict(e.target.value);
     setSelectedWard("");
   };
 
   const handleChangeWard = (e) => {
-    if (isDefaultAddress) {
-      setIsDefaultAddress(false)
-    }
     setSelectedWard(e.target.value);
   };
 
@@ -210,9 +250,9 @@ const Checkout = () => {
       .post(serverUrl + `orders/${currentUser.id}`,
         {
           address: shippingInfo.address,
-          ward: selectedWard.ward_name,
-          district: selectedDistrict.district_name,
-          province: selectedProvince.province_name,
+          ward: isAddressFromBook ? shippingInfo.ward : selectedWard.ward_name,
+          district: isAddressFromBook ? shippingInfo.district : selectedDistrict.district_name,
+          province: isAddressFromBook ? shippingInfo.province : selectedProvince.province_name,
           email: shippingInfo.email,
           name: shippingInfo.name,
           phone: shippingInfo.phone,
@@ -253,13 +293,13 @@ const Checkout = () => {
   }, [])
 
   useEffect(() => {
-    if (selectedProvince && !isDefaultAddress) {
+    if (selectedProvince) {
       getDistricts();
     }
   }, [selectedProvince])
 
   useEffect(() => {
-    if (selectedDistrict && !isDefaultAddress) {
+    if (selectedDistrict) {
       getWards();
     }
   }, [selectedDistrict])
@@ -277,12 +317,14 @@ const Checkout = () => {
   }, [searchParams])
 
   useEffect(() => {
-    if (selectedProvince && selectedDistrict && subtotal && products) {
+    if (subtotal && products 
+      && ((isAddressFromBook ? shippingInfo.province && shippingInfo.district : selectedProvince && selectedDistrict))
+    ) {
       axios.get(serverUrl + "shipping/get/fee", {
         params: {
-          province: selectedProvince.province_name,
-          district: selectedDistrict.district_name,
-          ward: selectedWard.ward_name,
+          province: isAddressFromBook ? shippingInfo.province : selectedProvince.province_name,
+          district: isAddressFromBook ? shippingInfo.district : selectedDistrict.district_name,
+          ward: isAddressFromBook ? shippingInfo.ward : selectedWard.ward_name,
           // weight: products?.reduce((acc, p) => acc += p.quantity, 0) * 250,
           weight: products.length * 250,
           subtotal: subtotal,
@@ -292,8 +334,10 @@ const Checkout = () => {
         setShippingFee(res.data?.fee)
       })
       .catch((error) => console.log(error))
+    } else {
+      setShippingFee(0)
     }
-  }, [selectedProvince, selectedDistrict, selectedWard, products, subtotal])
+  }, [selectedProvince, selectedDistrict, selectedWard, products, subtotal, isAddressFromBook])
 
   useEffect(() => {
     if (orderItems && orderItems.length > 0) {
@@ -333,47 +377,31 @@ const Checkout = () => {
     })
     .then((res) => {
       console.log(res.data)
+
       const addresses = res.data;
-      const defaultAddress = addresses.find((i) => i.is_default === 1);
-      if (defaultAddress) {
-        setShippingInfo({
-          name: defaultAddress.receiver_name,
-          phone: defaultAddress.receiver_phone,
-          email: defaultAddress.email,
-          address: defaultAddress.address
-        })
-
-        if (provinceList && provinceList.length !== 0) {
-          const province = provinceList.find(i => i.province_name === defaultAddress.province);
-
-          // Fetch districts based on the default province
-          axios.get(`https://vapi.vnappmob.com/api/province/district/${province.province_id}`)
-          .then((res) => {
-            const districtList = res.data.results;
-            setDistrictList(districtList);
-            const district = districtList.find(d => d.district_name === defaultAddress.district);
-
-            // Fetch wards based on the default district
-            axios.get(`https://vapi.vnappmob.com/api/province/ward/${district.district_id}`)
-            .then((res) => {
-              const wardList = res.data.results;
-              setWardList(wardList);
-              const ward = wardList.find(w => w.ward_name === defaultAddress.ward);
-              setSelectedProvince(province);
-              setSelectedDistrict(district);
-              setSelectedWard(ward);
-            })
-            .catch((error) => console.log(error));
+      if (addresses.length > 0) {
+        setIsAddressFromBook(true);
+        const defaultAddress = addresses.find((i) => i.is_default === 1);
+        if (defaultAddress) {
+          setShippingInfo({
+            name: defaultAddress.receiver_name,
+            phone: defaultAddress.receiver_phone,
+            email: defaultAddress.email,
+            address: defaultAddress.address,
+            province: defaultAddress.province,
+            district: defaultAddress.district,
+            ward: defaultAddress.ward,
+            id: defaultAddress.id
           })
-          .catch((error) => console.log(error));
         }
       }
     })
     .catch((err) => console.log(err))
-  }, [currentUser, provinceList])
+  }, [currentUser])
+  console.log({shippingInfo})
 
   return (
-    <Box paddingX={{ xs: "16px", sm: "52px" }}>
+    <Box paddingX={{ xs: "16px", sm: "52px" }} paddingBottom={"160px"}>
       <Stack
         direction={"row"}
         justifyContent={"space-between"}
@@ -388,6 +416,7 @@ const Checkout = () => {
             </Typography>
             <Button
               variant="text"
+              onClick={handleOpenModal}
               sx={{
                 fontSize: "12px",
                 color: colors.red,
@@ -399,8 +428,14 @@ const Checkout = () => {
               Chọn từ sổ địa chỉ
             </Button>
           </Stack>
+          <AddressSelector
+            open={openModal}
+            selectedId={shippingInfo.id}
+            handleClose={handleCloseModal}
+            handleSelect={handleChooseAddress}
+          />
 
-          <Stack marginTop={{ xs: "24px", sm: "40px" }} gap={"16px"}>
+          <Stack marginTop={{ xs: "24px", sm: "20px" }} gap={"16px"}>
             {shippingInfoInputs.map((input, index) => (
               <Box key={input.id}>
                 <Typography
@@ -419,6 +454,12 @@ const Checkout = () => {
                   helperText={errors[input.name] ? input.helperText : ""}
                   error={errors[input.name]}
                   fullWidth
+                  inputProps={{
+                    readOnly: isAddressFromBook,
+                    style: {
+                      cursor: isAddressFromBook ? "default" : "auto"
+                    }
+                  }}
                 />
               </Box>
             ))}
@@ -427,118 +468,188 @@ const Checkout = () => {
                 <Typography color={"rgba(27, 33, 65, 0.5)"}>
                   Thành phố/ Tỉnh
                 </Typography>
-                <Select
-                  name="select-city"
-                  variant="filled"
-                  fullWidth
-                  hiddenLabel
-                  displayEmpty
-                  size="small"
-                  value={selectedProvince}
-                  sx={{
-                    marginTop: "8px",
-                  }}
-                  onChange={handleChangeCity}
-                  MenuProps={{
-                    style: {
-                      maxHeight: "400px"
-                    }
-                  }}
-                >
-                  <MenuItem disabled value="" sx={{ fontStyle: "italic" }}>
-                    Chọn thành phố/ tỉnh
-                  </MenuItem>
-                  {provinceList.map((province) => (
-                    <MenuItem key={province.province_id} value={province}>
-                      {province.province_name}
-                    </MenuItem> 
-                  ))}
-                </Select>
+                
+                {isAddressFromBook ? (
+                  <TextField
+                    hiddenLabel
+                    fullWidth
+                    name={"province"}
+                    value={shippingInfo.province}
+                    variant="filled"
+                    size="small"
+                    inputProps={{
+                      readOnly: true,
+                      style: {
+                        cursor: "default"
+                      }
+                    }}
+                    sx={{
+                      marginTop: "8px",
+                    }}
+                  />
+                ) : (
+                  <Select
+                    name="select-city"
+                    variant="filled"
+                    fullWidth
+                    hiddenLabel
+                    displayEmpty
+                    size="small"
+                    value={selectedProvince}
+                    sx={{
+                      marginTop: "8px",
+                    }}
+                    onChange={handleChangeCity}
+                    MenuProps={{
+                      style: {
+                        maxHeight: "400px"
+                      }
+                    }}
+                  >
+                    <MenuItem disabled value="" sx={{ fontStyle: "italic" }}>
+                      Chọn thành phố/ tỉnh
+                    </MenuItem>
+                    {provinceList.map((province) => (
+                      <MenuItem key={province.province_id} value={province}>
+                        {province.province_name}
+                      </MenuItem> 
+                    ))}
+                  </Select>
+                )}
+
               </Box>
               <Box width={{ xs: "100%", md: "33.33%" }}>
                 <Typography color={"rgba(27, 33, 65, 0.5)"}>
                   Quận/ Huyện
                 </Typography>
-                <Select
-                  variant="filled"
-                  name="select-district"
-                  fullWidth
-                  hiddenLabel
-                  displayEmpty
-                  size="small"
-                  disabled={selectedProvince === "" ? true : false}
-                  value={selectedDistrict}
-                  onChange={handleChangeDistrict}
-                  sx={{
-                    marginTop: "8px",
-                  }}
-                  MenuProps={{
-                    style: {
-                      maxHeight: "400px"
-                    }
-                  }}
-                >
-                  <MenuItem disabled value="" sx={{ fontStyle: "italic" }}>
-                    Chọn quận/ huyện
-                  </MenuItem>
-                  {districtList.map((district) => (
-                    <MenuItem key={district.district_id} value={district}>
-                      {district.district_name}
-                    </MenuItem> 
-                  ))}
-                </Select>
+                {isAddressFromBook ? (
+                  <TextField
+                    hiddenLabel
+                    fullWidth
+                    name={"district"}
+                    value={shippingInfo.district}
+                    variant="filled"
+                    size="small"
+                    inputProps={{
+                      readOnly: true,
+                      style: {
+                        cursor: "default"
+                      }
+                    }}
+                    sx={{
+                      marginTop: "8px",
+                    }}
+                  />
+                ) : (
+                  <Select
+                    variant="filled"
+                    name="select-district"
+                    fullWidth
+                    hiddenLabel
+                    displayEmpty
+                    size="small"
+                    disabled={selectedProvince === "" ? true : false}
+                    value={selectedDistrict}
+                    onChange={handleChangeDistrict}
+                    sx={{
+                      marginTop: "8px",
+                    }}
+                    MenuProps={{
+                      style: {
+                        maxHeight: "400px"
+                      }
+                    }}
+                  >
+                    <MenuItem disabled value="" sx={{ fontStyle: "italic" }}>
+                      Chọn quận/ huyện
+                    </MenuItem>
+                    {districtList.map((district) => (
+                      <MenuItem key={district.district_id} value={district}>
+                        {district.district_name}
+                      </MenuItem> 
+                    ))}
+                  </Select>
+                )}
               </Box>
               <Box width={{ xs: "100%", md: "33.33%" }}>
                 <Typography color={"rgba(27, 33, 65, 0.5)"}>
                   Phường/ Xã
                 </Typography>
-                <Select
-                  variant="filled"
-                  name="select-ward"
-                  fullWidth
-                  hiddenLabel
-                  displayEmpty
-                  size="small"
-                  disabled={selectedDistrict === "" ? true : false}
-                  value={selectedWard}
-                  onChange={handleChangeWard}
-                  sx={{
-                    marginTop: "8px",
-                  }}
-                  MenuProps={{
-                    style: {
-                      maxHeight: "400px"
-                    }
-                  }}
-                >
-                  <MenuItem disabled value="" sx={{ fontStyle: "italic" }}>
-                    Chọn phường/ xã
-                  </MenuItem>
-                  {wardList.map((ward) => (
-                    <MenuItem key={ward.ward_id} value={ward}>
-                      {ward.ward_name}
-                    </MenuItem> 
-                  ))}
-                </Select>
+                {isAddressFromBook ? (
+                  <TextField
+                    hiddenLabel
+                    fullWidth
+                    name={"ward"}
+                    value={shippingInfo.ward}
+                    variant="filled"
+                    size="small"
+                    inputProps={{
+                      readOnly: true,
+                      style: {
+                        cursor: "default"
+                      }
+                    }}
+                    sx={{
+                      marginTop: "8px",
+                    }}
+                  />
+                ) : (
+                  <Select
+                    variant="filled"
+                    name="select-ward"
+                    fullWidth
+                    hiddenLabel
+                    displayEmpty
+                    size="small"
+                    disabled={selectedDistrict === "" ? true : false}
+                    value={selectedWard}
+                    onChange={handleChangeWard}
+                    sx={{
+                      marginTop: "8px",
+                    }}
+                    MenuProps={{
+                      style: {
+                        maxHeight: "400px"
+                      }
+                    }}
+                  >
+                    <MenuItem disabled value="" sx={{ fontStyle: "italic" }}>
+                      Chọn phường/ xã
+                    </MenuItem>
+                    {wardList.map((ward) => (
+                      <MenuItem key={ward.ward_id} value={ward}>
+                        {ward.ward_name}
+                      </MenuItem> 
+                    ))}
+                  </Select>
+                )}
               </Box>
             </Stack>
 
-            <Stack direction={"row"} alignItems={"center"}>
-              <Checkbox
-                checked={saveAddress}
-                onClick={() => setSaveAddress(!saveAddress)}
-                sx={{
-                  transform: "translateX(-9px)",
-                  color: colors.red,
-                  "&.Mui-checked": {
+            
+            {isAddressFromBook ? (
+              <Button sx={{ flexGrow: 0 }} onClick={toTypeInAddress}>
+                <EditRoundedIcon sx={{ marginRight: "4px" }}/>
+                Nhập thông tin giao hàng khác
+              </Button>
+            ) : (
+              <Stack direction={"row"} alignItems={"center"}>
+                <Checkbox
+                  checked={saveAddress}
+                  onClick={() => setSaveAddress(!saveAddress)}
+                  sx={{
+                    transform: "translateX(-9px)",
                     color: colors.red,
-                  },
-                }}
-              />
-              <Typography onClick={() => setSaveAddress(!saveAddress)} sx={{ cursor: "pointer" }}>
-                Lưu vào sổ địa chỉ để dùng cho lần mua hàng tiếp theo
-              </Typography>
-            </Stack>
+                    "&.Mui-checked": {
+                      color: colors.red,
+                    },
+                  }}
+                />
+                <Typography onClick={() => setSaveAddress(!saveAddress)} sx={{ cursor: "pointer" }}>
+                  Lưu vào sổ địa chỉ để dùng cho lần mua hàng tiếp theo
+                </Typography>
+              </Stack>
+            )}
           </Stack>
           <Stack gap={"8px"} marginTop={"20px"}>
             <Typography fontSize={"20px"} fontWeight={500}>Đơn vị vận chuyển: </Typography>
@@ -751,7 +862,7 @@ const Checkout = () => {
           right: 0,
           height: { md: "100px" },
           zIndex: 20,
-          filter: "drop-shadow(0px -1px 12px rgba(0,0,0,0.15))",
+          filter: "drop-shadow(0px -1px 6px rgba(0,0,0,0.05))",
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           padding: { xs: "8px 16px 12px", md: 0 }
