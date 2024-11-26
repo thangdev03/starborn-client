@@ -71,7 +71,7 @@ const headCells = [
     id: 'isFeatured',
     numeric: false,
     disablePadding: false,
-    label: 'Sản phẩm đặc trưng',
+    label: 'Flash Sale',
     alignDirection: 'center',
     sortable: false
   },

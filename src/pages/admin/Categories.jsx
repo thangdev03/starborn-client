@@ -9,6 +9,7 @@ import { serverUrl } from '../../services/const'
 import axios from 'axios'
 import CategoryModal from '../../components/admin/CategoryModal'
 import { useSearchParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const Categories = () => {
   const [data, setData] = useState(null);
@@ -27,7 +28,8 @@ const Categories = () => {
     } else {
       axios.post(serverUrl + 'categories', {
         name: newCategory.name,
-        object_id: newCategory.objectId 
+        object_id: newCategory.objectId,
+        imageUrl: newCategory.imageUrl
       })
       .then((res) => {
           if (res.status === 201) {
@@ -55,22 +57,23 @@ const Categories = () => {
   }
 
   const handleUpdateCategory = (category, newName) => {
-    if (data?.find((item => item.name === newName && item.object_id === category.object_id))) {
-      return alert('Trùng tên với danh mục đã tồn tại!');
-    } else {
+    // if (data?.find((item => item.name === newName && item.object_id === category.object_id))) {
+    //   return alert('Trùng tên với danh mục đã tồn tại!');
+    // } else {
       axios.put(serverUrl + 'categories/' + category.id, {
-        name: newName
+        name: newName,
+        imageUrl: category.imageUrl
       })
       .then((res) => {
           if (res.status === 200) {
-              alert('Cập nhật thành công!')
+              toast.success('Cập nhật thành công!')
               window.location.reload();
           } else {
               alert(res.data?.message);
           }
       })
       .catch((err) => console.log(err))
-    }
+    // }
   }
 
   useEffect(() => {

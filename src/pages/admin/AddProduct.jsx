@@ -8,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import ActionBtn from '../../components/admin/ActionBtn';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const AddProduct = () => {
   const [objectList, setObjectList] = useState([]);
@@ -60,19 +61,19 @@ const AddProduct = () => {
 
   const handleCreateProduct = () => {
     if (!newName) {
-        return alert('Chưa nhập tên sản phẩm');
+        return toast.warn('Chưa nhập tên sản phẩm');
     }
     if (!newDescription) {
-        return alert('Chưa nhập mô tả sản phẩm');
+        return toast.warn('Chưa nhập mô tả sản phẩm');
     }
     if (!selectedSubcategory) {
         if (!selectedCategory) {
             if (!selectedObject) {
-                return alert('Chưa chọn đối tượng sử dụng');
+                return toast.warn('Chưa chọn đối tượng sử dụng');
             }
-            return alert('Chưa chọn danh mục');
+            return toast.warn('Chưa chọn danh mục');
         }
-        return alert('Chưa chọn tiểu danh mục');
+        return toast.warn('Chưa chọn tiểu danh mục');
     }
 
     axios
@@ -84,7 +85,7 @@ const AddProduct = () => {
       })
       .then((res) => {
         if (res.status === 201) {
-            alert('Tạo sản phẩm thành công');
+            toast.success('Tạo sản phẩm thành công');
             navigate(`/admin/products/${res.data.data.insertId}`);
         }
       })

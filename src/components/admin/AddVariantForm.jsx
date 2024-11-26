@@ -7,6 +7,7 @@ import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import axios from 'axios';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import { toast } from 'react-toastify';
 
 const AddVariantForm = ({ productId, handleCloseForm = () => {}, getVariantsData = () => {} }) => {
   const [checked, setChecked] = useState([]);
@@ -63,13 +64,13 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {}, getVariantsData
   
   const handleSubmit = async () => {
     if (!colorName || !colorHex || !price) {
-        return alert('Vui lòng điền đầy đủ thông tin của biến thể sản phẩm')
+        return toast.warn('Vui lòng điền đầy đủ thông tin của biến thể sản phẩm')
     }
     // if (checked.length === 0) {
     //     return alert('Vui lòng chọn ít nhất 1 size của biến thể sản phẩm')
     // }
     if (variantImages.length === 0) {
-        return alert('Vui lòng tải lên ít nhất 1 ảnh của biến thể sản phẩm')
+        return toast.warn('Vui lòng tải lên ít nhất 1 ảnh của biến thể sản phẩm')
     }
     
     setIsLoading(true);
@@ -98,7 +99,7 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {}, getVariantsData
           .then((res) => {
             setIsLoading(false);
             if (res.status === 201) {
-              alert('Tạo biến thể sản phẩm thành công');
+              toast.success('Tạo biến thể sản phẩm thành công')
               handleCloseForm();
               getVariantsData();
             }
@@ -106,6 +107,7 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {}, getVariantsData
           .catch((err) => {
             setIsLoading(false);
             console.log(err);
+            toast.error("Có lỗi xảy ra, vui lòng thử lại!")
           })
     }
   };
@@ -130,8 +132,17 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {}, getVariantsData
             image.append('upload_preset', 'starborn-storage');
             image.append('folder', 'starborn_product_photos');
     
+
+            const removeAuthInterceptor = axios.interceptors.request.use(config => {
+                // Loại bỏ Authorization header nếu có
+                delete config.headers['Authorization'];
+                return config;
+            });
+            
             const res = await axios.post('https://api.cloudinary.com/v1_1/ddgwckqgy/image/upload', image)
             imageURLs.push(res.data.url.toString());
+
+            axios.interceptors.request.eject(removeAuthInterceptor);
         }
         setPreviewImages([]);
         // setUploadedImages(imageURLs);

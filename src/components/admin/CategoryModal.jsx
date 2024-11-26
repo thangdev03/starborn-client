@@ -20,20 +20,23 @@ const CategoryModal = ({
   title,
   inputLabel,
   actionBtn,
-  handleClickBtn = (data) => {},
+  handleClickBtn = (categoryObject) => {},
   isOpen = false,
   setOpenToFalse = () => {},
   isEdit = false,
   oldName = "",
+  oldImageUrl = "",
   fixedObject = "",
   fixedCategory = "",
 }) => {
   const [newName, setNewName] = useState(oldName);
+  const [sizeImageUrl, setSizeImageUrl] = useState(oldImageUrl);
   const [objectsList, setObjectsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
   const [selectedObject, setSelectedObject] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [disableBtn, setDisableBtn] = useState(true);
+  console.log(oldImageUrl)
 
   const handleClose = (event) => {
     event.stopPropagation();
@@ -54,10 +57,11 @@ const CategoryModal = ({
   useEffect(() => {
     if (isEdit) {
       setNewName(oldName);
+      setSizeImageUrl(oldImageUrl);
     } else {
       setNewName("");
     }
-  }, [isEdit, oldName]);
+  }, [isEdit, oldName, oldImageUrl]);
 
   useEffect(() => {
     if (type === "category" || type === "subcategory") {
@@ -85,12 +89,12 @@ const CategoryModal = ({
     if (type === "subcategory" && selectedCategory === null && !isEdit) {
       return setDisableBtn(true);
     }
-    if (oldName !== "" && oldName === newName) {
+    if (oldName !== "" && oldName === newName && sizeImageUrl === oldImageUrl) {
       return setDisableBtn(true);
     }
 
     return newName !== "" ? setDisableBtn(false) : setDisableBtn(true);
-  }, [type, selectedCategory, selectedObject, newName, oldName, isEdit]);
+  }, [type, selectedCategory, selectedObject, newName, oldName, isEdit, sizeImageUrl, oldImageUrl]);
 
   return (
     <Modal
@@ -110,14 +114,14 @@ const CategoryModal = ({
         </Typography>
         {isEdit &&
           (type === "category" ? (
-            <TextField
-              label="Đối tượng"
-              value={fixedObject}
-              variant="outlined"
-              fullWidth
-              sx={{ mt: "8px" }}
-              disabled
-            />
+              <TextField
+                label="Đối tượng"
+                value={fixedObject}
+                variant="outlined"
+                fullWidth
+                sx={{ mt: "16px" }}
+                disabled
+              />
           ) : (
             type === "subcategory" && (
               <>
@@ -163,6 +167,16 @@ const CategoryModal = ({
             />
           </>
         )}
+        {type === "category" && (
+          <TextField
+            label="Link ảnh bảng size"
+            value={sizeImageUrl}
+            onChange={(e) => setSizeImageUrl(e.target.value)}
+            variant="outlined"
+            fullWidth
+            sx={{ mt: "16px" }}
+          />
+        )}
         <Stack
           direction={{ xs: "column", md: "row" }}
           sx={{ mt: "16px" }}
@@ -181,6 +195,12 @@ const CategoryModal = ({
             disabled={disableBtn}
             onClick={() => {
               if (isEdit) {
+                if (type === "category") {
+                  return handleClickBtn({
+                    name: newName,
+                    imageUrl: sizeImageUrl
+                  });
+                }
                 return handleClickBtn(newName);
               } else {
                 switch (type) {
@@ -191,6 +211,7 @@ const CategoryModal = ({
                     handleClickBtn({
                       objectId: selectedObject?.id,
                       name: newName,
+                      imageUrl: sizeImageUrl
                     });
                     break;
                   case "subcategory":

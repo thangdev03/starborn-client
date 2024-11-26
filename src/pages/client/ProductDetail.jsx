@@ -11,6 +11,7 @@ import {
   Skeleton,
   Breadcrumbs,
   Link,
+  Modal,
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -54,6 +55,8 @@ const ProductDetail = () => {
   const [isFavored, setIsFavored] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingVariant, setLoadingVariant] = useState(true);
+  const [sizeImage, setSizeImage] = useState("");
+  const [openSizeTable, setOpenSizeTable] = useState(false);
   const navigate = useNavigate();
 
   const changeNextImage = () => {
@@ -102,7 +105,7 @@ const ProductDetail = () => {
   const getRelatedProducts = () => {
     axios
       .get(serverUrl + 'products?getVariants=1')
-      .then((res) => setRelatedProducts(res.data))
+      .then((res) => setRelatedProducts(res.data.filter(i => i.is_active === 1)))
       .catch((err) => {
         console.log(err);
         setProduct([]);
@@ -218,6 +221,15 @@ const ProductDetail = () => {
   }, [product, color]);
 
   useEffect(() => {
+    if (product) {
+      axios
+        .get(serverUrl + `categories/sizes/${product.category_id}`)
+        .then((res) => setSizeImage(res.data?.image_url))
+        .catch((error) => console.log(error))
+    }
+  }, [product])
+
+  useEffect(() => {
     if (selectedSize?.stock < selectedQuantity) {
       setSelectedQuantity(selectedSize.stock);
     }
@@ -249,12 +261,67 @@ const ProductDetail = () => {
         },
       }}
     >
+      <Breadcrumbs
+        separator={"/"}
+        aria-label="breadcrumb"
+        sx={{
+          display: { xs: "flex" },
+          alignItems: "center",
+          paddingX: { xs: "8px", md: 0},
+          "& .MuiBreadcrumbs-separator": {
+            mx: "4px",
+            mt: "2px",
+          },
+        }}
+        maxItems={3}
+        itemsAfterCollapse={2}
+      >
+        <Link
+          underline="hover"
+          color={colors.primaryColor}
+          href={"/"}
+          fontSize={"14px"}
+          sx={{ opacity: 0.8 }}
+        >
+          Trang chủ
+        </Link>
+        <Link
+          underline="hover"
+          color={colors.primaryColor}
+          href={`/${product?.object_slug}`}
+          fontSize={"14px"}
+          sx={{ opacity: 0.8 }}
+        >
+          {product?.object}
+        </Link>
+        <Link
+          underline="hover"
+          color={colors.primaryColor}
+          href={`/${product?.object_slug}?category=${product?.category_slug}`}
+          fontSize={"14px"}
+          sx={{ opacity: 0.8 }}
+        >
+          {product?.category}
+        </Link>
+        <Link
+          underline="hover"
+          color={colors.primaryColor}
+          href={`/${product?.object_slug}?category=${product?.category_slug}&subcategory=${product?.subcategory_slug}`}
+          fontSize={"14px"}
+          sx={{ opacity: 0.8 }}
+        >
+          {product?.subcategory}
+        </Link>
+        <Link underline="none" color={colors.primaryColor} fontSize={"14px"}>
+          {product?.name}
+        </Link>
+      </Breadcrumbs>
       <Stack
         direction={{ xs: "column", sm: "row" }}
         justifyContent={"center"}
         gap={{ xs: 0, sm: "24px", lg: "72px" }}
         flexWrap={{ sm: "wrap", md: "nowrap" }}
-        marginTop={"60px"}
+        marginTop={{ xs: "20px", sm: "40px" }}
       >
         <Stack
           direction={"row"}
@@ -263,74 +330,92 @@ const ProductDetail = () => {
             position: "relative",
           }}
         >
-          <Box
+          {/* <Box
             sx={{
-              position: "absolute",
-              top: "-40px",
-              left: 0
+              position: { sm: "absolute" },
+              top: 0,
+              left: 0,
+              right: 0,
+              transform: { sm: "translateY(-100%)" },
+              display: { xs: "none", sm: "block" },
             }}
           >
             <Breadcrumbs
               separator={"/"}
-              aria-label='breadcrumb'
+              aria-label="breadcrumb"
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                '& .MuiBreadcrumbs-separator': {
-                  mx: '4px',
-                  mt: '2px'
+                display: "flex",
+                alignItems: "center",
+                "& .MuiBreadcrumbs-separator": {
+                  mx: "4px",
+                  mt: "2px",
                 },
+                width: "100%",
               }}
               maxItems={3}
               itemsAfterCollapse={2}
             >
-              <Link underline='hover' color={colors.primaryColor} href={"/"} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+              <Link
+                underline="hover"
+                color={colors.primaryColor}
+                href={"/"}
+                fontSize={"14px"}
+                sx={{ opacity: 0.8 }}
+              >
                 Trang chủ
               </Link>
-              <Link underline='hover' color={colors.primaryColor} href={`/${product?.object_slug}`} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+              <Link
+                underline="hover"
+                color={colors.primaryColor}
+                href={`/${product?.object_slug}`}
+                fontSize={"14px"}
+                sx={{ opacity: 0.8 }}
+              >
                 {product?.object}
               </Link>
-              <Link underline='hover' color={colors.primaryColor} href={`/${product?.object_slug}?category=${product?.category_slug}`} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+              <Link
+                underline="hover"
+                color={colors.primaryColor}
+                href={`/${product?.object_slug}?category=${product?.category_slug}`}
+                fontSize={"14px"}
+                sx={{ opacity: 0.8 }}
+              >
                 {product?.category}
               </Link>
-              <Link underline='hover' color={colors.primaryColor} href={`/${product?.object_slug}?category=${product?.category_slug}&subcategory=${product?.subcategory_slug}`} fontSize={'14px'} sx={{ opacity: 0.8 }}>
+              <Link
+                underline="hover"
+                color={colors.primaryColor}
+                href={`/${product?.object_slug}?category=${product?.category_slug}&subcategory=${product?.subcategory_slug}`}
+                fontSize={"14px"}
+                sx={{ opacity: 0.8 }}
+              >
                 {product?.subcategory}
               </Link>
-              <Link underline='none' color={colors.primaryColor} fontSize={'14px'}>
+              <Link
+                underline="none"
+                color={colors.primaryColor}
+                fontSize={"14px"}
+              >
                 {product?.name}
               </Link>
             </Breadcrumbs>
-          </Box>
-          {
-            loadingVariant
-            ? (
-              <Stack
-                gap={"8px"}
-                sx={{
-                  position: { xs: "absolute", sm: "unset" },
-                  top: "8px",
-                  bottom: "8px",
-                  left: "4px",
-                }}
-              >
-                <Skeleton
-                  variant="rounded"
-                  width="40px"
-                  height="60px"
-                />
-                <Skeleton
-                  variant="rounded"
-                  width="40px"
-                  height="60px"
-                />
-                <Skeleton
-                  variant="rounded"
-                  width="40px"
-                  height="60px"
-                />
-              </Stack>
-            )
-            : variant?.images && (
+          </Box> */}
+          {loadingVariant ? (
+            <Stack
+              gap={"8px"}
+              sx={{
+                position: { xs: "absolute", sm: "unset" },
+                top: "8px",
+                bottom: "8px",
+                left: "4px",
+              }}
+            >
+              <Skeleton variant="rounded" width="40px" height="60px" />
+              <Skeleton variant="rounded" width="40px" height="60px" />
+              <Skeleton variant="rounded" width="40px" height="60px" />
+            </Stack>
+          ) : (
+            variant?.images && (
               <Stack
                 gap={"8px"}
                 sx={{
@@ -405,7 +490,7 @@ const ProductDetail = () => {
                 </Button>
               </Stack>
             )
-          }
+          )}
           <Box
             sx={{
               width: { xs: "100%", sm: "420px" },
@@ -425,16 +510,12 @@ const ProductDetail = () => {
                 }}
               />
             ) : (
-              <Skeleton 
-                variant="rounded"
-                width={"100%"}
-                height={"100%"}
-              />
+              <Skeleton variant="rounded" width={"100%"} height={"100%"} />
             )}
           </Box>
         </Stack>
 
-        <Stack flexGrow={{ sm: 1, md: 0 }}>
+        <Stack flexGrow={{ sm: 1, md: 0 }} maxWidth={"520px"}>
           <Stack
             order={{ md: 2 }}
             direction={"row"}
@@ -467,30 +548,30 @@ const ProductDetail = () => {
                 </Typography>
               </Box>
             ) : (
-              <Skeleton 
+              <Skeleton
                 variant="text"
                 width={"160px"}
                 sx={{
-                  fontSize: "32px"
+                  fontSize: "32px",
                 }}
               />
             )}
             {Number(variant?.discount) > 0 && (
-                <Box sx={{ alignSelf: "end", marginLeft: "12px" }}>
-                  <Typography
-                    sx={{
-                      padding: "4px 12px",
-                      textAlign: "center",
-                      bgcolor: colors.primaryColor,
-                      color: "white",
-                      fontSize: "12px",
-                      borderRadius: "4px",
-                      marginBottom: "2px",
-                    }}
-                  >
-                    Giảm {Number(variant?.discount).toFixed(0)}%
-                  </Typography>
-                </Box>
+              <Box sx={{ alignSelf: "end", marginLeft: "12px" }}>
+                <Typography
+                  sx={{
+                    padding: "4px 12px",
+                    textAlign: "center",
+                    bgcolor: colors.primaryColor,
+                    color: "white",
+                    fontSize: "12px",
+                    borderRadius: "4px",
+                    marginBottom: "2px",
+                  }}
+                >
+                  Giảm {Number(variant?.discount).toFixed(0)}%
+                </Typography>
+              </Box>
             )}
             <Box sx={{ flexGrow: 1 }}></Box>
             <Box sx={{ alignSelf: "center", display: { md: "none" } }}>
@@ -525,7 +606,7 @@ const ProductDetail = () => {
               {product?.name}
             </Typography>
           ) : (
-            <Skeleton 
+            <Skeleton
               variant="text"
               sx={{
                 fontSize: "32px",
@@ -608,9 +689,8 @@ const ProductDetail = () => {
               alignItems={"center"}
               flexWrap={"wrap"}
             >
-              {
-                !loadingVariant ? (
-                  product?.variants?.map((item) => (
+              {!loadingVariant
+                ? product?.variants?.map((item) => (
                     <Box
                       key={item.variant_id}
                       onClick={() => handleChangeVariant(item.variant_slug)}
@@ -644,17 +724,14 @@ const ProductDetail = () => {
                       ></Box>
                     </Box>
                   ))
-                ) : (
-                  Array.from(new Array(3)).map((i, index) => (
-                    <Skeleton 
+                : Array.from(new Array(3)).map((i, index) => (
+                    <Skeleton
                       key={index}
                       variant="circular"
                       width={27}
                       height={27}
                     />
-                  ))
-                )
-              }
+                  ))}
             </Stack>
             <Typography marginTop={"16px"}>Kích thước: </Typography>
             <Stack
@@ -663,14 +740,17 @@ const ProductDetail = () => {
               marginTop={"12px"}
               flexWrap={"wrap"}
             >
-              {
-                !loadingVariant ? (
-                  variant?.options.map((option) => (
+              {!loadingVariant
+                ? variant?.options.map((option) => (
                     <Button
                       key={option.option_id}
                       disabled={option.stock === 0}
                       onClick={() =>
-                        handleChooseSize(option.size, option.option_id, option.stock)
+                        handleChooseSize(
+                          option.size,
+                          option.option_id,
+                          option.stock
+                        )
                       }
                       sx={{
                         width: "36px",
@@ -697,7 +777,7 @@ const ProductDetail = () => {
                           bgcolor: colors.red,
                           color: "white",
                         },
-                        position: "relative"
+                        position: "relative",
                       }}
                     >
                       {option.size}
@@ -712,26 +792,22 @@ const ProductDetail = () => {
                           transformOrigin: "center",
                           bgcolor: colors.red,
                           borderRadius: "4px",
-                          opacity: 0.8
+                          opacity: 0.8,
                         }}
-                      >
-                      </Box>
+                      ></Box>
                     </Button>
                   ))
-                ) : (
-                  Array.from(new Array(3)).map((i, index) => (
-                    <Skeleton 
+                : Array.from(new Array(3)).map((i, index) => (
+                    <Skeleton
                       key={index}
                       variant="rounded"
                       width="36px"
                       height="36px"
                       sx={{
-                        borderRadius: "8px"
+                        borderRadius: "8px",
                       }}
                     />
-                  ))
-                )
-              }
+                  ))}
             </Stack>
             <Stack
               gap={{ xs: "20px" }}
@@ -782,7 +858,10 @@ const ProductDetail = () => {
                     }}
                   />
                   <Button
-                    disabled={selectedSize === null || selectedQuantity === selectedSize.stock}
+                    disabled={
+                      selectedSize === null ||
+                      selectedQuantity === selectedSize.stock
+                    }
                     onClick={onIncreaseQuantity}
                     sx={{
                       borderLeft: "1px solid rgba(27, 33, 65, 0.5)",
@@ -819,8 +898,8 @@ const ProductDetail = () => {
                   lineHeight: 0,
                   bgcolor: isFavored ? colors.red : "transparent",
                   "&:hover": {
-                    bgcolor: isFavored && "#f57878"
-                  }
+                    bgcolor: isFavored && "#f57878",
+                  },
                 }}
               >
                 {/* <svg
@@ -836,59 +915,102 @@ const ProductDetail = () => {
                   />
                 </svg> */}
                 {isFavored ? (
-                  <FavoriteIcon sx={{ color: "white" }}/>
+                  <FavoriteIcon sx={{ color: "white" }} />
                 ) : (
-                  <FavoriteBorderIcon sx={{ color: colors.primaryColor }}/>
+                  <FavoriteBorderIcon sx={{ color: colors.primaryColor }} />
                 )}
               </Button>
             </Stack>
-            <Button
-              variant="contained"
-              onClick={() => navigate("/measure-body")}
-              sx={{
-                marginTop: "16px",
-                width: "140px",
-                display: "flex",
-                alignItems: "center",
-                bgcolor: colors.red,
-                "&:hover": {
-                  bgcolor: "#f57878"
-                }
-              }}
-            >
-              <StraightenIcon sx={{ height: "20px", mr: "4px" }}/>
-              Đo cơ thể
-            </Button>
+            <Stack direction={"row"} alignItems={"center"} marginTop={"16px"} gap={"16px"}>
+              <Button
+                variant="contained"
+                onClick={() => navigate("/measure-body")}
+                sx={{
+                  width: "140px",
+                  display: "flex",
+                  alignItems: "center",
+                  bgcolor: colors.red,
+                  "&:hover": {
+                    bgcolor: "#f57878",
+                  },
+                }}
+              >
+                <StraightenIcon sx={{ height: "20px", mr: "4px" }} />
+                Đo cơ thể
+              </Button>
+              <Typography 
+                fontSize={"14px"} 
+                color={"#1d4ed8"}
+                onClick={() => setOpenSizeTable(true)}
+                sx={{
+                  textDecoration: "underline",
+                  cursor: "pointer"
+                }}
+              >
+                Xem bảng size
+              </Typography>
+              <Modal
+                open={openSizeTable}
+                onClose={() => setOpenSizeTable(false)}
+              >
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    height: { xs: "auto", md: "60vh" },
+                    width: { xs: "80vw", md: "auto" },
+                    bgcolor: 'background.paper',
+                    boxShadow: 24,
+                    p: 4,
+                  }}
+                >
+                  <img 
+                    src={sizeImage} 
+                    alt="Bảng size" 
+                    height={"100%"}
+                    width={"100%"}
+                    style={{
+                      objectFit: "contain"
+                    }}
+                  />
+                </Box>
+              </Modal>
+            </Stack>
           </Stack>
-          <Box marginTop={'32px'} order={{ md: 2 }} padding={{ xs: "0 16px", md: 0 }}>
-            <Typography sx={{ fontSize: '20px', fontWeight: 500 }}>
+          <Box
+            marginTop={"32px"}
+            order={{ md: 2 }}
+            padding={{ xs: "0 16px", md: 0 }}
+            maxWidth={{ xs: "100%", md: "452px" }}
+          >
+            <Typography sx={{ fontSize: "20px", fontWeight: 500 }}>
               Mô tả sản phẩm
             </Typography>
             {!loadingProduct ? (
-              <Typography whiteSpace={'pre-line'} marginTop={'4px'}>
-                  {product?.detail}
+              <Typography whiteSpace={"pre-line"} marginTop={"4px"} sx={{ textAlign: "justify" }}>
+                {product?.detail}
               </Typography>
             ) : (
-              <Skeleton 
-                variant="rounded"
-                height={"80px"}
-              />
+              <Skeleton variant="rounded" height={"80px"} />
             )}
           </Box>
         </Stack>
       </Stack>
-
-      <Box paddingX={{ xs: '16px', md: 0}} marginTop={{ xs: '52px', md: '72px' }}>
-        <HeadingText
-          title={'Sản phẩm liên quan'}
-        />
-        <Box sx={{ marginTop: '24px' }}>
+      
+      <Box
+        paddingX={{ xs: "16px", md: 0 }}
+        marginTop={{ xs: "52px", md: "72px" }}
+      >
+        <HeadingText title={"Sản phẩm liên quan"} />
+        <Box sx={{ marginTop: "24px" }}>
           <ProductCarousel products={relatedProducts} />
         </Box>
       </Box>
     </Box>
   ) : (
-    <Box 
+    <Box
       sx={{
         marginTop: "32px",
         minHeight: "10vh",
@@ -898,7 +1020,7 @@ const ProductDetail = () => {
         },
       }}
     >
-      <Typography textAlign={'center'} fontSize={'20px'} fontWeight={600}>
+      <Typography textAlign={"center"} fontSize={"20px"} fontWeight={600}>
         Tạm thời không tìm thấy sản phẩm này!
       </Typography>
     </Box>

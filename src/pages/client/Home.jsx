@@ -20,7 +20,6 @@ import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 
-
 const Home = () => {
   const IMAGES = [
     "../assets/img/collection1.jpg",
@@ -29,7 +28,9 @@ const Home = () => {
     "../assets/img/collection4.jpg",
     "../assets/img/collection5.jpg",
   ];
-  const [flashSaleProducts, setFlashSaleProducts] = useState([]);
+  const [flashSaleProducts, setFlashSaleProducts] = useState(null);
+  const [hottestProducts, setHottestProducts] = useState(null);
+  const [newestProducts, setNewestProducts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Small devices (mobile)
@@ -44,8 +45,16 @@ const Home = () => {
         },
       })
       .then((res) => {
-        const result = res.data.filter(i => i.is_active === 1)
-        setFlashSaleProducts(result);
+        const result = res.data.filter(i => i.is_active === 1);
+        if (result) {
+          setFlashSaleProducts(result.filter(i => i.is_featured === 1));
+          setHottestProducts([...result].sort((a, b) => Number(b.total_purchase) - Number(a.total_purchase)).slice(0, 8));
+          setNewestProducts([...result].sort((a, b) => b.id - a.id).slice(0, 10));
+        } else {
+          setFlashSaleProducts([]);
+          setHottestProducts([]);
+          setHottestProducts([]);
+        }
         setIsLoading(false);
       })
       .catch((err) => {
@@ -96,54 +105,58 @@ const Home = () => {
 
   return (
     <Box>
-      <ImageSlider imageUrls={IMAGES} />
+      <ImageSlider imageUrls={IMAGES} showText={true}/>
 
       {/* ---------------------FLASH SALE SECTION---------------------- */}
-      <Box
-        sx={{
-          marginTop: "32px",
-          padding: {
-            xs: "8px",
-            sm: "0 52px",
-          },
-        }}
-      >
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          justifyContent={"space-between"}
-          alignItems={{ xs: "start", md: "end" }}
-        >
-          <HeadingText title={"Hôm nay"} subtitle={"Flash Sale"} />
-          <Stack justifyContent={"end"}>
-            <Box sx={{ flexGrow: 1 }} />
-            <Box>
-              <FlipClockCountdown
-                showSeparators={true}
-                to={new Date().getTime() + 1 * 3600 * 1000}
-                labels={["NGÀY", "GIỜ", "PHÚT", "GIÂY"]}
-                labelStyle={styles.labelStyle}
-                digitBlockStyle={styles.digitBlockStyle}
-                separatorStyle={styles.separatorStyle}
-                duration={0.5}
-                hideOnComplete={false}
-              ></FlipClockCountdown>
+      {
+        flashSaleProducts?.length !== 0 && (
+          <Box
+            sx={{
+              marginTop: "32px",
+              padding: {
+                xs: "8px",
+                sm: "0 52px",
+              },
+            }}
+          >
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              justifyContent={"space-between"}
+              alignItems={{ xs: "start", md: "end" }}
+            >
+              <HeadingText title={"Hôm nay"} subtitle={"Flash Sale"} />
+              <Stack justifyContent={"end"}>
+                <Box sx={{ flexGrow: 1 }} />
+                <Box>
+                  <FlipClockCountdown
+                    showSeparators={true}
+                    to={new Date().getTime() + 1 * 3600 * 1000}
+                    labels={["NGÀY", "GIỜ", "PHÚT", "GIÂY"]}
+                    labelStyle={styles.labelStyle}
+                    digitBlockStyle={styles.digitBlockStyle}
+                    separatorStyle={styles.separatorStyle}
+                    duration={0.5}
+                    hideOnComplete={false}
+                  ></FlipClockCountdown>
+                </Box>
+              </Stack>
+            </Stack>
+
+            <Box sx={{ marginTop: "24px" }}>
+              <ProductCarousel products={flashSaleProducts} isLoading={isLoading} />
             </Box>
-          </Stack>
-        </Stack>
 
-        <Box sx={{ marginTop: "24px" }}>
-          <ProductCarousel products={flashSaleProducts} isLoading={isLoading} />
-        </Box>
-
-        <Stack
-          width={"100%"}
-          direction={"row"}
-          justifyContent={"center"}
-          marginTop={"32px"}
-        >
-          <RedButton title="Xem Tất Cả" />
-        </Stack>
-      </Box>
+            <Stack
+              width={"100%"}
+              direction={"row"}
+              justifyContent={"center"}
+              marginTop={"32px"}
+            >
+              <RedButton title="Xem Tất Cả" />
+            </Stack>
+          </Box>
+        )
+      }
 
       {/* ---------------------MOST POPULAR SECTION---------------------- */}
       <Box
@@ -164,7 +177,7 @@ const Home = () => {
         </Stack>
 
         <Box sx={{ marginTop: "24px" }}>
-          <ProductCarousel products={flashSaleProducts} isLoading={isLoading} />
+          <ProductCarousel products={hottestProducts} isLoading={isLoading} />
         </Box>
       </Box>
 
@@ -186,8 +199,8 @@ const Home = () => {
           </Stack>
         </Stack>
 
-        <Box sx={{ marginTop: "24px" }}>
-          <ProductCarousel products={flashSaleProducts} isLoading={isLoading} />
+        <Box sx={{ marginTop: "24px", marginBottom: "60px" }}>
+          <ProductCarousel products={newestProducts} isLoading={isLoading} />
         </Box>
       </Box>
 

@@ -213,7 +213,7 @@ const ProductGridItem = ({ variants, name, productSlug, rate, totalPurchase }) =
               alignItems: "center",
             }}
           >
-            {rate}
+            {Number(rate).toFixed(1)}
             <StarRateIcon sx={{ fontSize: "14px" }} />
           </Typography>
           <Typography

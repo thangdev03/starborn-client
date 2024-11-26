@@ -220,7 +220,7 @@ const ProductItem = ({ productData }) => {
               sx={{ display: {xs: 'none', sm: 'flex'} }}
             />
             <Typography sx={{ fontSize: '14px', display: { xs: "flex", sm: "none" }, alignItems: 'center' }}>
-              {productData.average_rating}
+              {Number(productData.average_rating).toFixed(1)}
               <StarRateIcon sx={{ fontSize: '14px' }}/>
             </Typography>
             <Typography

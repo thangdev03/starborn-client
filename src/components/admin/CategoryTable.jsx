@@ -15,7 +15,8 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemButton
+  ListItemButton,
+  Typography
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
@@ -24,6 +25,7 @@ import { colors } from '../../services/const';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CategoryModal from './CategoryModal';
 import { useRef } from 'react';
+import { Link as RRDLink } from 'react-router-dom';
 
 const CategoryTable = ({ 
   containerMargin = '24px 0 0', 
@@ -161,6 +163,11 @@ const CategoryTable = ({
                     Danh mục
                   </TableCell>
                 )}
+                {onPage === 'category' && (
+                  <TableCell sx={{ width: '90px', textAlign: 'center', paddingX: 0, paddingY: '12px', color: '#1B2141', opacity: '0.6', fontSize: '16px', fontWeight: '600' }}>
+                    Bảng size
+                  </TableCell>
+                )}
                 <TableCell sx={{ width: '90px', textAlign: 'center', paddingX: 0, paddingY: '12px', color: '#1B2141', opacity: '0.6', fontSize: '16px', fontWeight: '600' }}>
                   Hành động
                 </TableCell>
@@ -214,6 +221,27 @@ const CategoryTable = ({
                       {item.category_name}
                     </TableCell>
                   )}
+                  {onPage === 'category' && (
+                    <TableCell>
+                      {item.image_url ? (
+                        <RRDLink 
+                          to={item.image_url}
+                          target="_blank"
+                          style={{
+                            textAlign: "center",
+                            fontSize: "16px",
+                            paddingY: "4px",
+                            color: "#1d4ed8",
+                            fontStyle: "italic"
+                          }}
+                        >
+                          Link_ảnh
+                        </RRDLink>
+                      ) : (
+                        <Typography>Chưa có</Typography>
+                      )}
+                    </TableCell>
+                  )}
                   <TableCell sx={{ textAlign: 'center', fontSize: '16px', paddingY: '4px' }}>
                     <ButtonGroup variant='text'>
                       <Button
@@ -245,6 +273,7 @@ const CategoryTable = ({
                       handleClickBtn={(newName) => handleUpdate(selectedItem, newName)}
                       isEdit={true}
                       oldName={selectedItem?.name}
+                      oldImageUrl={selectedItem?.image_url}
                       fixedObject={selectedItem?.object_name || null}
                       fixedCategory={selectedItem?.category_name || null}
                     />

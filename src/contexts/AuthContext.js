@@ -97,7 +97,7 @@ const AuthContextProvider = ({ children }) => {
     useLayoutEffect(() => {
         const authInterceptor = axios.interceptors.request.use(
             (config) => {
-                if (!config.headers['Authorization']) {
+                if (!config.headers['Authorization'] && !config.url.includes("api.cloudinary.com")) {
                     config.headers['Authorization'] = `Bearer ${authToken}`;
                 }
                 return config;
