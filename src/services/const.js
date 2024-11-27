@@ -6,8 +6,8 @@ export const colors = {
     secondaryColor: '#F2F2F2'
 };
 
-export const serverUrl = 'http://localhost:5000/';
-// export const serverUrl = 'https://ecommerce-starborn-server.onrender.com/';
+// export const serverUrl = 'http://localhost:5000/';
+export const serverUrl = 'https://ecommerce-starborn-server.onrender.com/';
 
 export const ORDER_STATUS = {
     0: "Đã hủy",
