@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
+import { createContext, useContext, useLayoutEffect, useState } from "react";
 import axios from "axios"
 import { serverUrl } from "../services/const";
 import { toast } from "react-toastify";
@@ -15,6 +15,15 @@ const AuthContextProvider = ({ children }) => {
     const openAuthModal = () => setAuthModalOpen(true);
     const closeAuthModal = () => setAuthModalOpen(false);
 
+    const resetAllData = () => {
+        setAuthToken(null);
+        setCurrentUser(null);
+        setAccountType(null);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('accountType');
+    }
+
     async function handleLogin(emailOrPhone, password) {
         setChecking(true);
         axios.post(serverUrl + 'auth/login/customer', {
@@ -25,6 +34,9 @@ const AuthContextProvider = ({ children }) => {
         })
         .then((res) => {
             if (res.data) {
+                if (res.data.user.is_active === 0) {
+                    return toast.error("Tài khoản tạm thời bị khóa, vui lòng liên hệ với quản trị viên!")
+                }
                 setAuthToken(res.data.accessToken);
                 setCurrentUser(res.data.user);
                 setAccountType(res.data.accountType);
@@ -34,15 +46,13 @@ const AuthContextProvider = ({ children }) => {
                     pauseOnHover: false,
                     hideProgressBar: true
                 });
-                sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
-                sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
-                sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));
+                localStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+                localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                localStorage.setItem('accountType', JSON.stringify(res.data.accountType));
             }
         })
         .catch((err) => {
-            setAuthToken(null);
-            setCurrentUser(null);
-            setAccountType(null);
+            resetAllData();
             toast.error(err.response.data?.message);
         })
         .finally(() => setChecking(false))
@@ -58,20 +68,20 @@ const AuthContextProvider = ({ children }) => {
         })
         .then((res) => {
             if (res.data) {
+                if (res.data.user.is_active === 0) {
+                    return toast.error("Tài khoản tạm thời bị khóa, vui lòng liên hệ với quản trị viên!");
+                }
                 setAuthToken(res.data.accessToken);
                 setCurrentUser(res.data.user);
                 setAccountType(res.data.accountType);
-                console.log(res.data)
                 toast.success(res.data.message);
-                sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
-                sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
-                sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));
+                localStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+                localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                localStorage.setItem('accountType', JSON.stringify(res.data.accountType));
             }
         })
         .catch((err) => {
-            setAuthToken(null);
-            setCurrentUser(null);
-            setAccountType(null);
+            resetAllData();
             toast.error(err.response.data?.message);
         })
         .finally(() => setChecking(false))
@@ -83,12 +93,7 @@ const AuthContextProvider = ({ children }) => {
             withCredentials: true
         })
         .then(() => {
-            setAuthToken(null);
-            setCurrentUser(null);
-            setAccountType(null);
-            sessionStorage.removeItem('accessToken');
-            sessionStorage.removeItem('currentUser');
-            sessionStorage.removeItem('accountType');
+            resetAllData();
         })
         .catch((error) => console.log(error))
         .finally(() => setChecking(false))
@@ -131,9 +136,9 @@ const AuthContextProvider = ({ children }) => {
                         setAuthToken(res.data.accessToken);
                         setCurrentUser(res.data.user);
                         setAccountType(res.data.accountType);
-                        sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
-                        sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
-                        sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));
+                        localStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+                        localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                        localStorage.setItem('accountType', JSON.stringify(res.data.accountType));
 
                         originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
 
@@ -141,9 +146,7 @@ const AuthContextProvider = ({ children }) => {
                     })
                     .catch((error) => {
                         console.log(error)
-                        setAuthToken(null);
-                        setCurrentUser(null);
-                        setAccountType(null);
+                        resetAllData();
                     })
                 }
                 return Promise.reject(error);
@@ -154,29 +157,31 @@ const AuthContextProvider = ({ children }) => {
         return () => {
             axios.interceptors.response.eject(refreshInterceptor);
         }
-    }, [authToken])
+    }, [authToken, accountType])
 
     useLayoutEffect(() => {
         setChecking(true);
         const refresh = async () => {
             axios.post(serverUrl + 'auth/refreshToken', {
-                accountType: JSON.parse(sessionStorage.getItem('accountType'))
+                accountType: JSON.parse(localStorage.getItem('accountType'))
             }, {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true,
             })
             .then((res) => {
+                if (res.data.user.is_active === 0) {
+                    resetAllData();
+                    return toast.error("Tài khoản tạm thời bị khóa, vui lòng liên hệ với quản trị viên!")
+                }
                 setAuthToken(res.data.accessToken);
                 setCurrentUser(res.data.user);
                 setAccountType(res.data.accountType);
-                sessionStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
-                sessionStorage.setItem('currentUser', JSON.stringify(res.data.user));
-                sessionStorage.setItem('accountType', JSON.stringify(res.data.accountType));
+                localStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
+                localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                localStorage.setItem('accountType', JSON.stringify(res.data.accountType));
             })
             .catch((err) => {
-                setAuthToken(null);
-                setCurrentUser(null);
-                setAccountType(null);
+                resetAllData();
                 console.log("Error refreshing token: ", err)
             })
             .finally(() => setChecking(false))

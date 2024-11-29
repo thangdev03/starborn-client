@@ -15,6 +15,7 @@ const BodyMeasureResult = ({ scalingFactor, restartStages }) => {
     arm: 0,
     leg: 0
   });
+  const [isFinished, setIsFinished] = useState(false);
   const rows = [
     {
         id: "neck",
@@ -102,16 +103,38 @@ const BodyMeasureResult = ({ scalingFactor, restartStages }) => {
     const TOLERANCE = 10 * scalingFactor;
 
     setData({
-        shoulder: shoulderLength.toFixed(1),
-        shoulderToCrotch: shoulderToCrotchHeight.toFixed(1),
-        neck: (neckPerimeter - TOLERANCE).toFixed(1),
-        chest: (chestCircumference - TOLERANCE).toFixed(1),
-        waist: (waistCircumference - TOLERANCE).toFixed(1),
-        hip: (hipCircumference - TOLERANCE).toFixed(1),
-        arm: armLength.toFixed(1),
-        leg: legLength.toFixed(1)
-    })
+      shoulder: shoulderLength.toFixed(1),
+      shoulderToCrotch: shoulderToCrotchHeight.toFixed(1),
+      neck: (neckPerimeter - TOLERANCE).toFixed(1),
+      chest: (chestCircumference - TOLERANCE).toFixed(1),
+      waist: (waistCircumference - TOLERANCE).toFixed(1),
+      hip: (hipCircumference - TOLERANCE).toFixed(1),
+      arm: armLength.toFixed(1),
+      leg: legLength.toFixed(1)
+    });
+    setIsFinished(true)
   }, []);
+
+  useEffect(() => {
+    if (isFinished) {
+      localStorage.setItem("bodyData", data);
+      sessionStorage.removeItem("shoulderLength");
+      sessionStorage.removeItem("shoulderToCrotchHeight");
+      sessionStorage.removeItem("neckFrontRadius");
+      sessionStorage.removeItem("neckBackRadius");
+      sessionStorage.removeItem("chestLength");
+      sessionStorage.removeItem("chestFrontBreadth");
+      sessionStorage.removeItem("chestBackBreadth");
+      sessionStorage.removeItem("hipLength");
+      sessionStorage.removeItem("hipFrontBreadth");
+      sessionStorage.removeItem("hipBackBreadth");
+      sessionStorage.removeItem("waistLength");
+      sessionStorage.removeItem("waistFrontBreadth");
+      sessionStorage.removeItem("waistBackBreadth");
+      sessionStorage.removeItem("armLength");
+      sessionStorage.removeItem("legLength");
+    }
+  }, [isFinished])
 
   return (
     <Box height={"100vh"} width={"100%"} position={"relative"}>

@@ -44,7 +44,6 @@ const AdminProductDetail = () => {
   const [deleteImages, setDeleteImages] = useState([]);
   const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
   const [isUpdatingVariant, setIsUpdatingVariant] = useState(false);
-  console.log({currCollections, selectedCollections, deleteCollections})
 
   const getData = () => {
     axios
@@ -535,7 +534,7 @@ const AdminProductDetail = () => {
                   id: `id-${collectionName}`, 
                   name: collectionName
                 }
-                setSelectedTags((prev) => [...prev, newCollection])
+                setSelectedCollections((prev) => [...prev, newCollection])
               }
             }}
             renderTags={(value, getTagProps) =>
@@ -872,7 +871,7 @@ const VariantItem = ({ item, handleVariantChange, handleOptionChange, setDeleteI
             <AddImagesModal 
               handleCloseModal={() => setOpenModal(false)}
               variantId={item.variant_id}
-              reloadVariantsData={reloadVariantsData}
+              reloadData={reloadVariantsData}
             />
           )}
         </Box>

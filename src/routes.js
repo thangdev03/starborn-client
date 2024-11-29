@@ -26,6 +26,7 @@ import BodyMeasureRoom from './components/client/BodyMeasureRoom';
 import Employees from './pages/admin/Employees';
 import Collection from './pages/admin/Collection';
 import CollectionDetail from './pages/admin/CollectionDetail';
+import CollectionShow from './pages/client/CollectionShow';
 
 const AppRoutes = () => {
 
@@ -35,8 +36,8 @@ const AppRoutes = () => {
         <Route path='' element={<Home />}/>
         <Route path=':objectSlug' element={<AllProducts />}/>
       </Route>
-      <Route path='/collection' element={''}>
-        <Route path=':collectionSlug' element={''}/>
+      <Route path='/collection'>
+        <Route path=':collectionSlug' element={<CollectionShow />}/>
       </Route>
       <Route path='/product/:productName' element={<ProductDetail />}/>
       <Route element={<CustomerPrivateRoutes />}>

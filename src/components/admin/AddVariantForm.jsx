@@ -66,9 +66,7 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {}, getVariantsData
     if (!colorName || !colorHex || !price) {
         return toast.warn('Vui lòng điền đầy đủ thông tin của biến thể sản phẩm')
     }
-    // if (checked.length === 0) {
-    //     return alert('Vui lòng chọn ít nhất 1 size của biến thể sản phẩm')
-    // }
+
     if (variantImages.length === 0) {
         return toast.warn('Vui lòng tải lên ít nhất 1 ảnh của biến thể sản phẩm')
     }
@@ -76,7 +74,7 @@ const AddVariantForm = ({ productId, handleCloseForm = () => {}, getVariantsData
     setIsLoading(true);
     const uploadedImages = await uploadImages();
     if (!uploadedImages) {
-        return alert('Có lỗi xảy ra, vui lòng thử lại');  
+        return toast.error('Có lỗi xảy ra, vui lòng thử lại');  
     } else {
         const newProductVariant = {
             color: colorName, 

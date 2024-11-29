@@ -44,6 +44,9 @@ const Collection = () => {
     .then((res) => {
       if (res.status === 200) {
         getData();
+        toast.success("Đã cập nhật trạng thái hoạt động", {
+          closeButton: false
+        })
       } else {
         toast.error(res.data?.message)
       }

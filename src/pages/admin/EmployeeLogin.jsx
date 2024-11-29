@@ -8,8 +8,8 @@ const EmployeeLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { handleLoginEmployee } = useAuth();
-  const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
-  const accountType = JSON.parse(sessionStorage.getItem("accountType"));
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const accountType = JSON.parse(localStorage.getItem("accountType"));
 
   return currentUser && accountType == "employee" ? (<Navigate to="/admin/dashboard"/>) : (
       <Stack direction={"row"}>

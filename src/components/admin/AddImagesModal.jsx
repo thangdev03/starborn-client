@@ -4,9 +4,15 @@ import { colors, serverUrl } from "../../services/const";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ActionBtn from "./ActionBtn";
 import axios from "axios";
+import { toast } from "react-toastify";
 
-const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => {
-  const [newVariantImages, setNewVariantImages] = useState([]);
+const AddImagesModal = ({ 
+  variantId = null, 
+  collectionId = null,
+  handleCloseModal, 
+  reloadData 
+}) => {
+  const [newImages, setNewImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -22,14 +28,14 @@ const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => 
       });
     }
 
-    setNewVariantImages(results);
+    setNewImages(results);
   };
 
   const handleRemove = (removeIndex) => {
-    const newResult = newVariantImages.filter(
+    const newResult = newImages.filter(
       (i, index) => index !== removeIndex
     );
-    setNewVariantImages(newResult);
+    setNewImages(newResult);
 
     const dataTransfer = new DataTransfer();
 
@@ -44,12 +50,13 @@ const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => 
     try {
       setIsLoading(true)
       let imageURLs = [];
-      for (let variantImage of newVariantImages) {
+      const cldFolder = variantId ? "starborn_product_photos" : "starborn_product_photos/collections"
+      for (let variantImage of newImages) {
         const image = new FormData();
         image.append("file", variantImage.file);
         image.append("cloud_name", "ddgwckqgy");
         image.append("upload_preset", "starborn-storage");
-        image.append("folder", "starborn_product_photos");
+        image.append("folder", cldFolder);
 
         const res = await axios.post(
           "https://api.cloudinary.com/v1_1/ddgwckqgy/image/upload",
@@ -58,20 +65,37 @@ const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => 
         imageURLs.push(res.data.url.toString());
       }
 
-      axios
-        .post(serverUrl + 'productImages/' + variantId, {
-          imageLinks: imageURLs
-        })
-        .then((res) => {
-          if (res.status === 201) {
-            setNewVariantImages([]);
-            alert('Thêm ảnh thành công!');
-            handleCloseModal();
-            reloadVariantsData();
-          }
-          setIsLoading(false);
-        })
-        .catch((err) => {throw new Error})
+      if (variantId) {
+        axios
+          .post(serverUrl + 'productImages/' + variantId, {
+            imageLinks: imageURLs
+          })
+          .then((res) => {
+            if (res.status === 201) {
+              setNewImages([]);
+              toast.success('Thêm ảnh thành công!');
+              handleCloseModal();
+              reloadData();
+            }
+            setIsLoading(false);
+          })
+          .catch((err) => {throw new Error(err)})
+      } else if (collectionId) {
+        axios
+          .put(serverUrl + 'collection/image/' + collectionId, {
+            imageLink: imageURLs[0]
+          })
+          .then((res) => {
+            if (res.status === 200) {
+              setNewImages([]);
+              toast.success('Thay đổi ảnh thành công!');
+              handleCloseModal();
+              reloadData();
+            }
+            setIsLoading(false);
+          })
+          .catch((err) => {throw new Error(err)})
+      }
     } catch (error) {
       console.log(error);
       setIsLoading(false);
@@ -79,7 +103,7 @@ const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => 
   };
 
   const handleCancel = () => {
-    setNewVariantImages([]);
+    setNewImages([]);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -127,7 +151,7 @@ const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => 
         >
           <input
             type="file"
-            multiple
+            multiple={variantId ? true : false}
             ref={fileInputRef}
             accept="image/*"
             style={{
@@ -163,12 +187,12 @@ const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => 
           direction={"row"}
           gap={"12px"}
         >
-          {newVariantImages.map((image, index) => (
+          {newImages.map((image, index) => (
             <div
               key={index}
               style={{
                 flexShrink: 0,
-                height: "220px",
+                height: variantId ? "220px" : "auto",
                 borderRadius: "8px",
                 overflow: "hidden",
                 position: "relative",
@@ -187,12 +211,13 @@ const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => 
               </IconButton>
               <img
                 src={image.previewUrl}
+                alt={image.file.name}
                 loading="lazy"
                 style={{
-                  objectFit: "cover",
+                  objectFit: variantId ? "cover" : "contain",
                 }}
-                width={"180px"}
-                height={"100%"}
+                width={variantId ? "180px" : "400px"}
+                height={variantId ? "100%" : "auto"}
               />
             </div>
           ))}
@@ -207,8 +232,8 @@ const AddImagesModal = ({ variantId, handleCloseModal, reloadVariantsData }) => 
         >
           <ActionBtn
             type={"save"}
-            title={!isLoading ? "Tải ảnh" : "Đang tải..."}
-            disabled={newVariantImages.length === 0 || isLoading === true}
+            title={!isLoading ? "Lưu" : "Đang tải..."}
+            disabled={newImages.length === 0 || isLoading === true}
             handleClick={handleSubmit}
             customStyle={{
               flexGrow: 1,

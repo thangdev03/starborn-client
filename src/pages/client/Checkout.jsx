@@ -69,7 +69,6 @@ const paymentOptions = [
 ];
 
 const Checkout = () => {
-  // const accessToken = sessionStorage.getItem('accessToken');
   const { currentUser } = useAuth();
   const location = useLocation();
   const choseCoupon = location.state?.choseCoupon || "";

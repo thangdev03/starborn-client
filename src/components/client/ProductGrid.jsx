@@ -3,6 +3,7 @@ import ProductGridItem from './ProductGridItem'
 import { Box, Grid, Skeleton, Stack, Typography } from '@mui/material'
 
 const ProductGrid = ({ products }) => {
+  console.log({products})
   return (
     <Grid container columnSpacing={'16px'} rowSpacing={'28px'} width={'100%'}>
       {products?.length === 0 && (

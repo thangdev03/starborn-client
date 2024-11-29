@@ -1,88 +1,78 @@
-import { Box, Button, Grid, IconButton, Rating, Skeleton, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
-import React from 'react'
-import { colors } from '../../services/const'
-import { useAuth } from '../../contexts/AuthContext'
-import { Link, useNavigate } from 'react-router-dom'
-import { formatVNDCurrency, getPriceAfterDiscount } from '../../utils/currencyUtils'
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { colors, serverUrl } from '../../services/const';
+import { Box, Button, CircularProgress, Grid, Rating, Skeleton, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { formatVNDCurrency, getPriceAfterDiscount } from '../../utils/currencyUtils';
 import StarRateIcon from "@mui/icons-material/StarRate";
-import { useWishlist } from '../../contexts/WishlistContext'
 
-const Favorites = () => {
-  const { currentUser } = useAuth();
-  const { favoriteItems, loadingFavorites, removeFromFavorites } = useWishlist();
+const CollectionShow = () => {
+  const { collectionSlug } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [collection, setCollection] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(serverUrl + `collection/${collectionSlug}`)
+      .then((res) => setCollection(res.data))
+      .catch((error) => console.log(error))
+      .finally(() => setLoading(false))
+  }, [collectionSlug])
+
+  console.log(collection)
 
   return (
-    <Box
-      sx={{
-        marginTop: "32px",
-        padding: {
-          xs: "8px",
-          md: "0 52px",
-        },
-      }}
-    >
-      <Stack
-        direction={"row"}
-        justifyContent={"space-between"}
-        alignItems={"center"}
-        sx={{
-          marginBottom: "40px"
-        }}
+    <Box paddingX={{ xs: "16px", sm: "52px" }}>
+      <Typography
+        marginY={"20px"}
+        textTransform={"uppercase"}
+        fontWeight={600}
+        fontSize={{ xs: "24px", md: "32px" }}
+        textAlign={"center"}
       >
-        <Typography fontSize={"20px"} fontWeight={500}>
-          Sản phẩm yêu thích ({favoriteItems?.length})
-        </Typography>
-        {/* <Button 
-          variant="outlined"
-          sx={{
-            height: "48px",
-            width: "260px",
-            fontWeight: 500,
-            color: colors.primaryColor,
-            borderColor: colors.primaryColor
-          }}
-        >
-          Thêm tất cả vào giỏ hàng
-        </Button> */}
-      </Stack>
-      <Grid container columnSpacing={'16px'} rowSpacing={'28px'} width={'100%'}>
-        {
-          !loadingFavorites
-            ? (
-              favoriteItems.length !== 0
-                ? favoriteItems.map((item, index) => (
-                    <ProductItem 
-                      key={index}
-                      data={item}
-                      currentUser={currentUser}
-                      handleRemove={() => removeFromFavorites(item.variant_id)}
-                    />
-                  ))
-                : (
-                  <Grid item flexGrow={1} height={"120px"}>
-                    <Typography textAlign={"center"}>Chưa có sản phẩm yêu thích nào!</Typography>
-                  </Grid>
-                )
-            )
-            : (
-              Array.from(new Array(4)).map((i, index) => (
-                <LoadingItem />
-              ))
-            )
-        }
+        Bộ sưu tập {collection?.name}
+      </Typography>
+      <Box>
+        {loading ? (
+          <Skeleton width={"100%"} height={"100%"} variant="rectangular" />
+        ) : (
+          <img
+            width={"100%"}
+            src={collection.image_url}
+            style={{
+              objectFit: "cover",
+            }}
+          />
+        )}
+      </Box>
+
+      <Grid
+        container
+        marginTop={"16px"}
+        columnSpacing={"16px"}
+        rowSpacing={"28px"}
+        width={"100%"}
+      >
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          collection?.products.map((product, index) => (
+            <ProductItem key={index} data={product} />
+          ))
+        )}
       </Grid>
     </Box>
-  )
+  );
 }
 
-const ProductItem = ({ data, handleRemove }) => {
+const ProductItem = ({ data }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
 
   return (
-    <Grid item xs={6} sm={4} md={4} lg={3} xl={3}>
+    <Grid item xs={6} sm={4} md={3} lg={2} xl={2}>
       <Box
         sx={{
           height: {
@@ -101,7 +91,8 @@ const ProductItem = ({ data, handleRemove }) => {
         to={`/product/${data?.product_slug}?color=${data?.variant_slug}`}
         >
           <img
-            src={data?.image_url}
+            src={data?.product_image_url}
+            alt={data.product_name + " " + data.variant_slug}
             className="product-image"
             style={{
               width: "100%",
@@ -128,20 +119,6 @@ const ProductItem = ({ data, handleRemove }) => {
             {`-${Number(data?.discount).toFixed(0)}%`}
           </Typography>
         )}
-        <IconButton
-          onClick={handleRemove}
-          sx={{
-            position: "absolute",
-            top: "2%",
-            right: "2%",
-            bgcolor: "white",
-            "&:hover": {
-              bgcolor: "whitesmoke",
-            },
-          }}
-        >
-          <DeleteOutlineOutlinedIcon color={colors.primaryColor}/>
-        </IconButton>
         <Button
           onClick={() => navigate(`/product/${data?.product_slug}?color=${data?.variant_slug}`)}
           variant="contained"
@@ -223,7 +200,7 @@ const ProductItem = ({ data, handleRemove }) => {
         >
           <Rating
             name={`${data?.name}-rating`}
-            value={Number(data?.avg_rating || 0)} 
+            value={Number(data?.average_rating || 0)} 
             precision={0.5}
             readOnly
             sx={{ display: { xs: "none", sm: "flex" } }}
@@ -235,7 +212,7 @@ const ProductItem = ({ data, handleRemove }) => {
               alignItems: "center",
             }}
           >
-            {data?.avg_rating || 0}
+            {data?.average_rating || 0}
             <StarRateIcon sx={{ fontSize: "14px" }} />
           </Typography>
           <Typography
@@ -252,26 +229,4 @@ const ProductItem = ({ data, handleRemove }) => {
   )
 }
 
-const LoadingItem = () => {
-  return (
-    <Grid item xs={6} sm={4} md={4} lg={3} xl={3}>
-      <Stack
-        sx={{
-          height: {
-            xs: "220px",
-            sm: "280px",
-            md: "320px",
-            lg: "360px",
-            xl: "400px",
-          },
-        }}
-        gap={'12px'}
-      >
-        <Skeleton variant='rounded' height={'80%'}/>
-        <Skeleton variant='rounded' sx={{ flexGrow: 1 }}/>
-      </Stack>
-  </Grid>
-  )
-}
-
-export default Favorites
+export default CollectionShow

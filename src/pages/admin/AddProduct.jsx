@@ -1,11 +1,9 @@
-import { Accordion, Autocomplete, Box, Button, Chip, Divider, FormControl, FormHelperText, Icon, IconButton, OutlinedInput, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Chip, FormControl, FormHelperText, Icon, OutlinedInput, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import AppBreadcrumbs from '../../components/common/AppBreadcrumbs';
 import { colors, serverUrl } from '../../services/const';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import ActionBtn from '../../components/admin/ActionBtn';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -50,14 +48,6 @@ const AddProduct = () => {
       .then((res) => setTagList(res.data))
       .catch((err) => console.log(err))
   }
-
-  const uploadImage = () => {
-
-  };
-
-  const handleImageChange = () => {
-    
-  };
 
   const handleCreateProduct = () => {
     if (!newName) {
@@ -221,17 +211,6 @@ const AddProduct = () => {
                 <FormHelperText id="tag-helper-text" sx={{ margin: '0 0 12px', fontSize: '16px', fontWeight: '500' }}>
                     Tag
                 </FormHelperText>
-                {/* <OutlinedInput
-                    id="tag"
-                    aria-describedby="tag-helper-text"
-                    inputProps={{
-                      'aria-label': 'name',
-                      style: {
-                        paddingTop: '8.5px',
-                        paddingBottom: '8.5px'
-                      }
-                    }}
-                /> */}
                 <Autocomplete
                     multiple
                     id="tags-filled"
@@ -282,72 +261,6 @@ const AddProduct = () => {
                 handleClick={onCancelClick}
                 />
             </Stack>
-
-            {/* <Box>
-                <Divider sx={{ color: colors.primaryColor }}>Các biến thể của sản phẩm</Divider>
-                <Stack gap={'20px'} style={{ margin: '16px 0' }}>
-                    <Box>
-                        <Stack direction={'row'} gap={'20px'} width={'100%'} justifyContent={'space-between'} alignItems={'center'}>
-                            <TextField 
-                            id="variant-color" 
-                            label="Màu sắc" 
-                            variant="outlined" 
-                            aria-required 
-                            size='small'
-                            />
-                            <TextField 
-                            id="variant-hex" 
-                            label="Mã màu (hex)" 
-                            variant="outlined" 
-                            aria-required 
-                            size='small' 
-                            type='color' 
-                            sx={{ width: '120px' }}
-                            />
-                            <TextField 
-                            id="variant-price" 
-                            label="Giá (VNĐ)" 
-                            variant="outlined" 
-                            aria-required 
-                            size='small' 
-                            type='number' 
-                            sx={{ flexGrow: 1 }}
-                            />
-                            <TextField 
-                            id="variant-discount" 
-                            label="Giảm giá (%)" 
-                            variant="outlined" 
-                            aria-required 
-                            size='small' 
-                            type='number' 
-                            sx={{ flexGrow: 1 }}
-                            />
-                            <TextField 
-                            id="variant-quantity" 
-                            label="Số lượng tồn kho" 
-                            variant="outlined" 
-                            aria-required 
-                            size='small' 
-                            type='number' 
-                            sx={{ flexGrow: 1 }}
-                            />
-                            <IconButton>
-                                <DeleteIcon sx={{ color: colors.red, fontSize: '24px' }}/>
-                            </IconButton>
-                        </Stack>
-
-                        <Stack direction={'column'} marginTop={'16px'}>
-                            <input type="file" style={{ padding: '8px', border: '1px dashed', borderColor: colors.primaryColor, width: '280px', borderRadius: '8px' }}/>
-
-                        </Stack>
-                    </Box>
-                </Stack>
-
-                <IconButton>
-                    <AddCircleOutlineRoundedIcon sx={{ color: colors.red }} />
-                </IconButton>
-                <Divider sx={{ marginTop: '16px' }}/>
-            </Box> */}
         </Stack>
     </Box>
   )

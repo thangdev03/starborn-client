@@ -48,7 +48,6 @@ const ProductDetail = () => {
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
-  // const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
   const { openAuthModal, currentUser } = useAuth();
   const { getCartQuantity } = useCart();
   const [favorites, setFavorites] = useState([]);

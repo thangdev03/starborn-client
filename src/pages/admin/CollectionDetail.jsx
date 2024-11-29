@@ -6,6 +6,7 @@ import axios from 'axios'
 import { colors, serverUrl } from '../../services/const'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { toast } from 'react-toastify'
+import AddImagesModal from '../../components/admin/AddImagesModal'
 
 const CollectionDetail = () => {
   const { collectionId } = useParams();
@@ -14,9 +15,11 @@ const CollectionDetail = () => {
     name: "",
     is_active: false,
     slug: "",
+    image_url: "",
     products: [],
   });
   const [deleteProducts, setDeleteProducts] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
 
   const getData = async () => {
@@ -28,6 +31,7 @@ const CollectionDetail = () => {
             name: res.data?.name,
             is_active: res.data?.is_active === 1 ? true : false,
             slug: res.data?.slug,
+            image_url: res.data?.image_url,
             products: res.data?.products
         });
       })
@@ -66,6 +70,7 @@ const CollectionDetail = () => {
     axios
       .put(serverUrl + "collection/" + collectionId, {
         name: data.name,
+        slug: data.slug,
         is_active: data.is_active,
         deleteProducts
       })
@@ -113,6 +118,35 @@ const CollectionDetail = () => {
             value={data.name}
             onChange={(e) => setData((prev) => ({...prev, name: e.target.value}))}
           />
+          <TextField 
+            label="Slug"
+            value={data.slug}
+            onChange={(e) => setData((prev) => ({...prev, slug: e.target.value}))}
+          />
+          <Box>
+            <Button
+              onClick={() => setOpenModal(true)}
+            >
+              Thay đổi ảnh
+            </Button>
+            <Box>
+              <img 
+                src={data.image_url} 
+                alt={data.name} 
+                width={"100%"}
+                style={{
+                  objectFit: "contain"
+                }}
+              />
+            </Box>
+          </Box>
+          {openModal && (
+            <AddImagesModal 
+              collectionId={data.id}
+              handleCloseModal={() => setOpenModal(false)}
+              reloadData={() => getData()}
+            />
+          )}
           <FormControlLabel 
             control={<Switch />} 
             label="Kích hoạt"
@@ -151,7 +185,7 @@ const CollectionDetail = () => {
                       {index + 1}.
                     </Typography>
                     <Box height={"80px"} width={"60px"} borderRadius={"8px"} overflow={"hidden"}>
-                      <img src={product.image_url} alt={product.product_name} height={"100%"} width={"100%"} style={{ objectFit: "cover" }}/>
+                      <img src={product.product_image_url} alt={product.product_name} height={"100%"} width={"100%"} style={{ objectFit: "cover" }}/>
                     </Box>
                     <Typography>
                       {product.product_name}

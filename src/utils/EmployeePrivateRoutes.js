@@ -3,9 +3,9 @@ import { useAuth } from "../contexts/AuthContext";
 
 const EmployeePrivateRoutes = () => {
   const { checking } = useAuth();
-  const accessToken = sessionStorage.getItem("accessToken");
+  const accessToken = localStorage.getItem("accessToken");
   const parsedToken = accessToken ? JSON.parse(accessToken) : null;
-  const accountType = JSON.parse(sessionStorage.getItem("accountType"));
+  const accountType = JSON.parse(localStorage.getItem("accountType"));
 
   if (checking) {
     return null;
