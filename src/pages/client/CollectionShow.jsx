@@ -36,6 +36,7 @@ const CollectionShow = () => {
           <Skeleton width={"100%"} height={"100%"} variant="rectangular" />
         ) : (
           <img
+            alt={collection?.name}
             width={"100%"}
             src={collection.image_url}
             style={{

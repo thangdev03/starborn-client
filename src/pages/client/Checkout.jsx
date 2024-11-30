@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Box, Button, Checkbox, CircularProgress, Divider, FormControlLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Stack, TextField, Typography } from "@mui/material";
 import BookIcon from '@mui/icons-material/Book';
@@ -12,6 +12,7 @@ import { toast } from "react-toastify"
 import dayjs from "dayjs";
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import AddressSelector from "../../components/client/AddressSelector";
+import { io } from "socket.io-client";
 
 const shippingInfoInputs = [
   {
@@ -111,6 +112,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [isAddressFromBook, setIsAddressFromBook] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const socket = useRef(null);
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -269,6 +271,13 @@ const Checkout = () => {
         if (res.status === 201) {
           getCartQuantity();
           toast.success("Đặt hàng thành công");
+          socket.current.emit('new-order', {
+            message: `Đơn hàng vừa được tạo mới: #${res.data.orderId}`,
+            related_url: `orders/${res.data.orderId}`,
+            is_read: false,
+            created_at: new Date()
+          });
+          createNotification(res.data.orderId);
           if (paymentMethod === "banking") {
             return window.location.href = res.data.payUrl;
           } else {
@@ -281,10 +290,18 @@ const Checkout = () => {
           toast.error(error.response.data.message);
           // return window.location.reload();
         }
-
         console.log(error)
       })
       .finally(() => setSendingRequest(false))
+  }
+
+  const createNotification = async (orderId) => {
+    axios
+      .post(serverUrl + "notification", {
+        message: `Đơn hàng vừa được tạo mới: #${orderId}`,
+        related_url: `orders/${orderId}`,
+      })
+      .catch((error) => console.log(error))
   }
 
   useEffect(() => {
@@ -371,31 +388,36 @@ const Checkout = () => {
   }, [choseCoupon, subtotal, currentUser])
 
   useEffect(() => {
-    axios.get(serverUrl + `addresses/${currentUser?.id}`, {
-      withCredentials: true
-    })
-    .then((res) => {
-      const addresses = res.data;
-      if (addresses.length > 0) {
-        setIsAddressFromBook(true);
-        const defaultAddress = addresses.find((i) => i.is_default === 1);
-        if (defaultAddress) {
-          setShippingInfo({
-            name: defaultAddress.receiver_name,
-            phone: defaultAddress.receiver_phone,
-            email: defaultAddress.email,
-            address: defaultAddress.address,
-            province: defaultAddress.province,
-            district: defaultAddress.district,
-            ward: defaultAddress.ward,
-            id: defaultAddress.id
-          })
+    const getUserAddresses = () => {
+      axios
+      .get(serverUrl + `addresses/${currentUser?.id}`, {
+        withCredentials: true
+      })
+      .then((res) => {
+        const addresses = res.data;
+        if (addresses.length > 0) {
+          setIsAddressFromBook(true);
+          const defaultAddress = addresses.find((i) => i.is_default === 1);
+          if (defaultAddress) {
+            setShippingInfo({
+              name: defaultAddress.receiver_name,
+              phone: defaultAddress.receiver_phone,
+              email: defaultAddress.email,
+              address: defaultAddress.address,
+              province: defaultAddress.province,
+              district: defaultAddress.district,
+              ward: defaultAddress.ward,
+              id: defaultAddress.id
+            })
+          }
         }
-      }
-    })
-    .catch((err) => console.log(err))
+      })
+      .catch((err) => console.log(err))
+    }
+
+    getUserAddresses();
+    socket.current = io(serverUrl);
   }, [currentUser])
-  console.log({shippingInfo})
 
   return (
     <Box paddingX={{ xs: "16px", sm: "52px" }} paddingBottom={"160px"}>

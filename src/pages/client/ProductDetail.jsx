@@ -232,7 +232,7 @@ const ProductDetail = () => {
     if (selectedSize?.stock < selectedQuantity) {
       setSelectedQuantity(selectedSize.stock);
     }
-  }, [selectedSize])
+  }, [selectedSize, selectedQuantity])
 
   useEffect(() => {
     if (currentUser) {

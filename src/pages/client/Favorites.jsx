@@ -66,8 +66,8 @@ const Favorites = () => {
                 )
             )
             : (
-              Array.from(new Array(4)).map((i, index) => (
-                <LoadingItem />
+              Array.from(new Array(4)).map((__, index) => (
+                <LoadingItem key={index}/>
               ))
             )
         }
@@ -80,7 +80,6 @@ const ProductItem = ({ data, handleRemove }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-
   return (
     <Grid item xs={6} sm={4} md={4} lg={3} xl={3}>
       <Box
@@ -101,6 +100,7 @@ const ProductItem = ({ data, handleRemove }) => {
         to={`/product/${data?.product_slug}?color=${data?.variant_slug}`}
         >
           <img
+            alt={data?.name + " " + data?.color}
             src={data?.image_url}
             className="product-image"
             style={{
