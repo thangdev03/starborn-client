@@ -484,7 +484,7 @@ const Header = () => {
                       </ListItemButton>
                     </Link>
                     <Link
-                      to={"/"}
+                      to={"/account/rating"}
                       style={{
                         textDecoration: "none",
                         color: colors.primaryColor,

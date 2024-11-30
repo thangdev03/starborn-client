@@ -31,7 +31,7 @@ const AccountNavigation = () => {
     //     href: "#"
     // },
     {
-        id: 6,
+        id: "rating",
         title: "Đánh giá & Phản hồi",
         href: "/account/rating"
     }
