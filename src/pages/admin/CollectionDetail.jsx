@@ -166,7 +166,7 @@ const CollectionDetail = () => {
               Sản phẩm
             </Typography>
             <Stack>
-              {data.products?.map((product, index) => (
+              {data.products?.length !== 0 ? data.products.map((product, index) => (
                 <Stack 
                   key={product.product_id}
                   direction={"row"} 
@@ -195,7 +195,10 @@ const CollectionDetail = () => {
                     <CloseRoundedIcon />
                   </IconButton>
                 </Stack>
-              ))}
+              )) : (
+                <Typography textAlign={"center"} marginBottom={"20px"}>Chưa có sản phẩm nào</Typography>
+              )
+            }
             </Stack>
         </Stack>
 

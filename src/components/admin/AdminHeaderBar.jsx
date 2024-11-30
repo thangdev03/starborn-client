@@ -19,7 +19,7 @@ const AdminHeaderBar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeNav, setActiveNav] = useState(false);
   const open = Boolean(anchorEl);
-  const { handleLogout } = useAuth();
+  const { handleLogout, currentUser } = useAuth();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -111,7 +111,7 @@ const AdminHeaderBar = () => {
               aria-expanded={open ? "true" : undefined}
               onClick={handleClick}
             >
-              Admin
+              {currentUser.username}
               <ExpandMoreRoundedIcon />
             </Button>
             <Menu

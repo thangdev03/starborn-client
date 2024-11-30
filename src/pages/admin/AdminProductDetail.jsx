@@ -74,6 +74,7 @@ const AdminProductDetail = () => {
         console.log(err);
       })
   };
+  console.log({selectedCollections, collectionList})
 
   const getVariantsData = () => {
     axios
@@ -522,19 +523,10 @@ const AdminProductDetail = () => {
             isOptionEqualToValue={(option, value) =>
               option.name === value?.name
             }
-            freeSolo
             value={selectedCollections}
             onChange={(event, value) => {
               if (typeof(value[value.length - 1]) === 'object') {
                 setSelectedCollections(value)
-              } else {
-                const collectionName = value[value.length - 1]
-
-                const newCollection = {
-                  id: `id-${collectionName}`, 
-                  name: collectionName
-                }
-                setSelectedCollections((prev) => [...prev, newCollection])
               }
             }}
             renderTags={(value, getTagProps) =>

@@ -20,8 +20,6 @@ const CollectionShow = () => {
       .finally(() => setLoading(false))
   }, [collectionSlug])
 
-  console.log(collection)
-
   return (
     <Box paddingX={{ xs: "16px", sm: "52px" }}>
       <Typography
@@ -53,6 +51,7 @@ const CollectionShow = () => {
         columnSpacing={"16px"}
         rowSpacing={"28px"}
         width={"100%"}
+        justifyContent={loading && "center"}
       >
         {loading ? (
           <CircularProgress />
@@ -153,7 +152,7 @@ const ProductItem = ({ data }) => {
             textDecoration: "none",
           }}
         >
-          {data?.name}
+          {data?.product_name}
         </Link>
         {data?.discount > 0 ? (
           <Stack

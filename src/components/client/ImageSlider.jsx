@@ -2,7 +2,7 @@ import { Box, ButtonGroup, IconButton, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { colors } from "../../services/const";
 
-const ImageSlider = ({ imageUrls = [], height = "60vh", showText = false }) => {
+const ImageSlider = ({ imageUrls = [], height = "60vh" }) => {
   const [imageIndex, setImageIndex] = useState(0);
 
   useEffect(() => {
@@ -67,23 +67,6 @@ const ImageSlider = ({ imageUrls = [], height = "60vh", showText = false }) => {
           />
         ))}
       </ButtonGroup>
-
-      {showText && (
-        <Typography 
-          sx={{
-              display: { xs: "none", sm: "block" },
-              position: "absolute",
-              top: "40%",
-              left: "50%",
-              translate: "-50% -50%",
-              color: "white",
-              fontSize: { xs: "20px", md: "32px" },
-              textShadow: `1px 0 6px ${colors.primaryColor},0 1px 6px ${colors.primaryColor},-1px 0 6px ${colors.primaryColor},0 -1px 6px ${colors.primaryColor}`
-          }}
-        >
-          STARBORN - CỬA HÀNG THỜI TRANG SỐ 1 VIỆT NAM
-        </Typography>
-      )}
     </Box>
   );
 };

@@ -25,15 +25,15 @@ const AccountNavigation = () => {
         title: "Đơn hàng đã hủy",
         href: "/account/orders-cancel"
     },
-    {
-        id: 5,
-        title: "Trả hàng/ Hoàn tiền",
-        href: "#"
-    },
+    // {
+    //     id: 5,
+    //     title: "Trả hàng/ Hoàn tiền",
+    //     href: "#"
+    // },
     {
         id: 6,
         title: "Đánh giá & Phản hồi",
-        href: "#"
+        href: "/account/rating"
     }
   ];
 

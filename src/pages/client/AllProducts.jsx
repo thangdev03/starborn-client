@@ -88,7 +88,7 @@ const AllProducts = () => {
         />
 
         <Stack 
-          direction={'row'}
+          direction={{ md: 'row' }}
           gap={'24px'}
           sx={{ marginTop: '24px' }}
         >

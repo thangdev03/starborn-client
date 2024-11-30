@@ -142,14 +142,14 @@ const Collection = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.length !== 0 ? data?.map((item) => (
+              {data?.length !== 0 ? data?.map((item, index) => (
                 <TableRow
                   key={item.id}
                   hover={true}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                   <TableCell align='center' sx={{ color: colors.primaryColor, paddingX: 0, paddingY: '12px', fontWeight: 500 }}>
-                    {item.id}
+                    {index + 1}
                   </TableCell>
                   <TableCell align='center' sx={{ color: colors.primaryColor, paddingX: 0, paddingY: '12px' }}>
                     {item.name}

@@ -246,7 +246,10 @@ const Home = () => {
             </Typography>
 
             <Stack direction={"row"} justifyContent={"center"}>
-              <RedButton title={"KHÁM PHÁ NGAY"} />
+              <RedButton 
+                title={"KHÁM PHÁ NGAY"} 
+                href={"/collection/he-2024"}
+              />
             </Stack>
           </Stack>
         </Grid>
@@ -284,7 +287,7 @@ const Home = () => {
               }}
             >
               BST ÁO BRA <br />
-              XUÂN/ HÈ 2024
+              ĐÔNG - XUÂN 2025
             </Typography>
 
             <Stack

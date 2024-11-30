@@ -27,6 +27,7 @@ import Employees from './pages/admin/Employees';
 import Collection from './pages/admin/Collection';
 import CollectionDetail from './pages/admin/CollectionDetail';
 import CollectionShow from './pages/client/CollectionShow';
+import SearchResult from './pages/client/SearchResult';
 
 const AppRoutes = () => {
 
@@ -57,6 +58,7 @@ const AppRoutes = () => {
         <Route path='/favorites' element={<Favorites />}/>
       </Route>
       <Route path='measure-body' element={<BodyMeasureRoom />}/>
+      <Route path='/search' element={<SearchResult />}/>
 
         {/* Admin Routes */}
       <Route path='/admin'>
