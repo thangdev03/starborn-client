@@ -66,6 +66,9 @@ const AppBreadcrumbs = ({ item = null }) => {
         case 'address':
           title = 'Sổ địa chỉ'
           break;
+        case 'rating':
+          title = 'Đánh giá & Phản hồi'
+          break;
         default:
           return null;
       }
