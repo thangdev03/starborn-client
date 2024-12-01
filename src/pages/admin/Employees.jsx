@@ -65,7 +65,7 @@ const headCells = [
     alignDirection: "center",
   },
   {
-    id: "updateActive",
+    id: "actions",
     numeric: false,
     disablePadding: false,
     label: "Hành động",
@@ -176,21 +176,21 @@ const Employees = () => {
     [order, orderBy, page, rowsPerPage, data]
   );
 
-  const handleToggleSwitch = async (currentValue, thisCustomerId) => {
+  const handleToggleSwitch = async (currentValue, thisEmployeeId) => {
     if (currentUser?.is_admin === 1) {
-      // axios.put(serverUrl + `customers/activation/${thisCustomerId}`,
-      //   {
-      //     is_active: currentValue
-      //   },
-      //   {
-      //     withCredentials: true
-      //   }
-      // )
-      // .then((res) => {
-      //   getData();
-      //   toast.success("Cập nhật thành công!");
-      // })
-      // .catch((err) => console.log(err))
+      axios.put(serverUrl + `employees/activation/${thisEmployeeId}`,
+        {
+          is_active: !currentValue
+        },
+        {
+          withCredentials: true
+        }
+      )
+      .then((res) => {
+        getData();
+        toast.success("Cập nhật thành công!");
+      })
+      .catch((err) => console.log(err))
     }
   };
 
@@ -314,7 +314,7 @@ const Employees = () => {
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
-                    <TableRow hover key={row.id}>
+                    <TableRow hover key={index}>
                       <TableCell
                         id={labelId}
                         scope="row"
@@ -336,7 +336,7 @@ const Employees = () => {
                           <Typography>Admin</Typography>
                         ) : (
                           <Switch
-                            disabled={currentUser?.is_admin === 0}
+                            disabled={currentUser?.is_admin === 0 ? true : false}
                             checked={row.is_active === 1 ? true : false}
                             onClick={() =>
                               handleToggleSwitch(row.is_active, row.id)
