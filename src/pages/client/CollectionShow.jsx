@@ -21,7 +21,7 @@ const CollectionShow = () => {
   }, [collectionSlug])
 
   return (
-    <Box paddingX={{ xs: "16px", sm: "52px" }}>
+    <Box paddingX={{ xs: "16px", sm: "52px" }} sx={{ minHeight: "60vh" }}>
       <Typography
         marginY={"20px"}
         textTransform={"uppercase"}

@@ -35,8 +35,8 @@ const SearchResult = () => {
           axios.get(serverUrl + `collection?keywords=${keywords}`),
         ]);
 
-        setProducts(productsRes.data);
-        setCollections(collectionsRes.data);
+        setProducts(productsRes.data.filter(i => i.is_active === 1));
+        setCollections(collectionsRes.data.filter(i => i.is_active === 1));
       } catch (error) {
         console.error(error);
       } finally {

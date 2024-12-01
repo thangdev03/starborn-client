@@ -44,16 +44,16 @@ const AppRoutes = () => {
       <Route element={<CustomerPrivateRoutes />}>
         <Route path='/cart' element={<Cart />}/>
         <Route path='/checkout' element={<Checkout />}/>
-        <Route path='/account'>
+        <Route path='/account' element={<Account />} >
           <Route path='' element={<Navigate to='/account/info' replace/>}/>
-          <Route path='info' element={<Account />} />
-          <Route path='address' element={<Account />} />
-          <Route path='orders' element={<Account />} >
-            <Route path=''/>
-            <Route path=':orderId'/>
+          <Route path='info' />
+          <Route path='address' />
+          <Route path='orders'>
+            <Route path='' />
+            <Route path=':orderId' />
           </Route>
-          <Route path='orders-cancel' element={<Account />} />
-          <Route path='reviews'/>
+          <Route path='orders-cancel' />
+          <Route path='rating' />
         </Route>
         <Route path='/favorites' element={<Favorites />}/>
       </Route>
