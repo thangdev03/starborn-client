@@ -81,7 +81,6 @@ const AdminHeaderBar = () => {
       .get(serverUrl + "notification")
       .then((res) => {
         setNotifications(res.data);
-        console.log(res.data);
       })
       .catch((error) => console.log(error));
   };
