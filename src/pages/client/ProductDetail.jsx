@@ -12,6 +12,11 @@ import {
   Breadcrumbs,
   Link,
   Modal,
+  Table,
+  TableRow,
+  TableCell,
+  TableHead,
+  TableBody,
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -56,6 +61,7 @@ const ProductDetail = () => {
   const [loadingVariant, setLoadingVariant] = useState(true);
   const [sizeImage, setSizeImage] = useState("");
   const [openSizeTable, setOpenSizeTable] = useState(false);
+  const bodyData = JSON.parse(localStorage.getItem("bodyData"));
   const navigate = useNavigate();
 
   const changeNextImage = () => {
@@ -965,10 +971,83 @@ const ProductDetail = () => {
                     p: 4,
                   }}
                 >
+                  {bodyData && (
+                    <>
+                      <Typography
+                        textAlign={"center"}
+                        fontWeight={500}
+                        fontSize={"18px"}
+                        sx={{
+                          textTransform: "uppercase",
+                          marginBottom: "4px"
+                        }}
+                      >
+                        Kết quả đo của tôi
+                      </Typography>
+                      <Table>
+                        <TableHead sx={{ bgcolor: colors.primaryColor }}>
+                          <TableRow>
+                            <TableCell sx={{ color: "white" }}>
+                              Vòng cổ
+                            </TableCell>
+                            <TableCell sx={{ color: "white" }}>
+                              Rộng vai
+                            </TableCell>
+                            <TableCell sx={{ color: "white" }}>
+                              Dài lưng
+                            </TableCell>
+                            <TableCell sx={{ color: "white" }}>
+                              Vòng ngực
+                            </TableCell>
+                            <TableCell sx={{ color: "white" }}>
+                              Vòng eo
+                            </TableCell>
+                            <TableCell sx={{ color: "white" }}>
+                              Vòng hông
+                            </TableCell>
+                            <TableCell sx={{ color: "white" }}>
+                              Dài tay
+                            </TableCell>
+                            <TableCell sx={{ color: "white" }}>
+                              Dài chân
+                            </TableCell>
+                          </TableRow>
+                        </TableHead>
+
+                        <TableBody sx={{ bgcolor: "#E9ECFB" }}>
+                          <TableRow>
+                            <TableCell sx={{ color: colors.primaryColor }}>
+                              {bodyData.neck}
+                            </TableCell>
+                            <TableCell sx={{ color: colors.primaryColor }}>
+                              {bodyData.shoulder}
+                            </TableCell>
+                            <TableCell sx={{ color: colors.primaryColor }}>
+                              {bodyData.shoulderToCrotch}
+                            </TableCell>
+                            <TableCell sx={{ color: colors.primaryColor }}>
+                              {bodyData.chest}
+                            </TableCell>
+                            <TableCell sx={{ color: colors.primaryColor }}>
+                              {bodyData.waist}
+                            </TableCell>
+                            <TableCell sx={{ color: colors.primaryColor }}>
+                              {bodyData.hip}
+                            </TableCell>
+                            <TableCell sx={{ color: colors.primaryColor }}>
+                              {bodyData.arm}
+                            </TableCell>
+                            <TableCell sx={{ color: colors.primaryColor }}>
+                              {bodyData.leg}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </>
+                  )}
                   <img 
                     src={sizeImage} 
                     alt="Bảng size" 
-                    height={"100%"}
                     width={"100%"}
                     style={{
                       objectFit: "contain"

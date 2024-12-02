@@ -117,7 +117,7 @@ const BodyMeasureResult = ({ scalingFactor, restartStages }) => {
 
   useEffect(() => {
     if (isFinished) {
-      localStorage.setItem("bodyData", data);
+      localStorage.setItem("bodyData", JSON.stringify(data));
       sessionStorage.removeItem("shoulderLength");
       sessionStorage.removeItem("shoulderToCrotchHeight");
       sessionStorage.removeItem("neckFrontRadius");
@@ -134,7 +134,7 @@ const BodyMeasureResult = ({ scalingFactor, restartStages }) => {
       sessionStorage.removeItem("armLength");
       sessionStorage.removeItem("legLength");
     }
-  }, [isFinished])
+  }, [isFinished, data])
 
   return (
     <Box height={"100vh"} width={"100%"} position={"relative"}>
